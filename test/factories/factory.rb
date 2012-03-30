@@ -3,7 +3,7 @@ require 'factory_girl'
 # ==========
 # = USERS =
 # ==========
-Factory.define :user do |u| 
+FactoryGirl.define :user do |u| 
   u.sequence(:email) { |n| "testuser#{n}@test.com"} 
   u.password 'password' 
   u.password_confirmation 'password'
@@ -15,11 +15,11 @@ Factory.define :user do |u|
   u.agree_license true
 end
 
-Factory.define :admin, :parent => :user do |u|
+FactoryGirl.define :admin, :parent => :user do |u|
   u.admin true
 end
 
-Factory.define :unapproved_user, :parent => :user do |u|
+FactoryGirl.define :unapproved_user, :parent => :user do |u|
   u.approved false
 end
 
