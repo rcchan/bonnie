@@ -3,3 +3,10 @@ rvm:
   - 1.9.2
 # uncomment this line if your project needs to run something other than `rake`:
 script: bundle exec rake test
+
+notifications:
+  email:
+    recipients:
+#      - pophealth-list@mitre.org
+      - aquina@mitre.org
+    on_failure: change
