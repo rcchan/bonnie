@@ -7,7 +7,7 @@ class MeasuresController < ApplicationController
   add_breadcrumb 'measures', ""
   
   def index
-    @measures = Measure.all
+    @measures = current_user.measures
   end
 
   def show
@@ -15,6 +15,16 @@ class MeasuresController < ApplicationController
   end
 
   def import_resource
+  
+  end
+  
+  def publish
+    @measure.publish
+    render :show
+  end
+
+  def published
+    @measures = Measure.published.map(&:latest_version)
   end
 
   def new

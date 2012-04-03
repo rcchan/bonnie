@@ -16,10 +16,23 @@
 		<td>Description</td>
 		<td><%= @measure.description%></td>
 	  </tr>
+	  <tr>
+		<td>published?</td>
+		<td><%= @measure.published%></td>
+	  </tr>
+	  <tr>
+		<td>publish date</td>
+		<td><%= @measure.publish_date%></td>
+	  </tr>
+	  <tr>
+		<td>latest published version</td>
+		<td><%= @measure.version%></td>
+	  </tr>
 	</table>
 
 	<%= link_to 'Edit', edit_measure_path(@measure) %> |
 	<%= link_to 'Back', measures_path %>
+	<%= button_to 'publish', publish_measure_path(@measure)%>
 <% end -%>
   
 
