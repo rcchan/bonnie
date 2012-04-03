@@ -9,6 +9,7 @@ class Ability
       can :manage, :all
     elsif user.id
       can :read, :dashboard
+      can :manage, Measure
     end
 
   end

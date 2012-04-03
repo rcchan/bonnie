@@ -24,9 +24,21 @@
     <% unless request.xhr?%>
       <%= render :partial => 'shared/header' %>
     <% end %>
-    <%= yield %>
+	<div id="pageContent">
+	  <div id="providerReports">
+		  <%= yield :left_column %>
+	  </div><!-- end #providerReports --> 
+	  <div id="dashboardPeriod">
+	    <div class="measureDetailTable">
+		  <%= yield :right_column %>
+	    </div><!-- end #measureDetailTable -->
+	  </div><!-- end #dashboardPeriod -->
+	</div><!-- end #pageContent -->
   </div><!-- end #dashboardContainer -->
 
 </body>
 </html>
+
+
+
 

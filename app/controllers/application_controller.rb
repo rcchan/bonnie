@@ -1,7 +1,10 @@
+require 'breadcrumbs'
 class ApplicationController < ActionController::Base
+  include Breadcrumbs
   protect_from_forgery
   
   layout :layout_by_resource
+  add_breadcrumb "Home", :root_url
   
   # lock it down!
   check_authorization :unless => :devise_controller?

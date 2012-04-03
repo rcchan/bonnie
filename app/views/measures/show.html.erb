@@ -1,0 +1,29 @@
+
+
+<% content_for :right_column do %>
+	<p id="notice"><%= notice %></p>
+	
+	<table>
+	  <tr>
+		<td>NQF ID</td>
+		<td><%= @measure.nqf_id%></td>
+	  </tr>
+	  <tr>
+		<td>Title</td>
+		<td><%= @measure.title%></td>
+	  </tr>
+	  <tr>
+		<td>Description</td>
+		<td><%= @measure.description%></td>
+	  </tr>
+	</table>
+
+	<%= link_to 'Edit', edit_measure_path(@measure) %> |
+	<%= link_to 'Back', measures_path %>
+<% end -%>
+  
+
+
+
+
+

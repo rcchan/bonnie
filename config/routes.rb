@@ -1,5 +1,11 @@
 Bonnie::Application.routes.draw do
   
+  resources :measures do
+    member do
+      get 'import_resource'
+    end
+  end
+
   devise_for :users, :controllers => {:registrations => "registrations"}
   
   root :to => 'dashboard#index'
