@@ -12,16 +12,8 @@ class ActiveSupport::TestCase
 
 
   def dump_database
-    User.all.each {|x| x.destroy}
-    Provider.all.each { |pr| pr.destroy }
-    Record.all.each { |r| r.destroy }
-    Team.all.each { |t| t.destroy }
-    db = Mongoid::Config.master
-    db['measures'].remove({})
-    db['selected_measures'].remove({})
-    db['records'].remove({})
-    db['patient_cache'].remove({})
-    db['query_cache'].remove({})
+    User.delete_all
+    ValueSet.delete_all
   end
 
   def raw_post(action, body, parameters = nil, session = nil, flash = nil)
@@ -51,10 +43,6 @@ class ActiveSupport::TestCase
     else 
       false
     end
-  end
-  
-  def assert_false(value) 
-    assert !value
   end
   
   def assert_query_results_equal(factory_result, result)

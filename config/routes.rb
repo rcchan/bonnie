@@ -6,6 +6,8 @@ Bonnie::Application.routes.draw do
   
   match 'dashboard' => 'dashboard#index', :as => :welcome
   
+  
+  resources :value_sets
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
