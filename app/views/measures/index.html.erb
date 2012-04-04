@@ -1,13 +1,6 @@
 
 <% content_for :left_column do %>
-  <ul>
-	<li>
-      <%= link_to("My Measures", measures_path) %>
-	</li>
-	<li>
-      <%= link_to("Published Measures", published_measures_path) %>
-	</li>
-  </ul>
+  <%= render :partial => 'shared/left_navigation' %>
 <% end -%>
 
 <% content_for :right_column do %>

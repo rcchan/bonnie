@@ -9,8 +9,9 @@ class Ability
       can :manage, :all
     elsif user.id
       can :manage, ValueSet
-      can :read, :dashboard
       can :manage, Measure
+    else
+      # need to be able to view published measures???
     end
 
   end
