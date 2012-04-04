@@ -2,6 +2,14 @@ require 'factory_girl'
 
 FactoryGirl.define do
 
+  factory :value_set do |f|
+    f.category { ValueSet::Categories.sample }
+    f.oid "2.16.840.1.113883.3.464.0002.1138"
+    f.code_set "RxNorm"
+    f.concept "Encounters ALL inpatient and ambulatory"
+    f.codes { %w(99201 99202 99203 99204 99205) }
+  end
+
   # ==========
   # = USERS =
   # ==========

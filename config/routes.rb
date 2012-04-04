@@ -13,5 +13,7 @@ Bonnie::Application.routes.draw do
   devise_for :users, :controllers => {:registrations => "registrations"}
   
   root :to => 'measures#index'
+  
+  resources :value_sets
 
  end

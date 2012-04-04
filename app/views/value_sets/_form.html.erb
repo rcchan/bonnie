@@ -1,0 +1,19 @@
+<%= form_for @value_set, html: {id: "value_set_form"} do |f| %>
+<fieldset name="Value Set">
+  <legend>Value Set</legend>
+  <p><%= f.label :concept %><%= f.text_field :concept %></p>
+  <p><%= f.label :category %><%= f.select :category, ValueSet::Categories %></p>
+  <p><%= f.label :description %><%= f.text_field :description %></p>
+  <p><%= f.label :oid %><%= f.text_field :oid %></p>
+  <p><%= f.label :code_set %><%= f.text_field :code_set%></p>
+</fieldset>
+<fieldset name="Value Set Codes" id="codes">
+  <legend>Codes</legend>
+  <% @value_set.codes.each do |code| %>
+    <p><%= f.text_field "codes[]", name: "value_set[codes][]", value: code, id: "value_set_#{Time.now.to_i}", class: "codeField" %></p>
+  <% end %>
+
+</fieldset>
+  <%= link_to "Add Code", url_for, id: "addCode" %>
+<%= submit_tag "Save"%>
+<% end %>

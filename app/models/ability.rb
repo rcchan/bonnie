@@ -8,6 +8,7 @@ class Ability
     if user.admin?
       can :manage, :all
     elsif user.id
+      can :manage, ValueSet
       can :read, :dashboard
       can :manage, Measure
     end
