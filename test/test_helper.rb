@@ -1,16 +1,30 @@
-require 'cover_me'
-ENV["RAILS_ENV"] = "test"
-require File.expand_path('../../config/environment', __FILE__)
-require 'rails/test_help'
+require 'rubygems'
+require 'spork'
+#uncomment the following line to use spork with the debugger
+#require 'spork/ext/ruby-debug'
 
-require 'factory_girl'
-require 'mocha'
+Spork.prefork do
+  # Loading more in this block will cause your tests to run faster. However,
+  # if you change any configuration or code from libraries loaded here, you'll
+  # need to restart spork for it take effect.
+  require 'cover_me'
+  ENV["RAILS_ENV"] = "test"
+  require File.expand_path('../../config/environment', __FILE__)
+  require 'rails/test_help'
 
-FactoryGirl.find_definitions
+  require 'factory_girl'
+  require 'mocha'
+
+  # you will have to restart guard when you modify factories
+  # if you don't like this, put this line under #each_run()
+  FactoryGirl.find_definitions
+end
+
+Spork.each_run do
+  # This code will be run each time you run your specs.
+end
 
 class ActiveSupport::TestCase
-
-
   def dump_database
     User.delete_all
     ValueSet.delete_all
@@ -52,7 +66,4 @@ class ActiveSupport::TestCase
     end
     
   end
-  
-  
 end
-
