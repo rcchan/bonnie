@@ -16,3 +16,4 @@
 
 # ignore coverage
 coverage.data
+coverage

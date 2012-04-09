@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
+gem 'hqmf-parser', :git => 'https://github.com/pophealth/hqmf-parser.git', :branch => 'develop'
+
 gem 'rails', '3.2.2'
 gem 'jquery-rails'
-
-gem 'pry'
 
 gem 'devise'
 gem 'foreman'
@@ -21,6 +21,7 @@ gem 'simple_form'
 gem 'spreadsheet', '~> 0.6.8'
 gem 'google-spreadsheet-ruby', '~> 0.1.8'
 gem 'roo', '~> 1.10.1'
+gem 'pry'
 
 group :test, :develop do
   # Pretty printed test output
