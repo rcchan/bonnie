@@ -4,9 +4,9 @@ class ValueSet
   field :concept, type: String
   field :oid, type: String
   field :code_set, type: String
-  field :codes, type: Array, default: []
   field :category, type: String
   field :description, type: String
+  embeds_many :codes, class_name: "ValueSet"
   
   Categories = %w(
     encounter
