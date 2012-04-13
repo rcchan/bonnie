@@ -8,7 +8,8 @@ namespace :import do
       raise "USAGE: rake import:xls file=foo"
     else
       vsi = ValueSetImporter.new()
-      vsi.import(file, {:sheet => 1, :columns => 2})
+      rows_imported = vsi.import(file, {:sheet => 1, :columns => 2})
+      puts "Imported #{rows_imported} value #{"set".pluralize(rows_imported)} from #{file}."
     end
   end
 end

@@ -32,9 +32,17 @@ class ValueSetImporter
   def import(file, options)
     sheet_array = file_to_array(file, options)
     tree = group_tree(sheet_array)
+
+    count = 0
     tree.each do |doc|
-      doc.save!
+      count += 1
+      begin
+        doc.save!
+      rescue
+        binding.pry
+      end
     end
+    count
   end
   
   # take an excel matrix array and turn it into an array of db models
@@ -46,17 +54,24 @@ class ValueSetImporter
 
     value_sets = []   # for manipulation before saving to mongodb
     array_of_hashes.each do |row|
+      # Value Set Developer
+      # Value Set OID
+      # Value Set Name
+      # QDM Category
+      # Code System
+      # Code System Version
+      # Code
+      # Descriptor
       vs = ::ValueSet.new(
-        :organization => row["measure developer and/or codelist developer"],
-        :oid => row["standard OID"],
-        :concept => row["standard concept"],
-        :category => row["standard category"].parameterize.gsub('-','_'),
-        :code_set => row["standard taxonomy"],
-        :version => row["standard taxonomy version"],
-        :code => row["code"],
-        :description => row["descriptor"]
+        :organization => row["Value Set Developer"],
+        :oid => row["Value Set OID"].strip,
+        :concept => row["Value Set Name"],
+        :category => row["QDM Category"].parameterize.gsub('-','_'),
+        :code_set => row["Code System"],
+        :version => row["Code System Versionn"],
+        :code => row["Code"],
+        :description => row["Descriptor"]
       )
-      
       value_sets << vs
     end
     value_sets
@@ -67,13 +82,18 @@ class ValueSetImporter
     
     # find all parents with GROUPING attribute
     parent_groups = mongo_objects.select {|o| o[:code_set] == "GROUPING" }
+
     parent_groups.each do |parent|
       children = mongo_objects.select {|o| o[:oid] == parent[:code]}
+      if children.count == 0
+        # parents markeded as GROUPING with no children in spreadsheet
+        break
+      end
       first_child = children.first
       code_sets = []
       tmp_hash = {}
       tmp_hash[:set] = first_child[:code_set]
-      tmp_hash[:version] = first_child[:version]
+      tmp_hash[:version] = first_child[:version] unless first_child[:version].nil?
       tmp_hash[:codes] = children.collect {|c| c[:code] }
       code_sets << tmp_hash
       parent[:code_sets] = code_sets

@@ -8,6 +8,7 @@ class ValueSet
   field :description, type: String
   embeds_many :codes, class_name: "ValueSet"
   
+  # diagnosis_condition_problem
   Categories = %w(
     encounter
     procedure
@@ -16,6 +17,7 @@ class ValueSet
     laboratory_test
     physical_exam
     medication
+    condition_diagnosis_problem
     diagnosis_condition_problem
     symptom
     individual_characteristic
@@ -23,6 +25,9 @@ class ValueSet
     care_goal
     diagnostic_study
     substance
+    attribute
+    intervention
+    result
   )
   
   set_callback(:save, :before) do |document|

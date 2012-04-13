@@ -9,7 +9,7 @@ class ValueSetImporterTest < ActiveSupport::TestCase
   end
   
   test 'it reads an excel file' do
-    file = "test/fixtures/value_set_import_test.xlsx"
+    file = "test/fixtures/measure-defs/value_sets/NQF_0043.xls"
     vsi = ValueSetImporter.new()
     # change to second sheet in workbook
     sheet = vsi.file_to_array(file, {:sheet => 1, :columns => 2})
@@ -17,7 +17,7 @@ class ValueSetImporterTest < ActiveSupport::TestCase
   end
   
   test 'it imports a single excel file' do
-    file = "test/fixtures/NQF0043.xls"
+    file = "test/fixtures/measure-defs/value_sets/NQF_0043.xls"
   
     old_measures = ValueSet.all.entries
     
@@ -34,9 +34,8 @@ class ValueSetImporterTest < ActiveSupport::TestCase
     vsi = ValueSetImporter.new()
     
     sample = [
-      ["measure developer and/or codelist developer", "standard OID", "standard concept",
-        "standard category", "standard taxonomy", "standard taxonomy version", "code",
-        "descriptor"],
+      [ "Value Set Developer", "Value Set OID", "Value Set Name",
+        "QDM Category", "Code System", "Code System Version", "Code", "Descriptor"],
       ["National Committee for Quality Assurance", "2.16.840.1.113883.3.464.0001.14", "birth
         date", "Individual characteristic", "HL7", "3.0", "00110", "Date/Time of birth (TS)"],
       ["National Committee for Quality Assurance", "2.16.840.1.113883.3.464.0001.48", "encounter
