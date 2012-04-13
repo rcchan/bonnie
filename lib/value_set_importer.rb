@@ -24,8 +24,14 @@ class ValueSetImporter
       raise "File does not end in .xls or .xlsx"
     end
     book.default_sheet=book.sheets[options[:sheet]]
-
-    book.to_matrix.to_a
+    
+    # catch double byte encoding problems in spreadsheet files
+    # Encoding::InvalidByteSequenceError: "\x9E\xDE" on UTF-16LE
+    begin
+      book.to_matrix.to_a
+    rescue Encoding::InvalidByteSequenceError => e
+      raise "Spreadsheet encoding problem: #{e}"
+    end
   end
   
   # import an excel matrix array into mongo
