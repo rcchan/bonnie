@@ -11,3 +11,8 @@ notifications:
       - bonnie-dev@googlegroups.com
       - aquina@mitre.org
     on_failure: change
+
+branches:
+  only:
+    - master
+    - develop
