@@ -16,28 +16,24 @@ class ValueSetImporter
     }
     options = defaults.merge(options)
     
-    book = Excelx.new(file_path)
+    if !(file_path =~ /xls$/).nil?
+      book = Excel.new(file_path)
+    elsif !(file_path =~ /xlsx$/).nil?
+      book = Excelx.new(file_path)
+    else
+      raise "File does not end in .xls or .xlsx"
+    end
     book.default_sheet=book.sheets[options[:sheet]]
 
     book.to_matrix.to_a
   end
   
   # import an excel matrix array into mongo
-  def import(sheet_array)
-    headers = sheet_array.pop
-    
-    # map columns from the spreadsheet to rails model
-    sheet_array.each do |row|
-      vs = ValueSet.new(
-        :organization => row[0],
-        :oid => row[1],
-        :concept => row[2],
-        :category => row[3],
-        :code_set => row[4],
-        :codes => [],
-        :version => row[5],
-        :description => row[6]
-      )
+  def import(file, options)
+    sheet_array = file_to_array(file, options)
+    tree = group_tree(sheet_array)
+    tree.each do |doc|
+      doc.save!
     end
   end
   
@@ -50,7 +46,7 @@ class ValueSetImporter
 
     value_sets = []   # for manipulation before saving to mongodb
     array_of_hashes.each do |row|
-      vs = ValueSet.new(
+      vs = ::ValueSet.new(
         :organization => row["measure developer and/or codelist developer"],
         :oid => row["standard OID"],
         :concept => row["standard concept"],
@@ -63,7 +59,6 @@ class ValueSetImporter
       
       value_sets << vs
     end
-    
     value_sets
   end
   

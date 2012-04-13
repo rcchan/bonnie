@@ -1,12 +1,14 @@
-require 'measure_importer'
+require 'value_set_importer'
 
 namespace :import do
   desc 'import xls'
-  task :xls, :file do |file|
-    if !args.file
-      raise "please specify an excel file."
+  task :xls, [:file] => :environment do |task, args|
+    file = ENV['file']
+    if !file || file.blank?
+      raise "USAGE: rake import:xls file=foo"
+    else
+      vsi = ValueSetImporter.new()
+      vsi.import(file, {:sheet => 1, :columns => 2})
     end
-    measure_importer = MeasureImporter.new(args.file)
-    measure_importer.run
   end
 end
