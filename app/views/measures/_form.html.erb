@@ -1,6 +1,30 @@
-<%= simple_form_for @measure do |f| %>
-  <%= f.input :nqf_id, :label => 'NQF ID' %>
-  <%= f.input :title, :label => 'Title' %>
-  <%= f.input :description, :label => 'description' %>
-  <%= f.submit "Continue" %>
+<%= simple_form_for(@measure, :html => {:method => submit_method, :multipart => true}) do |f| %>
+  <table>
+    <tbody>
+      <tr>
+        <td><%= label_tag :endorser_label, "Endorser: " %></td>
+        <td>
+          <%= text_field_tag :endorser, "NQF" %>
+          <%= label_tag :measure_id_label, "ID: " %>
+          <%= text_field_tag :measure_id %>
+        </td>
+      </tr>
+      <% ["title", "description", "category", "steward"].each do |field| %>
+        <tr>
+          <td><%= label_tag "#{field}_label", "#{field.capitalize}: " %></td>
+          <td><%= text_field_tag "#{field}" %></td>
+        </tr>
+      <% end %>
+      <tr>
+        <td><%= label_tag :value_sets_label, "Value Sets:" %></td>
+        <td><%= file_field_tag :value_sets %></td>
+      </tr>
+      <tr>
+        <td><%= label_tag :hqmf_label, "HQMF File:" %></td>
+        <td><%= file_field_tag :hqmf %></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <%= f.submit submit_text %>
 <% end %>
