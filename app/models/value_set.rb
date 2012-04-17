@@ -1,12 +1,12 @@
 class ValueSet
   include Mongoid::Document
   
+  field :key, type: String
   field :concept, type: String
   field :oid, type: String
-  field :code_set, type: String
   field :category, type: String
   field :description, type: String
-  embeds_many :codes, class_name: "ValueSet"
+  embeds_many :code_sets
   
   # diagnosis_condition_problem
   Categories = %w(

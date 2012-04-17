@@ -12,23 +12,23 @@ class ValueSetImporterTest < ActiveSupport::TestCase
     file = "test/fixtures/measure-defs/value_sets/NQF_0043.xls"
     vsi = ValueSetImporter.new()
     # change to second sheet in workbook
-    sheet = vsi.file_to_array(file, {:sheet => 1, :columns => 2})
+    sheet = vsi.send(:file_to_array, file, {:sheet => 1, :columns => 2})
     sheet.must_respond_to(:each)
   end
   
-  test 'it imports a single excel file' do
-    file = "test/fixtures/measure-defs/value_sets/NQF_0043.xls"
-  
-    old_measures = ValueSet.all.entries
-    
-    vsi = ValueSetImporter.new()
-    vsi.import(file, {:sheet => 1, :columns => 2})
-    
-    new_measures = ValueSet.all.entries
-    
-    # after import, rows in db should be different  
-    assert_equal(false, old_measures == new_measures)
-  end
+  # test 'it imports a single excel file' do
+  #   file = "test/fixtures/measure-defs/value_sets/NQF_0043.xls"
+  # 
+  #   old_measures = ValueSet.all.entries
+  #   
+  #   vsi = ValueSetImporter.new()
+  #   vsi.import(file, {:sheet => 1, :columns => 2})
+  #   
+  #   new_measures = ValueSet.all.entries
+  #   
+  #   # after import, rows in db should be different  
+  #   assert_equal(false, old_measures == new_measures)
+  # end
   
   test 'it creates a valueset hierarchy' do
     vsi = ValueSetImporter.new()
@@ -46,13 +46,16 @@ class ValueSetImporterTest < ActiveSupport::TestCase
         "2.16.840.1.113883.3.464.0001.49", "encounter outpatient", "Encounter", "GROUPING", "n/a",
         "2.16.840.1.113883.3.464.0001.48", '"encounter outpatient" CPT code list']
     ]
-        
-    structure = vsi.group_tree(sample)
-    group_parent = structure.select {|vs| vs[:oid] == "2.16.840.1.113883.3.464.0001.49"}
-    group_parent.first[:code_sets].first[:codes].length.must_equal 2
-  
-    pulled_up_parent = structure.select {|vs| vs[:oid] == "2.16.840.1.113883.3.464.0001.14"}
-    pulled_up_parent.first[:code_sets].first[:codes].length.must_equal 1
+    
+    structure = vsi.cells_to_hashs_by_oid(sample)
+    
+    structure.keys.length.must_equal 3
+    
+    assert structure["2.16.840.1.113883.3.464.0001.14"]
+    assert structure["2.16.840.1.113883.3.464.0001.48"]
+    assert structure["2.16.840.1.113883.3.464.0001.49"]
+    
+    
   end
   
 end

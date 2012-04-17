@@ -6,7 +6,105 @@ require 'iconv'
 
 class ValueSetImporter
   
+  GROUP_CODE_SET = "GROUPING"
+  
   def initialize()
+  end
+  
+  # import an excel matrix array into mongo
+  def import(file, options)
+    sheet_array = file_to_array(file, options)
+    by_oid_ungrouped = cells_to_hashs_by_oid(sheet_array)
+    final = collapse_groups(by_oid_ungrouped)
+    
+  end
+  
+  def collapse_groups(by_oid_ungrouped)
+    
+    final = []
+    
+    # select the grouped code sets and fill in the children... also remove the children that are a
+    # member of a group.  We remove the children so that we can create parent groups for the orphans
+    (by_oid_ungrouped.select {|key,value| value[:code_set] == GROUP_CODE_SET}).each do |key, value|
+      # remove the group so that it is not in the orphan list
+      by_oid_ungrouped.delete(value[:oid])
+      codes = []
+      value[:codes].each do |child_oid|
+        codes << by_oid_ungrouped.delete(child_oid)
+        # for hierarchies we need to probably have codes be a hash that we select from if we don't find the
+        # element in by_oid_ungrouped we may need to look for it in final
+      end
+      value[:codes] = codes
+      final << value
+    end
+    
+    # fill out the orphans
+    by_oid_ungrouped.each do |key, orphan|
+      final << adopt_orphan(orphan)
+    end
+    
+  end
+  
+  def adopt_orphan(orphan)
+    parent = orphan.dup
+    parent[:codes] = [orphan]
+    parent
+  end
+  
+  # take an excel matrix array and turn it into an array of db models
+  def cells_to_hashs_by_oid(array)
+    a = Array.new(array)                  # new variable for reentrant
+    headers = a.shift.map {|i| i.to_s }   # because of this shift
+    string_data = a.map {|row| row.map {|cell| cell.to_s } }
+    array_of_hashes = string_data.map {|row| Hash[*headers.zip(row).flatten] }
+
+    by_oid = {}
+    array_of_hashes.each do |row|
+      entry = convert_row(row)
+      
+      existing = by_oid[entry[:oid]]
+      if (existing)
+        existing[:codes].concat(entry[:codes])
+      else
+        by_oid[entry[:oid]] = entry
+      end
+    end
+    
+    by_oid
+  end
+  
+  private
+  
+  def convert_row(row)
+    # Value Set Developer
+    # Value Set OID
+    # Value Set Name
+    # QDM Category
+    # Code System
+    # Code System Version
+    # Code
+    # Descriptor
+    {
+      :organization => row["Value Set Developer"],
+      :oid => row["Value Set OID"].strip,
+      :concept => row["Value Set Name"],
+      :category => row["QDM Category"].parameterize.gsub('-','_'),
+      :code_set => row["Code System"],
+      :version => row["Code System Versionn"],
+      :codes => extract_code(row["Code"], row["Code System"]),
+      :description => row["Descriptor"]
+    }
+  end
+  
+  def extract_code(code, set)
+    
+    code.strip!
+    if set=='CPT' && code.include?('-')
+      eval(code.strip.gsub('-','..')).to_a.collect { |i| i.to_s }
+    else
+      [code]
+    end
+    
   end
   
   def file_to_array(file_path, options)
@@ -34,95 +132,5 @@ class ValueSetImporter
     end
   end
   
-  # import an excel matrix array into mongo
-  def import(file, options)
-    sheet_array = file_to_array(file, options)
-    tree = group_tree(sheet_array)
-
-    count = 0
-    tree.each do |doc|
-      count += 1
-      begin
-        doc.save!
-      rescue
-        binding.pry
-      end
-    end
-    count
-  end
-  
-  # take an excel matrix array and turn it into an array of db models
-  def cells_to_docs(array)
-    a = Array.new(array)                  # new variable for reentrant
-    headers = a.shift.map {|i| i.to_s }   # because of this shift
-    string_data = a.map {|row| row.map {|cell| cell.to_s } }
-    array_of_hashes = string_data.map {|row| Hash[*headers.zip(row).flatten] }
-
-    value_sets = []   # for manipulation before saving to mongodb
-    array_of_hashes.each do |row|
-      # Value Set Developer
-      # Value Set OID
-      # Value Set Name
-      # QDM Category
-      # Code System
-      # Code System Version
-      # Code
-      # Descriptor
-      vs = ::ValueSet.new(
-        :organization => row["Value Set Developer"],
-        :oid => row["Value Set OID"].strip,
-        :concept => row["Value Set Name"],
-        :category => row["QDM Category"].parameterize.gsub('-','_'),
-        :code_set => row["Code System"],
-        :version => row["Code System Versionn"],
-        :code => row["Code"],
-        :description => row["Descriptor"]
-      )
-      value_sets << vs
-    end
-    value_sets
-  end
-  
-  def group_tree(array)
-    mongo_objects = cells_to_docs(array)
-    
-    # find all parents with GROUPING attribute
-    parent_groups = mongo_objects.select {|o| o[:code_set] == "GROUPING" }
-
-    parent_groups.each do |parent|
-      children = mongo_objects.select {|o| o[:oid] == parent[:code]}
-      if children.count == 0
-        # parents markeded as GROUPING with no children in spreadsheet
-        break
-      end
-      first_child = children.first
-      code_sets = []
-      tmp_hash = {}
-      tmp_hash[:set] = first_child[:code_set]
-      tmp_hash[:version] = first_child[:version] unless first_child[:version].nil?
-      tmp_hash[:codes] = children.collect {|c| c[:code] }
-      code_sets << tmp_hash
-      parent[:code_sets] = code_sets
-    end
-    
-    # Pull up all the unmarked groupings.  The algorithm for this is:
-    # Find all the unique OIDs in OID column from spreadsheet.  But keep the object ref.
-    # Search all codes column for each OID.
-    # All that do not have a match, pull up as groupings.
-    # Pull up means create a grouping parent like parent_groups above with similar attributes.
-    unique_oids = mongo_objects.uniq(&:oid)
-    pull_ups = unique_oids.select {|o| !o[:code].in?(unique_oids.collect(&:oid)) }
-    pull_ups.reject! {|pu| pu[:oid].in?(parent_groups.collect(&:code)) }
-    pull_ups.each do |pu|      # pull up attributes
-      pu[:code_sets] = [
-        {:set => pu[:code_set], :version => pu[:version], :codes => [ pu[:code] ] }
-      ]
-      pu.remove_attribute :version
-      pu.remove_attribute :code_set
-      pu.remove_attribute :code
-    end
-    
-    tree = pull_ups + parent_groups
-  end
   
 end

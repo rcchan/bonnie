@@ -3,9 +3,9 @@ require 'value_set_importer'
 namespace :import do
   desc 'import xls'
   task :xls, [:file] => :environment do |task, args|
-    file = ENV['file']
+    file = args.file
     if !file || file.blank?
-      raise "USAGE: rake import:xls file=foo"
+      raise "USAGE: rake import:xls[file_path]"
     else
       vsi = ValueSetImporter.new()
       rows_imported = vsi.import(file, {:sheet => 1, :columns => 2})

@@ -11,10 +11,10 @@ class ValueSetTest < ActiveSupport::TestCase
     end
   end
   
-  def test_create_valid
-    assert_nothing_raised do
-      ValueSet.create!(category: 'encounter', oid: "234.21341.235823.234.13241")
-    end
-    
-  end
+  # def test_create_valid
+  #   assert_nothing_raised do
+  #     ValueSet.create!(category: 'encounter', oid: "234.21341.235823.234.13241")
+  #   end
+  #   
+  # end
 end
