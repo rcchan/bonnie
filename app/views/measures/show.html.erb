@@ -1,42 +1,52 @@
-
-
 <% content_for :right_column do %>
 	<p id="notice"><%= notice %></p>
 	
-	<table>
-	  <tr>
-		<td>NQF ID</td>
-		<td><%= @measure.nqf_id%></td>
-	  </tr>
-	  <tr>
-		<td>Title</td>
-		<td><%= @measure.title%></td>
-	  </tr>
-	  <tr>
-		<td>Description</td>
-		<td><%= @measure.description%></td>
-	  </tr>
-	  <tr>
-		<td>published?</td>
-		<td><%= @measure.published%></td>
-	  </tr>
-	  <tr>
-		<td>publish date</td>
-		<td><%= @measure.publish_date%></td>
-	  </tr>
-	  <tr>
-		<td>latest published version</td>
-		<td><%= @measure.version%></td>
-	  </tr>
-	</table>
+	<div class="measureDetailTable" id="measureDetailTitle">
+  	<dl>
+      <dt style="line-height:2.5em">Measure Name:</dt>
+      <dd><h1 id="measureTitleText"><%= "#{@measure.endorser}#{@measure.measure_id} #{@measure.title}" %></h1></dd>
+    </dl>
+    <dl>
+      <dt>Reporting Period:</dt>
+      <dd>
+        <span id="measurementPeriod"><% @measure.measure_period %></span>
+      </dd>
+    </dl>
+    <dl>
+      <dt>Description:</dt>
+       <dd>
+         <span id="measureDescText"><%= @measure.description %></span>
+       </dd>
+    </dl>
+    <% if @measure.published %>
+      <dl>
+  		  <dt>Version</dt>
+    		<dd><%= "#{@measure.version} as of #{@measure.publish_date}" %></dd>
+  	  </dl>
+    <% end %>
+  </div>
+	
+	<div id="measureEditContainer">
+    <div id="eligibilityMeasures">
+      <h3>denominator</h3>
+      <div class="measureBox">
+        <div id="eligibilityMeasureItems"></div>
+      </div>
+    </div>
+    
+    <div id="outcomeMeasures">
+      <h3>numerator</h3>
+      <div class="measureBox">
+        <div id="outcomeExclusionMarker" class="exclusionTab" style="display:none">
+          Exclusions
+        </div>
+        <div id="outcomeMeasureItems"></div>
+        <div id="xexclusionMeasureItems"></div>
+      </div>
+    </div>
+  </div>
 
+  <%= link_to 'Publish', publish_measure_path(@measure) %> |
 	<%= link_to 'Edit', edit_measure_path(@measure) %> |
 	<%= link_to 'Back', measures_path %>
-	<%= button_to 'publish', publish_measure_path(@measure)%>
 <% end -%>
-  
-
-
-
-
-

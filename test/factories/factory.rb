@@ -36,7 +36,8 @@ FactoryGirl.define do
   end
 
   factory :measure do |m| 
-    m.sequence(:nqf_id) { |n| "00#{n}" }
+    m.sequence(:endorser) { |n| "NQF" }
+    m.sequence(:measure_id) { |n| "00#{n}" }
     m.sequence(:title)  { |n| "Measure #{n}" }
     m.sequence(:description)  { |n| "This is the description for measure #{n}" }
   end

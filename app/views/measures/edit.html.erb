@@ -1,12 +1,9 @@
-
 <% content_for :right_column do %>
-
 	<h1>Editing measure</h1>
 
-	<%= render 'form' %>
+	<%= render partial: 'form', locals: { submit_method: 'put', submit_text: 'Save' } %>
 
 	<%= link_to 'Show', @measure %> |
 	<%= link_to 'Back', measures_path %>
-
 <% end -%>
 

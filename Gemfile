@@ -15,13 +15,17 @@ gem "mongoid"
 gem "bson"
 gem 'bson_ext'
 
+gem 'hqmf2js', :git => 'https://github.com/pophealth/hqmf2js.git', :branch => 'bonnie'
+
 gem 'simple_form'
 
 # below are gems required for excel spreadsheet processing
 gem 'spreadsheet', '~> 0.6.8'
 gem 'google-spreadsheet-ruby', '~> 0.1.8'
 gem 'roo', '~> 1.10.1'
+
 gem 'pry'
+gem 'pry-nav'
 
 group :test, :develop do
   # Pretty printed test output

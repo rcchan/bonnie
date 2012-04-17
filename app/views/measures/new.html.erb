@@ -1,8 +1,7 @@
 <% content_for :right_column do %>
 	<h1>New measure</h1>
 
-	<%= render 'form' %>
+	<%= render partial: 'form', locals: { submit_method: 'post', submit_text: 'Create' } %>
 
 	<%= link_to 'Back', measures_path %>
 <% end -%>
-
