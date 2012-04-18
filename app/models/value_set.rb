@@ -1,4 +1,4 @@
-class ValueSet
+class ValueSet < CodeSet
   include Mongoid::Document
   
   field :key, type: String
@@ -6,7 +6,9 @@ class ValueSet
   field :oid, type: String
   field :category, type: String
   field :description, type: String
-  embeds_many :code_sets
+  field :organization, type: String
+  field :version, type: String
+  embeds_many :code_sets, class_name: "CodeSet", inverse_of: :parent
   
   # diagnosis_condition_problem
   Categories = %w(
@@ -30,10 +32,7 @@ class ValueSet
     result
   )
   
-  set_callback(:save, :before) do |document|
-    document.codes.reject! { |code| code.blank? }
-  end
-  
   validates_inclusion_of :category, in: Categories
   validates_format_of :oid, with: /^[\d*\.\d]+$/
+  
 end
