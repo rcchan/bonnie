@@ -1,6 +1,13 @@
 GIT
+  remote: https://github.com/hquery/patientapi.git
+  revision: a8d7b882e94dd4cc4ea1b1fac4c27aef3142daa8
+  branch: master
+  specs:
+    hquery-patient-api (0.1.0)
+
+GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: bfed86fea97ccdbf587e9eef3d3449982f5dd9c7
+  revision: eb83a713a2aade4852ac00369dd8df2898361410
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -231,6 +238,7 @@ DEPENDENCIES
   guard-spork (~> 0.5.2)
   hqmf-parser!
   hqmf2js!
+  hquery-patient-api!
   jquery-rails
   minitest
   mocha
