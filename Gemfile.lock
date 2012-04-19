@@ -1,13 +1,6 @@
 GIT
-  remote: https://github.com/hquery/patientapi.git
-  revision: a8d7b882e94dd4cc4ea1b1fac4c27aef3142daa8
-  branch: master
-  specs:
-    hquery-patient-api (0.1.0)
-
-GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: eb83a713a2aade4852ac00369dd8df2898361410
+  revision: 11856bdd0e2396170e9bde7091a8b86b2575867e
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -18,10 +11,18 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 1aa499bcd4ce4e16b28c44e4d760079d28dd7f67
-  branch: initial_js
+  revision: 875f7c34e741136cd480b5a25857e121af69ad58
+  branch: bonnie
   specs:
     hqmf2js (0.1.0)
+      nokogiri (~> 1.5.2)
+
+GIT
+  remote: https://github.com/pophealth/patientapi.git
+  revision: 6e08950fc71bc956a4b2f386d6c10f2ae2aae8ab
+  branch: bonnie
+  specs:
+    hquery-patient-api (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -93,8 +94,8 @@ GEM
     ffi (1.0.11)
     foreman (0.42.0)
       thor (>= 0.13.6)
-    google-spreadsheet-ruby (0.2.1)
-      nokogiri (>= 1.4.4, != 1.5.2, != 1.5.1)
+    google-spreadsheet-ruby (0.1.8)
+      nokogiri (>= 1.4.3.1)
       oauth (>= 0.3.6)
       oauth2 (>= 0.5.0)
     guard (1.0.1)
@@ -134,7 +135,7 @@ GEM
       tzinfo (~> 0.3.22)
     multi_json (1.3.2)
     multipart-post (1.1.5)
-    nokogiri (1.5.0)
+    nokogiri (1.5.2)
     oauth (0.4.5)
     oauth2 (0.6.1)
       faraday (~> 0.7)
