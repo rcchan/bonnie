@@ -10,10 +10,16 @@ FactoryGirl.define do
     f.codes { %w(99201 99202 99203 99204 99205) }
   end
 
+  factory :measure do |m| 
+    m.sequence(:endorser) { |n| "NQF" }
+    m.sequence(:measure_id) { |n| "00#{n}" }
+    m.sequence(:title)  { |n| "Measure #{n}" }
+    m.sequence(:description)  { |n| "This is the description for measure #{n}" }
+  end
+
   # ==========
   # = USERS =
   # ==========
-  
 
   factory :user do |u| 
     u.sequence(:email) { |n| "testuser#{n}@test.com"} 
@@ -33,15 +39,7 @@ FactoryGirl.define do
 
   factory :unapproved_user, :parent => :user do |u|
     u.approved false
-  end
-
-  factory :measure do |m| 
-    m.sequence(:endorser) { |n| "NQF" }
-    m.sequence(:measure_id) { |n| "00#{n}" }
-    m.sequence(:title)  { |n| "Measure #{n}" }
-    m.sequence(:description)  { |n| "This is the description for measure #{n}" }
-  end
-  
+  end  
 end
 
 

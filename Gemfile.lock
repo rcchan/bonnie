@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: bfed86fea97ccdbf587e9eef3d3449982f5dd9c7
+  revision: 1c3f5d1f8b11b302ed33732a12a7446cef0aeb9b
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -85,7 +85,7 @@ GEM
       multipart-post (~> 1.1)
       rack (~> 1.1)
     ffi (1.0.11)
-    foreman (0.41.0)
+    foreman (0.42.0)
       thor (>= 0.13.6)
     google-spreadsheet-ruby (0.1.8)
       nokogiri (>= 1.4.3.1)
@@ -118,7 +118,7 @@ GEM
     method_source (0.7.1)
     mime-types (1.18)
     minitest (2.12.1)
-    mocha (0.10.5)
+    mocha (0.11.0)
       metaclass (~> 0.0.1)
     mongo (1.6.2)
       bson (~> 1.6.2)
