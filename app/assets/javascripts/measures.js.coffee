@@ -41,3 +41,8 @@ renderMeasureJson = (data) ->
     addParamItems(data.exclusions, $("#exclusionMeasureItems"))
     $("#exclusionMeasureItems").hide()
     $("#exclusionPanel").show()
+
+# jquery-ui tabs
+$ ->
+  $('#tabs').tabs();
+  $('#tabs').tabs("select", 1);
