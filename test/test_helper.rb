@@ -26,8 +26,9 @@ end
 
 class ActiveSupport::TestCase
   def dump_database
-    User.delete_all
-    ValueSet.delete_all
+    Mongoid::Config.master.collections.each do |collection|
+      collection.drop unless collection.name.include?('system.')
+    end
   end
 
   def raw_post(action, body, parameters = nil, session = nil, flash = nil)
