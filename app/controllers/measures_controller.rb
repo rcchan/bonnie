@@ -17,9 +17,7 @@ class MeasuresController < ApplicationController
   def show
     @measure = Measure.find(params[:id])
     
-    #hqmf_contents = File.open(params[:hqmf].tempfile).read
-    #converter = Generator::JS.new(hqmf_contents)
-    #converted_hqmf = "#{converter.js_for_data_criteria}\n#{converter.js_for('IPP')}\n#{converter.js_for('DENOM')}\n#{converter.js_for('NUMER')}\n#{converter.js_for('DENEXCEP')}"
+    #@measure.stage_one_parameter_json
   end
 
   def import_resource
@@ -47,23 +45,23 @@ class MeasuresController < ApplicationController
     measure = Measure.new
     
     measure.user = current_user
-    measure.endorser = params[:endorser]
-    measure.measure_id = params[:measure_id]
-    measure.title = params[:title]
-    measure.description = params[:description]
-    measure.category = params[:category]
-    measure.steward = params[:steward]
+    measure.endorser = params[:measure][:endorser]
+    measure.measure_id = params[:measure][:measure_id]
+    measure.title = params[:measure][:title]
+    measure.description = params[:measure][:description]
+    measure.category = params[:measure][:category]
+    measure.steward = params[:measure][:steward]
     
-    value_sets = params[:value_sets]
+    value_sets = params[:measure][:value_sets]
     
-    if params[:hqmf]
-      #hqmf = HQMF::Parser.parse(File.open(params[:hqmf]).read, HQMF::Parser::HQMF_VERSION_1).
-      hqmf = HQMF1::Document.new(File.open(params[:hqmf]).read)
+    if params[:measure][:hqmf]
+      hqmf_contents = Nokogiri::XML(params[:measure][:hqmf].open).to_s
+      hqmf = HQMF::Parser.parse(hqmf_contents, HQMF::Parser::HQMF_VERSION_1)
       json = hqmf.to_json
       
-      measure.population_criteria = json[:logic]
+      measure.population_criteria = json[:population_criteria]
       measure.data_criteria = json[:data_criteria]
-      measure.measure_period = json[:attributes]
+      measure.measure_period = json[:measure_period]
     end
     
     measure.save
@@ -90,5 +88,11 @@ class MeasuresController < ApplicationController
   
   def definition
     render :json => 'Hoohah'
+  end
+  
+  def export
+    measure = Measure.find(params[:id])
+    
+    redirect_to measure_url(measure)
   end
 end

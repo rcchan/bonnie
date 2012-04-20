@@ -1,17 +1,6 @@
 GIT
-  remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 49f9214a053dd5818a3c01fc98b60b297ea96ca0
-  branch: develop
-  specs:
-    hqmf-parser (0.0.1)
-      google-spreadsheet-ruby
-      roo
-      rubyzip
-      spreadsheet
-
-GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 85d6266e0696b6f7208ff2b51046b9896a681aad
+  revision: 78d73f889f3e36244dbb1c2df4a38636bc42acea
   branch: develop
   specs:
     hqmf2js (0.1.0)
@@ -23,6 +12,15 @@ GIT
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
+
+PATH
+  remote: ../hqmf-parser
+  specs:
+    hqmf-parser (0.0.1)
+      google-spreadsheet-ruby
+      roo
+      rubyzip
+      spreadsheet
 
 GEM
   remote: https://rubygems.org/

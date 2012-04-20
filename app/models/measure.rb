@@ -41,7 +41,8 @@ class Measure
   # Using these conjunctions:
   #   and, or
   def stage_one_parameter_json
-    binding.pry
+    hqmf = as_hqmf
+    #binding.pry
   end
   
   # Reshapes the measure into the JSON necessary to build a stage two parameter view.
@@ -63,9 +64,30 @@ class Measure
     
   end
   
+  # Export this measure as the given format. Currently available options are:
+  #
+  # TODO - JSON, JS
+  def export_as format
+    
+  end
+  
   private 
   
   def as_publishing
     Publishing.new(self.attributes.except('_id','publishings', 'published', 'nqf_id'));
+  end
+  
+  # Returns the hqmf-parser's ruby implementation of an HQMF document.
+  # Rebuild from population_criteria, data_criteria, and measure_period JSON
+  def as_hqmf
+    json = {
+      title: self.title,
+      description: self.description,
+      population_criteria: self.population_criteria,
+      data_criteria: self.data_criteria,
+      measure_period: self.measure_period
+    }
+    
+    HQMF::Document.from_json(json)
   end
 end
