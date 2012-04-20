@@ -1,3 +1,4 @@
+require 'JSON'
 module Measures
   
   # Utility class for working with JSON files and the database
@@ -11,11 +12,47 @@ module Measures
     end
     
     def load(measures)
+      measures = File.expand_path(File.join('.','test','fixtures','pophealth'))
+      measure_def = JSON.parse(File.open(File.join(measures,'0043.json')).read)
+
+      measure_js = File.open(File.expand_path(File.join('.','tmp','measures','NQF_0043.xml.js'))).read
       
+      map = "function() {
+
+        var patient = this;
+        <%= init_js_frameworks %>
+        var patient_api = new hQuery.Patient(patient);
+        var effective_date = <%= effective_date %>;
+        
+        #{measure_js}
+        
+        var population = function() {
+          return IPP(patient_api);
+        }
+        var denominator = function() {
+          return true;
+        }
+        var numerator = function() {
+          return true;
+        }
+        var exclusion = function() {
+          return false;
+        }
+        map(patient, population, denominator, numerator, exclusion);
+      };"
+      
+      measure_def['map_fn'] = map
+      
+      
+      bundle_def = JSON.parse(File.open(File.join(measures,'bundle.json')).read)
+      measure_id = @db['measures'] << measure_def
+      bundle_def['measures'] << measure_id
+      bundle_id = @db['bundles'] << bundle_def
+      measure_def['bundle'] = bundle_id
+      @db['measures'].update({"_id" => measure_id}, measure_def)
     end
     
     def drop_measures
-      binding.pry
       drop_collection('bundles')
       drop_collection('measures')
     end
@@ -24,6 +61,21 @@ module Measures
        @db[collection].drop
     end
     
+    def load_library_functions
+      save_system_js_fn('hqmf_utils',HQMF2JS::Generator::JS.library_functions)
+    end
+    
+    def save_system_js_fn(name, fn)
+      
+      fn = "function () {\n #{fn} \n }"
+      
+      @db['system.js'].save(
+        {
+          "_id" => name,
+          "value" => BSON::Code.new(fn)
+        }
+      )
+    end
     
     
   end

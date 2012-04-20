@@ -1,7 +1,8 @@
 {
     "endorser": "NQF",
     "id": "0043",
-    "properties": ["NQF_Retooled_Measure_0043.xlsx.json"],
+    "properties": [
+    "NQF_Retooled_Measure_0043.xlsx.json"],
     "name": "Pneumonia Vaccination Status for Older Adults",
     "description": "Patients more than 65 years old who have ever received a pneumococcal vaccine.",
     "category": "Miscellaneous",
@@ -49,36 +50,212 @@
         }]
     },
     "exclusions": {},
-    "map_fn":
-    "function() {
-      var patient = this;
-      var measure = patient.measures[\"0043\"];
-      if (measure == null)
-          measure={};
-          
-          <%= init_js_frameworks %>
-          
-          var day = 24 * 60 * 60;
-          var year = 365 * day;
-          var effective_date = <%= effective_date %>;
-          var measurement_period_start = effective_date - (1 * year);
-          var latest_birthdate = latestBirthdayForThisAge(64, measurement_period_start);
-          var earliest_encounter = effective_date - (1 * year);
-          var population = function() {
-              return (patient.birthdate <= latest_birthdate);
-          }
-          var denominator = function() {
-              outpatient_encounter = inRange(measure.encounter_outpatient_encounter, earliest_encounter, effective_date);
-              return (outpatient_encounter);
-          }
-          var numerator = function() {
-              vaccination = lessThan(measure.pneumococcal_vaccination_all_ages_procedure_performed, effective_date);
-              vaccine = lessThan(measure.pneumococcal_vaccine_all_ages_medication_administered, effective_date);
-              return vaccination || vaccine;
-          }
-          var exclusion = function() {
-              return false;
-          }
-          map(patient, population, denominator, numerator, exclusion);
-      };"
+    "map_fn": "",
+    "measure": {
+        "encounter_outpatient_encounter": {
+            "standard_concept": "encounter_outpatient",
+            "standard_category": "encounter",
+            "standard_concept_id": "N_c552",
+            "qds_data_type": "encounter",
+            "qds_id": "N_1835",
+            "type": "array",
+            "items": {
+                "type": "number",
+                "format": "utc-sec"
+            },
+            "codes": [
+            {
+                "set": "CPT",
+                "version": "06/2009",
+                "standard_concept": "encounter_outpatient",
+                "standard_concept_id": "N_c27",
+                "qds_id": "N_1893",
+                "values": [
+                "99201",
+                "99202",
+                "99203",
+                "99204",
+                "99205",
+                "99211",
+                "99212",
+                "99213",
+                "99214",
+                "99215",
+                "99217",
+                "99218",
+                "99219",
+                "99220",
+                "99241",
+                "99242",
+                "99243",
+                "99244",
+                "99245",
+                "99341",
+                "99342",
+                "99343",
+                "99344",
+                "99345",
+                "99347",
+                "99348",
+                "99349",
+                "99350",
+                "99384",
+                "99385",
+                "99386",
+                "99387",
+                "99394",
+                "99395",
+                "99396",
+                "99397",
+                "99401",
+                "99402",
+                "99403",
+                "99404",
+                "99411",
+                "99412",
+                "99420",
+                "99429",
+                "99455",
+                "99456"]
+            },
+            {
+                "set": "ICD-9-CM",
+                "version": "06/2009",
+                "standard_concept": "encounter_outpatient",
+                "standard_concept_id": "N_c159",
+                "qds_id": "N_1894",
+                "values": [
+                "V70.0",
+                "V70.3",
+                "V70.5",
+                "V70.6",
+                "V70.8",
+                "V70.9"]
+            }]
+        },
+        "pneumococcal_vaccination_all_ages_procedure_performed": {
+            "standard_concept": "pneumococcal_vaccination_all_ages",
+            "standard_category": "procedure",
+            "standard_concept_id": "N_c1070",
+            "qds_data_type": "procedure_performed",
+            "qds_id": "N_3188",
+            "type": "array",
+            "items": {
+                "type": "number",
+                "format": "utc-sec"
+            },
+            "codes": [
+            {
+                "set": "CVX",
+                "version": "06/2009",
+                "standard_concept": "pneumococcal_vaccination",
+                "standard_concept_id": "N_c1060",
+                "qds_id": "N_3185",
+                "values": [
+                "100",
+                "133"]
+            },
+            {
+                "set": "CPT",
+                "version": "06/2009",
+                "standard_concept": "pneumococcal_vaccination",
+                "standard_concept_id": "N_c1061",
+                "qds_id": "N_3184",
+                "values": [
+                "90669",
+                "90670"]
+            },
+            {
+                "set": "CPT",
+                "version": "06/2009",
+                "standard_concept": "pneumococcal_vaccination_ages_2_and_older",
+                "standard_concept_id": "N_c1068",
+                "qds_id": "N_3186",
+                "values": [
+                "90732"]
+            },
+            {
+                "set": "CVX",
+                "version": "06/2009",
+                "standard_concept": "pneumococcal_vaccination_ages_2_years_and_older",
+                "standard_concept_id": "N_c1069",
+                "qds_id": "N_3187",
+                "values": [
+                "33"]
+            }]
+        },
+        "pneumococcal_vaccine_all_ages_medication_administered": {
+            "standard_concept": "pneumococcal_vaccine_all_ages",
+            "standard_category": "medication",
+            "standard_concept_id": "N_c1088",
+            "qds_data_type": "medication_administered",
+            "qds_id": "N_3217",
+            "type": "array",
+            "items": {
+                "type": "number",
+                "format": "utc-sec"
+            },
+            "codes": [
+            {
+                "set": "CVX",
+                "version": "06/2009",
+                "standard_concept": "pneumococcal_vaccination",
+                "standard_concept_id": "N_c1060",
+                "qds_id": "N_3185",
+                "values": [
+                "100",
+                "133"]
+            },
+            {
+                "set": "CVX",
+                "version": "06/2009",
+                "standard_concept": "pneumococcal_vaccination_ages_2_years_and_older",
+                "standard_concept_id": "N_c1069",
+                "qds_id": "N_3187",
+                "values": [
+                "33"]
+            },
+            {
+                "set": "RxNorm",
+                "version": "07/2009",
+                "standard_concept": "pneumococcal_vaccine",
+                "standard_concept_id": "N_c421",
+                "qds_id": "N_1401",
+                "values": [
+                "854931",
+                "854933",
+                "854935",
+                "854937",
+                "854939",
+                "854941",
+                "854943",
+                "854945",
+                "854947",
+                "854949",
+                "854951",
+                "854953",
+                "854955",
+                "854957",
+                "854959",
+                "854961",
+                "854963",
+                "854965",
+                "854967",
+                "854969",
+                "854971",
+                "854973",
+                "854975",
+                "854977"]
+            },
+            {
+                "set": "RxNorm",
+                "version": "07/2009",
+                "standard_concept": "pneumococcal_vaccine_ages_2_and_older",
+                "standard_concept_id": "N_c1087",
+                "qds_id": "N_3216",
+                "values": [
+                "854981"]
+            }]
+        }
+    }
 }

@@ -24,7 +24,7 @@ namespace :build do
     out_file = File.join(".","tmp",'measures',"#{filename}.js")
     File.open(out_file, 'w') do |f| 
 
-      f.write(library_functions)
+#      f.write(library_functions)
       
       f.write("// #########################\n")
       f.write("// ##### DATA ELEMENTS #####\n")
@@ -46,13 +46,13 @@ namespace :build do
       f.write(gen.js_for('DENEXCEP'))
   
       
-      f.write("// #########################\n")
-      f.write("// ######### PATIENT #######\n")
-      f.write("// #########################\n\n")
-
-      f.write("var patient_json = #{fixture_json};\n")
-      initialize_patient = 'var patient = new hQuery.Patient(patient_json);'
-      f.write("#{initialize_patient}\n")
+#      f.write("// #########################\n")
+#      f.write("// ######### PATIENT #######\n")
+#      f.write("// #########################\n\n")
+#
+#      f.write("var patient_json = #{fixture_json};\n")
+#      initialize_patient = 'var patient = new hQuery.Patient(patient_json);'
+#      f.write("#{initialize_patient}\n")
       
     end
     
