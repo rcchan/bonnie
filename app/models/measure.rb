@@ -6,7 +6,7 @@ class Measure
   field :title, type: String
   field :description, type: String
   field :category, type: String
-  field :steward, type: String
+  field :steward, type: String    # organization who's writing the measure
   
   field :published, type: Boolean
   field :publish_date, type: Date

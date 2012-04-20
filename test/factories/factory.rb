@@ -15,6 +15,10 @@ FactoryGirl.define do
     m.sequence(:measure_id) { |n| "00#{n}" }
     m.sequence(:title)  { |n| "Measure #{n}" }
     m.sequence(:description)  { |n| "This is the description for measure #{n}" }
+    m.published true
+    m.user User.first
+    m.sequence(:version) {|n| n }
+    m.publish_date (1..500).to_a.sample.days.ago
   end
 
   # ==========

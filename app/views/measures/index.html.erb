@@ -4,57 +4,45 @@
 <% end -%>
 
 <% content_for :right_column do %>
+
+  <%= button_to 'create new', new_measure_path %>
+
   <!-- start tab nav -->
   <div id="tabs">
   	<ul>
-  		<li><a href="#tabs-1">my measures</a></li>
-  		<li><a href="#tabs-2">published</a></li>
+  		<li><a href="#tabs-0">my measures</a></li>
+  		<li><a href="#tabs-1">all published measures</a></li>
   	</ul>
 	
     <!-- start my measures content -->
-  	<div id="tabs-1">
+  	<div id="tabs-0">
   	  <table>
-  	    <th>title</th>
-  	    <th>version</th>
-  	    <th>date</th>
-  	    <tr>
-  	      <td>I'm working on this.</td>
-  	      <td>2</td>
-  	      <td>Now</td>
-        </tr>
-  	  </table>
+        <th>NQF</th>
+        <th>title</th>
+        <th>version</th>
+        <th>status</th>
+        <th>date</th>
+
+    	  <%= render :partial => 'measure', :collection => current_user.measures %>
+    	</table>
   	</div><!-- end my measures content -->
 	
   	<!-- start published measures content -->
-  	<div id="tabs-2">
-    	<table>
-    	  <th>title</th>
-    	  <th>version</th>
-    	  <th>date</th>
-    	  <tr>
-    	    <td>Heart Failure: Angioensin - Converting Enzyme (ACE) Inhibitor or Angiotensin Receptor Blocker (ARB) Therapy for Left Ventricular Systolic Dysfunction (LVSD)
-    	    </td>
-    	    <td>1</td>
-    	    <td>mm/dd/yyyy</td>
-    	  </tr>
+  	<div id="tabs-1">
+  	  <table>
+        <th>NQF</th>
+        <th>title</th>
+        <th>version</th>
+        <th>status</th>
+        <th>date</th>
+
+    	  <%= render :partial => 'measure', :collection => @measures.published %>
     	</table>
-	
   	</div><!-- end published measures content -->
 	
   </div><!-- end tab nav -->
 
-	<% @measures.each do |measure| %>
-	  <tr>
-	    <td><%= measure.title %></td>
-	    <td><%= link_to 'Show', measure %></td>
-	    <td><%= link_to 'Edit', edit_measure_path(measure) %></td>
-	    <td><%= link_to 'Destroy', measure, confirm: 'Are you sure?', method: :delete %></td>
-	  </tr>
-	<% end %>
-	</table>
 
 	<br />
-
-	<%= link_to 'New Measure', new_measure_path %>
 <% end -%>
   
