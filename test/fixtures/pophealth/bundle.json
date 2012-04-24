@@ -4,14 +4,6 @@
     "extensions": [
     "map_reduce_utils",
     "underscore_min",
-    "aod_treatment",
-    "asthma_common",
-    "cardiac_utils",
-    "childhood_immunization",
-    "chlamydia_common",
-    "diabetes_utils",
-    "misc_utils",
-    "weight_management_utils",
     "hqmf_utils"],
     "measures": []
 }
