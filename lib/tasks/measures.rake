@@ -41,9 +41,9 @@ namespace :measures do
     File.open(out_file, 'w') do |f| 
 
       if args.include_library
-        f.write("map_reduce_utils_js = #{File.open(File.join('.','lib','assets','javascripts','map_reduce_utils.js')).read}")
+        f.write("map_reduce_utils_js = #{File.open(File.join('.','lib','assets','javascripts','libraries','map_reduce_utils.js')).read}")
         f.write("map_reduce_utils_js();")
-        f.write("underscore_js = #{File.open(File.join('.','lib','assets','javascripts','underscore_min.js')).read}")
+        f.write("underscore_js = #{File.open(File.join('.','lib','assets','javascripts','libraries','underscore_min.js')).read}")
         f.write("underscore_js();")
         library_functions = HQMF2JS::Generator::JS.library_functions if args.include_library
         f.write(library_functions) 
