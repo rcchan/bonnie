@@ -42,7 +42,7 @@ module Measures
       buckets = measure.parameter_json
       
       {
-        id: measure.id,
+        id: measure.measure_id,
         endorser: measure.endorser,
         name: measure.title,
         description: measure.description,
@@ -67,8 +67,7 @@ module Measures
     end
 
     def measure_codes(measure)
-      value_sets = HQMF2JS::Generator::CodesToJson.from_value_sets(measure.value_sets)
-      HQMF2JS::Generator::CodesToJson.hash_to_js(value_sets)
+      HQMF2JS::Generator::CodesToJson.from_value_sets(measure.value_sets)
     end
 
     private
@@ -79,7 +78,7 @@ module Measures
       #codes = HQMF2JS::Generator::CodesToJson.from_xls(codes_file)
       # NEED TO FIGURE OUT CODES
       codes = measure_codes(measure)
-
+      
       "function() {
         var patient = this;
         var effective_date = <%= effective_date %>;
