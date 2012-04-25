@@ -3,6 +3,7 @@ module Measures
   # Exports measure defintions in a pophealth compatible format
   class Exporter
     def self.export(file, measures)
+      
       Zip::ZipOutputStream.open(file.path) do |zip|      
         measure_path = "measures"
         json_path = File.join(measure_path, "json")
