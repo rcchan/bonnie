@@ -2,7 +2,7 @@ require File.expand_path('../../../config/environment',  __FILE__)
 require 'pathname'
 require 'fileutils'
 require './lib/measures/database_access'
-require './lib/measures/loader'
+require './lib/measures/importer'
 require './lib/measures/exporter'
 
 namespace :measures do
@@ -25,11 +25,12 @@ namespace :measures do
   end
 
   desc 'Load a set of measures for popHealth'
-  task :load, [:measures_dir, :db_name, :db_host, :db_port] do |task, args|
-    loader = Measures::Loader.new(args.db_name, args.db_host, args.db_port)
-    loader.drop_measures()
-    loader.load(args.measures_dir)
-    loader.load_library_functions
+  task :import, [:measures_zip, :db_name, :db_host, :db_port] do |task, args|
+    importer = Measures::Importer.new(args.db_name, args.db_host, args.db_port)
+    importer.drop_measures()
+    zip = File.open(args.measures_zip)
+    
+    importer.import(zip)
   end
   
   desc 'Convert a measure defintion to a format that can be loaded into popHealth'
