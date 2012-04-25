@@ -2,6 +2,7 @@ Bonnie::Application.routes.draw do
   
   resources :measures do
     member do
+      get :definition
       get :export
       get :import_resource
       post :publish

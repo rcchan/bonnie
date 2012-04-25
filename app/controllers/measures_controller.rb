@@ -16,8 +16,6 @@ class MeasuresController < ApplicationController
 
   def show
     @measure = Measure.find(params[:id])
-    
-    #@measure.stage_one_parameter_json
   end
 
   def import_resource
@@ -87,12 +85,15 @@ class MeasuresController < ApplicationController
   end
   
   def definition
-    render :json => 'Hoohah'
+    measure = Measure.find(params[:id])
+    render :json => measure.parameter_json
   end
   
   def export
     measure = Measure.find(params[:id])
     
-    redirect_to measure_url(measure)
+    headers['Content-Type'] = 'application/json'
+    headers['Content-Disposition'] = "attachment; filename=#{measure.endorser}#{measure.measure_id}_#{measure.title}.json;"
+    render :json => measure.parameter_json
   end
 end

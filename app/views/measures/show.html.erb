@@ -1,3 +1,27 @@
+<% content_for :head do %>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $.getJSON("<%= definition_measure_url(@measure) %>", renderMeasureJson);
+    });
+  </script>
+  
+  <script type="text/html" id="ph_tmpl_paramItem">
+    <div>
+      <!-- ${percentage=Math.round(Math.random()*100,2)} -->
+      {{if category}}<label>${category}</label>{{/if}}
+      ${title}
+    </div>
+  </script>
+  <script type="text/html" id="ph_tmpl_paramGroupContainer">
+    <div class="paramGroupContainer"></div>
+  </script>
+  <script type="text/html" id="ph_tmpl_paramGroup">
+    <div class="paramGroup">
+      <div class="paramItem"></div>
+    </div>
+  </script>
+<% end %>
+
 <% content_for :right_column do %>
 	<p id="notice"><%= notice %></p>
 	
@@ -28,14 +52,14 @@
 	
 	<div id="measureEditContainer">
     <div id="eligibilityMeasures">
-      <h3>denominator</h3>
+      <h3>DENOMINATOR</h3>
       <div class="measureBox">
         <div id="eligibilityMeasureItems"></div>
       </div>
     </div>
     
     <div id="outcomeMeasures">
-      <h3>numerator</h3>
+      <h3>NUMERATOR</h3>
       <div class="measureBox">
         <div id="outcomeExclusionMarker" class="exclusionTab" style="display:none">
           Exclusions
