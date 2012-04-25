@@ -2,8 +2,16 @@ require 'pathname'
 require 'fileutils'
 require './lib/measures/database_access'
 require './lib/measures/loader'
+require './lib/measures/exporter'
 
 namespace :measures do
+
+  desc 'Create measure definitions'
+  task :export,[:id] do |t, args|
+    binding.pry
+  end
+  
+  
   desc 'Remove the measures and bundles collection'
   task :drop_measures do
     loader = Measures::Loader.new()
