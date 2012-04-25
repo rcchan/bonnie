@@ -6,7 +6,7 @@ namespace :import do
       raise "USAGE: rake import:value_sets[file_path]"
     else
       vsp = HQMF::ValueSet::Parser.new()
-      value_sets = vsp.parse(file, {:sheet => 1, :columns => 2})
+      value_sets = vsp.parse(file, {format: :xls})
       
       value_sets.each do |value_set|
         ValueSet.new(value_set).save!

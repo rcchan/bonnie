@@ -1,4 +1,4 @@
-class ValueSet < CodeSet
+class ValueSet
   include Mongoid::Document
   
   field :key, type: String
@@ -8,7 +8,9 @@ class ValueSet < CodeSet
   field :description, type: String
   field :organization, type: String
   field :version, type: String
+  
   embeds_many :code_sets, class_name: "CodeSet", inverse_of: :parent
+  belongs_to :measure
   
   # diagnosis_condition_problem
   Categories = %w(
