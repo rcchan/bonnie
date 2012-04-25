@@ -18,8 +18,10 @@ class Measure
 
   belongs_to :user
   embeds_many :publishings
+  has_many :value_sets
 
-  scope :published, -> {where({'published'=>true})}
+  scope :published, -> { where({'published'=>true}) }
+  scope :by_measure_id, ->(id) { where({'measure_id'=>id}) }
 
   # Create or increment all of the versioning information for this measure
   def publish
@@ -59,11 +61,6 @@ class Measure
     parameter_json
   end
   
-  # Returns the javascript for this measure's map function
-  def map_fn
-    
-  end
-  
   # Export this measure as the given format. Currently available options are:
   def export_as format
     if format == 'JS'
@@ -75,15 +72,9 @@ class Measure
     end
   end
   
-  private 
-  
-  def as_publishing
-    Publishing.new(self.attributes.except('_id','publishings', 'published', 'nqf_id'));
-  end
-  
   # Returns the hqmf-parser's ruby implementation of an HQMF document.
   # Rebuild from population_criteria, data_criteria, and measure_period JSON
-  def as_hqmf
+  def as_hqmf_model
     json = {
       title: self.title,
       description: self.description,
@@ -93,6 +84,12 @@ class Measure
     }
     
     HQMF::Document.from_json(json)
+  end
+  
+  private 
+  
+  def as_publishing
+    Publishing.new(self.attributes.except('_id','publishings', 'published', 'nqf_id'));
   end
   
   # This is a helper for parameter_json.

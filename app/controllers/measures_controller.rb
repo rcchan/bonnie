@@ -2,7 +2,7 @@ class MeasuresController < ApplicationController
   
   layout :select_layout
   before_filter :authenticate_user!
-  load_and_authorize_resource
+  before_filter :validate_authorization!
 
   add_breadcrumb 'measures', ""
   
@@ -42,6 +42,7 @@ class MeasuresController < ApplicationController
   def create
     measure = Measure.new
     
+    # Meta data
     measure.user = current_user
     measure.endorser = params[:measure][:endorser]
     measure.measure_id = params[:measure][:measure_id]
@@ -50,8 +51,17 @@ class MeasuresController < ApplicationController
     measure.category = params[:measure][:category]
     measure.steward = params[:measure][:steward]
     
-    value_sets = params[:measure][:value_sets]
+    # Value sets
+    value_set_file = params[:measure][:value_sets]
+    value_set_parser = HQMF::ValueSet::Parser.new()
+    value_sets = value_set_parser.parse(value_set_file.tempfile.path, {format: value_set_parser.get_format(value_set_file.original_filename)})
+    value_sets.each do |value_set|
+      set = ValueSet.new(value_set)
+      set.measure = measure
+      set.save!
+    end
     
+    # Parsed HQMF
     if params[:measure][:hqmf]
       hqmf_contents = Nokogiri::XML(params[:measure][:hqmf].open).to_s
       hqmf = HQMF::Parser.parse(hqmf_contents, HQMF::Parser::HQMF_VERSION_1)
@@ -62,7 +72,7 @@ class MeasuresController < ApplicationController
       measure.measure_period = json[:measure_period]
     end
     
-    measure.save
+    measure.save!
     redirect_to measure_url(measure)
   end
 
@@ -84,6 +94,11 @@ class MeasuresController < ApplicationController
     "two_columns"
   end
   
+  def validate_authorization!
+    authorize! :manage, Measure
+  end
+  
+  
   def definition
     measure = Measure.find(params[:id])
     render :json => measure.parameter_json
@@ -92,8 +107,9 @@ class MeasuresController < ApplicationController
   def export
     measure = Measure.find(params[:id])
     
-    headers['Content-Type'] = 'application/json'
-    headers['Content-Disposition'] = "attachment; filename=#{measure.endorser}#{measure.measure_id}_#{measure.title}.json;"
-    render :json => measure.parameter_json
+    file = Tempfile.new("measures-#{Time.now.to_i}")
+    Measures::Exporter.export(file, [measure])
+    
+    send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "measures.zip"
   end
 end

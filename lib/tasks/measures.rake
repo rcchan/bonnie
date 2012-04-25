@@ -1,3 +1,4 @@
+require File.expand_path('../../../config/environment',  __FILE__)
 require 'pathname'
 require 'fileutils'
 require './lib/measures/database_access'
@@ -8,9 +9,14 @@ namespace :measures do
 
   desc 'Create measure definitions'
   task :export,[:id] do |t, args|
-    binding.pry
+    measure = Measure.by_measure_id(args.id)
+
+    measure_path = File.join(".", "tmp", "measures")
+    FileUtils.mkdir_p measure_path
+    file = File.open(File.expand_path(File.join(measure_path, "measures.zip")), 'w')
+
+    zip = Measures::Exporter.export(file, measure)
   end
-  
   
   desc 'Remove the measures and bundles collection'
   task :drop_measures do

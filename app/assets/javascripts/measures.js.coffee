@@ -11,7 +11,7 @@ renderMeasureJson = (data) ->
         elemParent = $("#ph_tmpl_paramGroup").tmpl({}).appendTo(elemParent).find(".paramItem:last")
       $.each(items, (i, node) ->
         addParamItems(node, elemParent)
-        if (i < items.length-2) # TODO - Why 2?
+        if (i < items.length-1) # TODO - Why 2?
           $(elemParent).append("<span class='"+conjunction+"'>"+conjunction+"</span>")
       )
     else
