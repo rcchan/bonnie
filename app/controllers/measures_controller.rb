@@ -23,7 +23,9 @@ class MeasuresController < ApplicationController
   end
   
   def publish
+    @measure = Measure.find(params[:id])
     @measure.publish
+    
     render :show
   end
 
@@ -52,13 +54,15 @@ class MeasuresController < ApplicationController
     measure.steward = params[:measure][:steward]
     
     # Value sets
-    value_set_file = params[:measure][:value_sets]
-    value_set_parser = HQMF::ValueSet::Parser.new()
-    value_sets = value_set_parser.parse(value_set_file.tempfile.path, {format: value_set_parser.get_format(value_set_file.original_filename)})
-    value_sets.each do |value_set|
-      set = ValueSet.new(value_set)
-      set.measure = measure
-      set.save!
+    if params[:measure][:value_sets]
+      value_set_file = params[:measure][:value_sets]
+      value_set_parser = HQMF::ValueSet::Parser.new()
+      value_sets = value_set_parser.parse(value_set_file.tempfile.path, {format: value_set_parser.get_format(value_set_file.original_filename)})
+      value_sets.each do |value_set|
+        set = ValueSet.new(value_set)
+        set.measure = measure
+        set.save!
+      end
     end
     
     # Parsed HQMF
