@@ -156,6 +156,7 @@ class Measure
   def parse_hqmf_time criteria, relative_time
     temporal_text = "(temporal_info)"
     
+    binding.pry
     type = criteria["type"]
     case type
     when "IVL_TS"
