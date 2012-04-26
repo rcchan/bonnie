@@ -111,8 +111,17 @@ class MeasuresController < ApplicationController
   def export
     measure = Measure.find(params[:id])
 
-    file = Tempfile.new(["measures-#{Time.now.to_i}",".zip"])
+    file = Tempfile.new(["#{measure.id}-#{Time.now.to_i}", ".zip"])
     Measures::Exporter.export(file, [measure])
+    
+    send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "measures.zip"
+  end
+  
+  def export_all
+    measures = Measure.by_user(current_user)
+    
+    file = Tempfile.new(["#{current_user.id}-#{Time.now.to_i}", ".zip"])
+    Measures::Exporter.export(file, measures)
     
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "measures.zip"
   end

@@ -26,6 +26,7 @@
 
 	<br />
 
+	<%= link_to 'Export All', export_all_measures_path(@measures.map(&:_id).join(',')) %> |
 	<%= link_to 'New Measure', new_measure_path %>
 <% end -%>
   
