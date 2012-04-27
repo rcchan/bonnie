@@ -16,12 +16,13 @@
 	
     <!-- start my measures content -->
   	<div id="tabs-0">
-  	  <table>
+  	  <table class="measureDetailTable">
         <th>NQF</th>
         <th>title</th>
         <th>version</th>
         <th>status</th>
         <th>date</th>
+        <th>actions</th>
 
     	  <%= render :partial => 'measure', :collection => current_user.measures %>
     	</table>
@@ -29,12 +30,13 @@
 	
   	<!-- start published measures content -->
   	<div id="tabs-1">
-  	  <table>
+  	  <table class="measureDetailTable">
         <th>NQF</th>
         <th>title</th>
         <th>version</th>
         <th>status</th>
         <th>date</th>
+        <th>actions</th>
 
     	  <%= render :partial => 'measure', :collection => @measures.published %>
     	</table>

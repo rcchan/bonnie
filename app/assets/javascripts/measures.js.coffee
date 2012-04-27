@@ -45,4 +45,4 @@ renderMeasureJson = (data) ->
 # jquery-ui tabs
 $ ->
   $('#tabs').tabs();
-  $('#tabs').tabs("select", 1);
+  $('#tabs').tabs("select", 0);  # select my measures tab

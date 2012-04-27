@@ -324,6 +324,7 @@ a, {
 
 .measureDetailTable {
   padding-top: $top_heading-padding;
+  width: 100%;
 
   .measureDetailTable table td, #dashboardContainer .measureDetailTable table td {
     vertical-align: top;
@@ -341,9 +342,9 @@ a, {
   }
   dd {
     display: table-cell;
-    h1 {
-      padding-left: 0; } 
+    h1 { padding-left: 0; } 
   }
+  th, td { border: 1px solid lightgray; }
 }
 
 .light_blue_button {

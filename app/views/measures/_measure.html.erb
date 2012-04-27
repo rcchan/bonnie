@@ -4,4 +4,5 @@
     <td><%= measure.version %></td>
     <td><%= measure.published ? "published" : "draft" %></td>
     <td><%= measure.publish_date %></td>
+    <td><%= button_to 'Publish', publish_measure_path(measure) %></td>
   </tr>
