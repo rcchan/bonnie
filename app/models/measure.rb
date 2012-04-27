@@ -62,17 +62,6 @@ class Measure
     parameter_json
   end
   
-  # Export this measure as the given format. Currently available options are:
-  def export_as format
-    if format == 'JS'
-      map_fn
-    elsif format == 'JSON'
-      parameter_json
-    else
-      self.to_json
-    end
-  end
-  
   # Returns the hqmf-parser's ruby implementation of an HQMF document.
   # Rebuild from population_criteria, data_criteria, and measure_period JSON
   def as_hqmf_model
@@ -95,7 +84,7 @@ class Measure
   
   # This is a helper for parameter_json.
   # Return recursively generated JSON that can be imported into popHealth or shown as parameters in Bonnie.
-  def parse_hqmf_preconditions criteria, version
+  def parse_hqmf_preconditions(criteria, version)
     fragment = {}
     conjunction_mapping = { "allTrue" => "and", "atLeastOneTrue" => "or" } # Used to convert to stage one, if requested in version param
     
@@ -121,7 +110,7 @@ class Measure
   
   # This is a helper for parse_hqmf_preconditions.
   # Return a human readable title and category for a given data criteria
-  def parse_hqmf_data_criteria criteria
+  def parse_hqmf_data_criteria(criteria)
     fragment = {}
     name = criteria["property"].to_s
     category = criteria["standard_category"]
@@ -143,7 +132,8 @@ class Measure
       criteria = criteria["effective_time"]
     end
     
-    temporal_text = "(temporal info)" #parse_hqmf_time(criteria, measure_period)
+    measure_period["name"] = "the measure period"
+    temporal_text = parse_hqmf_time(criteria, measure_period)
     title = "#{name} #{temporal_text}"
     
     fragment["title"] = title
@@ -153,18 +143,57 @@ class Measure
 
   # This is a helper for parse_hqmf_data_criteria.
   # Return recursively generated human readable text about time ranges and periods
-  def parse_hqmf_time criteria, relative_time
-    temporal_text = "(temporal_info)"
+  def parse_hqmf_time(criteria, relative_time)
+    temporal_text = ""
     
-    binding.pry
     type = criteria["type"]
     case type
     when "IVL_TS"
-      temporal_text = parse_hqmf_time_vector(criteria["width"]) if criteria["width"]
-      temporal_text += parse_hqmf_time_interval(criteria)
+      temporal_text = "#{parse_hqmf_time(criteria["width"], relative_time)} " if criteria["width"]
+      
+      temporal_text += ">#{parse_hqmf_time_stamp("low", criteria, relative_time)} start" if criteria["low"]
+      temporal_text += " and " if criteria["low"] && criteria["high"]
+      temporal_text += "<#{parse_hqmf_time_stamp("high", criteria, relative_time)} end" if criteria["high"]
     when "IVL_PQ"
-      temporal_text = parse_hqmf_time_vector(criteria)
+      temporal_text = parse_hqmf_time_vector(criteria["low"], ">") if criteria["low"]
+      temporal_text += " and " if criteria["low"] && criteria["high"]
+      temporal_text += parse_hqmf_time_vector(criteria["high"], "<") if criteria["high"]
     end
+    
+    temporal_text
+  end
+  
+  def parse_hqmf_time_stamp(point, timestamp, relative_timestamp)
+    if timestamp[point]["value"] == relative_timestamp[point]["value"]
+      "= #{relative_timestamp["name"]}"
+    else
+      year = timestamp[point]["value"][0..3]
+      month = timestamp[point]["value"][4..5]
+      day = timestamp[point]["value"][6..7]
+      
+      " #{Time.new(year, month, day).strftime("%m/%d/%Y")}"
+    end
+  end
+  
+  def parse_hqmf_time_vector(vector, symbol)
+    temporal_text = symbol
+    
+    temporal_text += "=" if vector["inclusive?"]
+    temporal_text += " #{vector["value"]} "
+    
+    case vector["unit"]
+    when "a"
+      temporal_text += "year"
+    when "mo"
+      temporal_text += "month"
+    when "d"
+      temporal_text += "day"
+    when "h"
+      temporal_text += "hour"
+    when "min"
+      temporal_text += "minute"
+    end
+    temporal_text += "s" if vector["value"] != 1
     
     temporal_text
   end
