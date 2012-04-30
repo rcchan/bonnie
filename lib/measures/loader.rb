@@ -1,91 +1,39 @@
 module Measures
   
-  # Utility class for working with JSON files and the database
+  # Utility class for loading measure definitions into the database
   class Loader
-    include Measures::DatabaseAccess
-    # Create a new Loader.
-    # @param [String] db_name the name of the database to use
-    def initialize(db_name = nil,db_host = nil,db_port = nil)
-      determine_connection_information(db_name,db_host,db_port)
-      @db = get_db
-    end
     
-    def load(measures)
-      measures = File.expand_path(File.join('.','test','fixtures','pophealth'))
-      measure_def = JSON.parse(File.open(File.join(measures,'0043.json')).read)
+    def self.load(hqmf_path, value_set_path, user)
+      
+      measure = Measure.new
 
-      measure_js = File.open(File.expand_path(File.join('.','tmp','measures','NQF_0043.xml.js'))).read
-      
-      map = "function() {
-        var patient = this;
-        var effective_date = <%= effective_date %>;
+      # Meta data
+      measure.user = user
 
-        hqmfjs = {}
-        <%= init_js_frameworks %>
-        
-        var patient_api = new hQuery.Patient(patient);
+      # Value sets
+      if value_set_path
+        value_set_parser = HQMF::ValueSet::Parser.new()
+        value_sets = value_set_parser.parse(value_set_path, {format: value_set_parser.get_format(value_set_path)})
+        value_sets.each do |value_set|
+          set = ValueSet.new(value_set)
+          set.measure = measure
+          set.save!
+        end
+      end
 
-        // clear out logger
-        if (typeof Logger != 'undefined') Logger.logger = [];
-        // turn on logging if it is enabled
-        if (Logger.enabled) enableLogging();
-        
-        #{measure_js}
-        
-        var population = function() {
-          return hqmfjs.IPP(patient_api);
-        }
-        var denominator = function() {
-          return hqmfjs.DENOM(patient_api);
-        }
-        var numerator = function() {
-          return hqmfjs.NUMER(patient_api);
-        }
-        var exclusion = function() {
-          return false;
-        }
-        
-        if (Logger.enabled) enableMeasureLogging(hqmfjs);
-        
-        map(patient, population, denominator, numerator, exclusion);
-      };
-      "
-      
-      measure_def['map_fn'] = map
-      
-      bundle_def = JSON.parse(File.open(File.join(measures,'bundle.json')).read)
-      measure_id = @db['measures'] << measure_def
-      bundle_def['measures'] << measure_id
-      bundle_id = @db['bundles'] << bundle_def
-      measure_def['bundle'] = bundle_id
-      @db['measures'].update({"_id" => measure_id}, measure_def)
-    end
-    
-    def drop_measures
-      drop_collection('bundles')
-      drop_collection('measures')
-    end
-    
-    def drop_collection(collection)
-       @db[collection].drop
-    end
-    
-    def load_library_functions
-      save_system_js_fn('map_reduce_utils',File.read(File.join('.','lib','assets','javascripts','libraries','map_reduce_utils.js')))
-      save_system_js_fn('underscore_min',File.read(File.join('.','lib','assets','javascripts','libraries','underscore_min.js')))
-      save_system_js_fn('hqmf_utils',HQMF2JS::Generator::JS.library_functions)
-    end
-    
-    def save_system_js_fn(name, fn)
-      
-      fn = "function () {\n #{fn} \n }"
-      
-      @db['system.js'].save(
-        {
-          "_id" => name,
-          "value" => BSON::Code.new(fn)
-        }
-      )
+      # Parsed HQMF
+      if hqmf_path
+        hqmf_contents = Nokogiri::XML(File.new hqmf_path).to_s
+        hqmf = HQMF::Parser.parse(hqmf_contents, HQMF::Parser::HQMF_VERSION_1)
+        json = hqmf.to_json
+
+        measure.population_criteria = json[:population_criteria]
+        measure.data_criteria = json[:data_criteria]
+        measure.measure_period = json[:measure_period]
+      end
+
+      measure.save!
+
     end
     
   end

@@ -32,6 +32,63 @@ namespace :measures do
     
     importer.import(zip)
   end
+
+  desc 'Load a measure defintion into the DB'
+  task :load, [:hqmf_path, :codes_path, :username, :delete_existing] do |t, args|
+    raise "The path the the HQMF file must be specified" unless args.hqmf_path
+    raise "The path the the Codes file must be specified" unless args.codes_path
+    raise "The username to load the measures for must be specified" unless args.username
+
+    user = User.by_username args.username
+    raise "The user #{args.username} could not be found." unless user
+
+    if args.delete_existing
+      count = user.measures.delete_all 
+      puts "Deleted #{count} measures assigned to #{user.username}"
+    end
+
+    Measures::Loader.load(args.hqmf_path, args.codes_path, user)
+    
+  end
+  
+  desc 'Load a measure defintion into the DB'
+  task :load_all, [:measures_dir, :username, :delete_existing] do |t, args|
+    raise "The path the the measure definitions must be specified" unless args.measures_dir
+    raise "The username to load the measures for must be specified" unless args.username
+
+    user = User.by_username args.username
+    raise "The user #{args.username} could not be found." unless user
+
+    if args.delete_existing
+      count = user.measures.delete_all 
+      puts "Deleted #{count} measures assigned to #{user.username}"
+    end
+    
+    Dir.foreach(args.measures_dir) do |entry|
+      next if entry.starts_with? '.'
+      hqmf_path = File.join(args.measures_dir,entry,"#{entry}.xml")
+      codes_path = File.join(args.measures_dir,entry,"#{entry}.xls")
+      begin
+        Measures::Loader.load(hqmf_path, codes_path, user)
+        puts "Measure #{entry} successfully loaded.\n"
+      rescue Exception => e
+        puts "Loading Measure #{entry} failed: #{e.message} \n"
+      end
+
+    end
+    
+  end
+  
+  desc 'Drop all measure defintions from the DB'
+  task :drop_all, [:username] do |t, args|
+    raise "The username to load the measures for must be specified" unless args.username
+
+    user = User.by_username args.username
+    raise "The user #{args.username} could not be found." unless user
+
+    count = user.measures.delete_all
+    puts "Deleted #{count} measures assigned to #{user.username}"
+  end
   
   desc 'Convert a measure defintion to a format that can be loaded into popHealth'
   task :build, [:hqmf, :codes, :include_library, :patient] do |t, args|
