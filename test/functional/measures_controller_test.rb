@@ -97,7 +97,7 @@ class MeasuresControllerTest < ActionController::TestCase
   test "create measure with uploaded hqmf 2" do
     Measure.delete_all
     
-    hqmf_file = fixture_file_upload("test/fixtures/measure-defs/hqmf/NQF_0043.xml", "text/xml")
+    hqmf_file = fixture_file_upload("test/fixtures/measure-defs/0043/0043.xml", "text/xml")
     post :create, { measure: { hqmf: hqmf_file } }
     created_measure = Measure.all.first
     
