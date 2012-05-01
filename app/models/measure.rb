@@ -15,6 +15,7 @@ class Measure
   field :population_criteria, type: Hash
   field :data_criteria, type: Hash
   field :measure_period, type: Hash
+  field :measure_attributes, type: Hash
 
   belongs_to :user
   embeds_many :publishings

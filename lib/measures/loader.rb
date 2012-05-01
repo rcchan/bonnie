@@ -26,6 +26,11 @@ module Measures
         hqmf_contents = Nokogiri::XML(File.new hqmf_path).to_s
         hqmf = HQMF::Parser.parse(hqmf_contents, HQMF::Parser::HQMF_VERSION_1)
         json = hqmf.to_json
+        
+        measure.measure_id = json[:id]
+        measure.title = json[:title]
+        measure.description = json[:description]
+        measure.measure_attributes = json[:attributes]
 
         measure.population_criteria = json[:population_criteria]
         measure.data_criteria = json[:data_criteria]

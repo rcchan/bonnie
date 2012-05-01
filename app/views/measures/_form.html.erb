@@ -1,6 +1,7 @@
 <%= simple_form_for(@measure, :html => {:method => submit_method, :multipart => true}) do |f| %>
   <table>
     <tbody>
+      <% if @editing %>
       <tr>
         <td><%= f.label :endorser_label, "Endorser: " %></td>
         <td>
@@ -14,6 +15,7 @@
           <td><%= f.label "#{field}_label", "#{field.capitalize}: " %></td>
           <td><%= f.text_field "#{field}" %></td>
         </tr>
+      <% end %>
       <% end %>
       <tr>
         <td><%= f.label :value_sets_label, "Value Sets:" %></td>
