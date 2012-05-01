@@ -15,7 +15,16 @@ FactoryGirl.define do
     m.sequence(:measure_id) { |n| "00#{n}" }
     m.sequence(:title)  { |n| "Measure #{n}" }
     m.sequence(:description)  { |n| "This is the description for measure #{n}" }
+    m.published false
+    m.user User.first
   end
+  
+  factory :published_measure, :parent => :measure do |m|
+    m.published true
+    m.version 1
+    m.publish_date (1..500).to_a.sample.days.ago
+  end
+  
 
   # ==========
   # = USERS =

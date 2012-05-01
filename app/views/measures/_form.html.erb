@@ -2,12 +2,17 @@
   <table>
     <tbody>
       <% if @editing %>
+      
+      <tr>
+        <td><%= f.label :measure_id_label, "ID: " %></td>
+        <td>
+          <%= f.text_field :measure_id %>
+        </td>
+      </tr>
       <tr>
         <td><%= f.label :endorser_label, "Endorser: " %></td>
         <td>
-          <%= f.text_field :endorser, value: "NQF" %>
-          <%= f.label :measure_id_label, "ID: " %>
-          <%= f.text_field :measure_id %>
+          <%= f.text_field :endorser %>
         </td>
       </tr>
       <% ["title", "description", "category", "steward"].each do |field| %>

@@ -38,46 +38,22 @@ class MeasuresController < ApplicationController
   end
   
   def edit
+    @editing=true
     @measure = Measure.find(params[:id])
   end
 
   def create
-    measure = Measure.new
-    
-    # Meta data
-    measure.user = current_user
-    measure.endorser = params[:measure][:endorser]
-    measure.measure_id = params[:measure][:measure_id]
-    measure.title = params[:measure][:title]
-    measure.description = params[:measure][:description]
-    measure.category = params[:measure][:category]
-    measure.steward = params[:measure][:steward]
     
     # Value sets
-    if params[:measure][:value_sets]
-      value_set_file = params[:measure][:value_sets]
-      value_set_parser = HQMF::ValueSet::Parser.new()
-      value_sets = value_set_parser.parse(value_set_file.tempfile.path, {format: value_set_parser.get_format(value_set_file.original_filename)})
-      value_sets.each do |value_set|
-        set = ValueSet.new(value_set)
-        set.measure = measure
-        set.save!
-      end
-    end
+    value_set_file = params[:measure][:value_sets]
+    value_set_path = value_set_file.tempfile.path
+    value_set_format = HQMF::ValueSet::Parser.get_format(value_set_file.original_filename)
     
-    # Parsed HQMF
-    if params[:measure][:hqmf]
-      hqmf_contents = Nokogiri::XML(params[:measure][:hqmf].open).to_s
-      hqmf = HQMF::Parser.parse(hqmf_contents, HQMF::Parser::HQMF_VERSION_1)
-      json = hqmf.to_json
-      
-      measure.population_criteria = json[:population_criteria]
-      measure.data_criteria = json[:data_criteria]
-      measure.measure_period = json[:measure_period]
-    end
+    hqmf_path = params[:measure][:hqmf].tempfile.path
     
-    measure.save!
-    redirect_to measure_url(measure)
+    measure = Measures::Loader.load(hqmf_path, value_set_path, current_user, value_set_format)
+
+    redirect_to edit_measure_url(measure)
   end
 
   def update

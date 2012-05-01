@@ -3,7 +3,7 @@ module Measures
   # Utility class for loading measure definitions into the database
   class Loader
     
-    def self.load(hqmf_path, value_set_path, user)
+    def self.load(hqmf_path, value_set_path, user, value_set_format=nil)
       
       measure = Measure.new
 
@@ -13,7 +13,8 @@ module Measures
       # Value sets
       if value_set_path
         value_set_parser = HQMF::ValueSet::Parser.new()
-        value_sets = value_set_parser.parse(value_set_path, {format: value_set_parser.get_format(value_set_path)})
+        value_set_format ||= HQMF::ValueSet::Parser.get_format(value_set_path)
+        value_sets = value_set_parser.parse(value_set_path, {format: value_set_format})
         value_sets.each do |value_set|
           set = ValueSet.new(value_set)
           set.measure = measure
@@ -31,6 +32,10 @@ module Measures
         measure.title = json[:title]
         measure.description = json[:description]
         measure.measure_attributes = json[:attributes]
+        
+        measure.category = 'Miscellaneous'
+        #measure.endorser = params[:measure][:endorser]
+        #measure.steward = params[:measure][:steward]
 
         measure.population_criteria = json[:population_criteria]
         measure.data_criteria = json[:data_criteria]
@@ -38,6 +43,7 @@ module Measures
       end
 
       measure.save!
+      measure
 
     end
     

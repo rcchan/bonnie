@@ -6,7 +6,7 @@ class Measure
   field :title, type: String
   field :description, type: String
   field :category, type: String
-  field :steward, type: String
+  field :steward, type: String    # organization who's writing the measure
   
   field :published, type: Boolean
   field :publish_date, type: Date
@@ -67,11 +67,13 @@ class Measure
   # Rebuild from population_criteria, data_criteria, and measure_period JSON
   def as_hqmf_model
     json = {
+      id: self.measure_id,
       title: self.title,
       description: self.description,
       population_criteria: self.population_criteria,
       data_criteria: self.data_criteria,
-      measure_period: self.measure_period
+      measure_period: self.measure_period,
+      attributes: self.measure_attributes
     }
     
     HQMF::Document.from_json(json)

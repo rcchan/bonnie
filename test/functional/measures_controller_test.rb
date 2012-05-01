@@ -21,7 +21,16 @@ class MeasuresControllerTest < ActionController::TestCase
     assert_equal returned_measures.size, 1
     assert_equal @measure, returned_measures.first
 
-    post :create, { measure: { title: "A second measure" } }
+  end
+
+  test "measure index multiple measures" do
+
+    @measure2 = FactoryGirl.create(:measure)
+    @measure2.user = @user
+    @measure2.save
+    
+    get :index
+    assert_response :success
     assert_equal assigns[:measures].size, 2
   end
 
@@ -68,37 +77,12 @@ class MeasuresControllerTest < ActionController::TestCase
     assert_equal assigns[:measure], @measure
   end
 
-  test "create measure without uploaded hqmf" do
-    Measure.delete_all
-    
-    measure_params = {
-      endorser: "NQF",
-      measure_id: "0001",
-      title: "Meh, sure",
-      description: "Sick people get good care and stuff",
-      category: "Miscellaneous",
-      steward: "MITER"
-    }
-    post :create, { measure: measure_params }
-    created_measure = Measure.all.first
-    
-    assert_equal Measure.all.size, 1
-    assert_equal created_measure.user, @user
-    assert_equal created_measure.endorser, measure_params[:endorser]
-    assert_equal created_measure.measure_id, measure_params[:measure_id]
-    assert_equal created_measure.title, measure_params[:title]
-    assert_equal created_measure.description, measure_params[:description]
-    assert_equal created_measure.category, measure_params[:category]
-    assert_equal created_measure.steward, measure_params[:steward]
-    
-    assert_redirected_to measure_url(created_measure)
-  end
-  
   test "create measure with uploaded hqmf 2" do
     Measure.delete_all
     
-    hqmf_file = fixture_file_upload("test/fixtures/measure-defs/0043/0043.xml", "text/xml")
-    post :create, { measure: { hqmf: hqmf_file } }
+    hqmf_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.xml", "text/xml"))
+    value_set_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.xls", "application/vnd.ms-excel"))
+    post :create, { measure: { hqmf: hqmf_file, value_sets: value_set_file} }
     created_measure = Measure.all.first
     
     assert_equal Measure.all.size, 1
@@ -106,7 +90,7 @@ class MeasuresControllerTest < ActionController::TestCase
     refute_nil created_measure.data_criteria
     refute_nil created_measure.measure_period
     
-    assert_redirected_to measure_url(created_measure)
+    assert_redirected_to edit_measure_url(created_measure)
   end
 
   test "update measure" do

@@ -67,4 +67,11 @@ class ActiveSupport::TestCase
     end
     
   end
+  
+  def expose_tempfile(fixture)
+    class << fixture
+      attr_reader :tempfile
+    end
+    fixture
+  end
 end
