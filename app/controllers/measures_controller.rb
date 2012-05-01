@@ -18,8 +18,9 @@ class MeasuresController < ApplicationController
     @measure = Measure.find(params[:id])
   end
 
-  def import_resource
-  
+  def show_nqf
+    @measure = Measure.find(params[:id])
+    @contents = File.read(File.expand_path(File.join('.','test','fixtures','measure-defs',@measure.measure_id,"#{@measure.measure_id}.html")))
   end
   
   def publish
@@ -71,7 +72,12 @@ class MeasuresController < ApplicationController
   end
   
   def select_layout
-    "two_columns"
+    case @_action_name
+    when 'show_nqf'
+      "empty"
+    else
+      "two_columns"
+    end
   end
   
   def validate_authorization!
