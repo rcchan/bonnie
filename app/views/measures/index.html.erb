@@ -1,13 +1,13 @@
 
 <% content_for :right_column do %>
-
-  <%= button_to 'Create New', new_measure_path, method: "get"%>
-  <%= button_to 'Export All', export_all_measures_path, method: "get" %>
-
+  <div class="pull-right" id="pageButtons">
+    <%= button_to 'Create New', new_measure_path, method: "get", class:"btn"%>
+    <%= button_to 'Export All', export_all_measures_path, method: "get", class:"btn" %>
+  </div>
   <!-- start tab nav -->
   <div id="tabs">
-  	<ul>
-  		<li><a href="#tabs-0">my measures</a></li>
+  	<ul class="nav nav-tabs">
+  		<li><a href="#tabs-0" class="active">my measures</a></li>
   		<li><a href="#tabs-1">all published measures</a></li>
   	</ul>
 	

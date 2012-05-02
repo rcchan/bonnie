@@ -1,386 +1,93 @@
-@import "mixins";
+/*!
+ * Bootstrap v2.0.2
+ *
+ * Copyright 2012 Twitter, Inc
+ * Licensed under the Apache License v2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Designed and built with all the love in the world @twitter by @mdo and @fat.
+ * Ported to Sass by brajeshwar@gmail.com
+ */
 
-html {
-  height: 100%; 
-  
-  body {
-  height: 100%;
-  font-family: "Myriad Pro", "Frutiger", Helvetica, Arial;
-  width: 100%;
-  width: 1000px; 
-  line-height: 1.5;
-  }
+// Core variables and mixins
+@import "bootstrap/variables"; // Modify this for custom colors, font-sizes, etc
+
+$gridColumns:             12;
+$gridColumnWidth:         60px;
+$gridGutterWidth:         20px;
+
+$basefont:                13px !default;
+$baseFontFamily:          "Myriad Pro", "Frutiger", Calibri,Thonburi, Helvetica, Arial, sans-serif;
+$linkColor:               #439fac;
+
+@import "bootstrap/mixins";
+
+@mixin font-sans-serif($size: $baseFontSize, $weight: normal, $lineHeight: $baseLineHeight) {
+  font-family: "Myriad Pro", "Frutiger", Helvetica, Arial, sans-serif;
+  @include font-shorthand($size, $weight, $lineHeight);
 }
 
-table {
-  border-collapse: separate;
-  border-spacing: 0; 
-  td, th {
-  vertical-align: baseline; 
-  }
+// CSS Reset
+@import "bootstrap/reset";
+
+// Grid system and page structure
+@import "bootstrap/scaffolding";
+@import "bootstrap/grid";
+@import "bootstrap/layouts";
+
+// Base CSS
+@import "bootstrap/type";
+@import "bootstrap/code";
+@import "bootstrap/forms";
+@import "bootstrap/tables";
+
+// Components: common
+@import "bootstrap/sprites";
+@import "bootstrap/dropdowns";
+@import "bootstrap/wells";
+@import "bootstrap/component-animations";
+@import "bootstrap/close";
+
+// Components: Buttons & Alerts
+@import "bootstrap/buttons";
+@import "bootstrap/button-groups";
+@import "bootstrap/alerts"; // Note: alerts share common CSS with buttons and thus have styles in buttons
+
+// Components: Nav
+@import "bootstrap/navs";
+@import "bootstrap/navbar";
+@import "bootstrap/breadcrumbs";
+@import "bootstrap/pagination";
+@import "bootstrap/pager";
+
+// Components: Popovers
+@import "bootstrap/modals";
+@import "bootstrap/tooltip";
+@import "bootstrap/popovers";
+
+// Components: Misc
+@import "bootstrap/thumbnails";
+@import "bootstrap/labels";
+@import "bootstrap/progress-bars";
+@import "bootstrap/accordion";
+@import "bootstrap/carousel";
+@import "bootstrap/hero-unit";
+
+// Utility classes
+@import "bootstrap/utilities"; // Has to be last to override when necessary
+
+
+// Bonine specific component styles
+@import "bonnie/variables";
+@import "bonnie/mixins";
+@import "bonnie/account";
+@import "bonnie/header";
+@import "bonnie/buttons";
+@import "bonnie/tabs";
+@import "bonnie/utility";
+
+
+#pageButtons {
+  margin:10px;
+  form { float:right;margin:0}
 }
-
-dl {
-  margin-top: 10px;
-  dd {
-    display: table-cell;
-  }
-}
-
-th {
-  color: $dashboardLabel;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-}
-
-blockquote:before, blockquote:after, q:before, q:after {
-  content: ""; 
-}
-
-blockquote, q {
-  quotes: "" ""; 
-}
-
-a img {
-  border: none; 
-}
-
-dt {
-  display: table-cell;
-  width: 160px;
-  color: $dashboardLabel;
-  text-transform: uppercase; 
-}
-
-#container, #dashboardContainer {
-  font-size: 0.9em;
-  height: 100%;
-}
-  
-table td {
-    font-weight: normal;
-    font-size: 1em;
-}
-
-a, {
-  color: black;
-  text-decoration: none; 
-  font-weight: 500;
-}
-  
-#header {
-  background: #f4f4f4;
-  background: -moz-linear-gradient(top, #f8f8f8, #f0f0f0);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f8f8f8), color-stop(100%, #f0f0f0));
-  width: 1000px;
-  
-  a:hover {
-    text-decoration: underline; 
-  }
-
-  #breadcrumbBox {
-    ul.breadcrumbItems {
-      list-style: none;
-      margin-left: 265px;
-      font-size: 1em;
-      li {
-        float: left;
-        margin-top: 5px;
-        color: #333333;
-        a {
-          color: $dashboardText;
-        }
-        .sep {
-          margin: 0 5px; 
-        }
-      }
-    }
-  }
-}
-
-#pageContent {
-  height: 100%;
-  display: table;
-  
-  #providerReports {
-    text-transform: capitalize;
-  } 
-}
-
-#breadcrumbBox {
-  padding: 1px 0 2px;
-  border-bottom: 1px solid $borderColor;
-  background: transparent url("../assets/popHealthMiniLogo.png") 0 10% no-repeat; 
-}
-
-#logOut {
-  padding: 5px 20px 4px 0;
-  text-align: right;
-  font-size: 1em;
-  whitespace: nowrap;
-  .sep {
-    margin: 0 7px 0 5px;
-    color: #cccccc;
-    text-align: center; 
-  }
-  a {
-    color: $dashboardText; 
-  }
-  a:hover {
-    text-decoration: none;
-    color: $linkhover; 
-  } 
-}
-
-#providerReports {
-  display: table-cell;
-  min-width: 230px;
-  max-width: 250px;
-  background-color: $providerReports;
-  height: 100%;
-  vertical-align: top;
-  padding: 0 5px 0 15px;
-  border-right: 1px solid $borderColor;
- 
-  div.groupList {
-    padding-left: 0;
-    
-    ul {
-      li{
-        label{
-          font-size: 1.1em;
-        }
-      }
-    }
-  }
-}
-
-#providerReports h2 {
-  text-transform: uppercase;
-  color: #a3a3a3;
-  border-bottom: 2px solid #ddd;
-  margin-bottom: 0.7em;
-  margin-top: 1em;
-}
-
-#providerReports p {
-  margin-top: 1em;
-}
-
-#providerReports .label {
-  text-transform: none;
-  color: #a3a3a3;
-  font-style: italic;
-}
-
-#providerReports input.alignright {
-    margin-left: 60%;
-}
-
-#measureEditContainer {
-  border-top: 1px solid $measureBorderColor;
-  clear: left;
-  position: relative;
-  padding-left: $main_padding-left;
-  span {
-    margin: 5px 0;
-    padding: 1px 3px;
-    text-align: center;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
-    border-radius: 10px; 
-  }
-  span.and {
-    display: block;
-    width: 3em;
-    background-color: $eligibilityParamGroup; 
-  }
-  span.or {
-    display: block;
-    width: 2em;
-    background-color: #dddddd; 
-  }
-  .paramGroup {
-    margin: 10px 0 10px 0px;
-    border-radius: $radius;
-    -moz-border-radius: $radius;
-    -webkit-border-radius: $radius;
-    padding: 2px;
-    display: table; 
-  }
-  .paramGroup.population {
-    background-color: #cccccc;
-    .paramGroup {
-      background-color: #cccccc;
-      .paramGroup {
-        background-color: #cccccc; 
-      } 
-    }
-    .and {
-      background-color: #dddddd; 
-    }
-  }
-  .paramGroupToggle {
-    margin: 0 0 0 20px; 
-  }
-  .paramItem {
-    background-color: white;
-    border-radius: $radius;
-    -moz-border-radius: $radius;
-    -webkit-border-radius: $radius;
-    padding: 1px 4px 0;
-    display: table;
-    margin-left: 10px;
-    color: black;
-    text-transform: lowercase;
-    .paramBar {
-      margin-left: 5px;
-      background-color: $barValueBkg;
-      width: 100px;
-      display: inline-block; 
-    }
-    .paramBarVal {
-      background-color: $barValueColor;
-      color: $barValueText;
-      height: 100%;
-      padding-left: 0px;
-      font-size: 0.95em;
-      position: relative;
-      span {
-        margin-left: 5px; 
-      }
-      span.short {
-        position: relative;
-        right: -100%;
-        color: black; 
-      }
-    }
-    label {
-      color: black;
-      font-weight: bold;
-      padding-right: 4px; 
-    }
-  } 
-}
-
-#eligibilityMeasures {
-  width: 500px;
-  display: table-cell;
-  padding-right: 20px;
-  h3 {
-    font-size: 1.5em;
-    padding: 5px 20px;
-    display: inline-block;
-    margin: 10px 0 0 0;
-    -moz-border-radius: 20px;
-    -webkit-border-radius: 20px;
-    border-radius: 20px;
-    background-color: $eligibleHdr;
-    em {
-      font-style: italic; 
-    } 
-  }
-  .paramGroup {
-    background-color: $eligibilityParamGroup;
-    .paramGroup {
-      margin-left: 10px;
-      background-color: #51b2bc;
-      width: auto;
-      .paramGroup {
-        margin-left: 10px;
-        background-color: #37696e; 
-      } 
-    } 
-  } 
-}
-
-#outcomeMeasures {
-  width: 500px;
-  display: table-cell;
-  h3 {
-    font-size: 1.5em;
-    padding: 5px 20px;
-    display: inline-block;
-    margin: 10px 0 0 0px;
-    -moz-border-radius: 20px;
-    -webkit-border-radius: 20px;
-    border-radius: 20px;
-    background-color: $outcomeHdr;
-    em {
-      font-style: italic; } }
-  .paramGroup {
-    background-color: $outcomeParamGroup;
-    .and {
-      background-color: $outcomeParamGroup; }
-    .paramGroup {
-      background-color: #9db26d;
-      width: auto;
-      .paramGroup {
-        background-color: #68822c;
-      }
-    }
-  }
-}
-
-.measureDetailTable {
-  padding-top: $top_heading-padding;
-  width: 100%;
-
-  .measureDetailTable table td, #dashboardContainer .measureDetailTable table td {
-    vertical-align: top;
-    padding: 0;
-  }
-
-  h1 {
-    font-size: 1.5em;
-    padding-left: $measureDetailTable-padding; 
-  }
-  
-  dl {
-    margin-bottom: 10px;
-    padding-left: $measureDetailTable-padding; 
-  }
-  dd {
-    display: table-cell;
-    h1 { padding-left: 0; } 
-  }
-  th, td { border: 1px solid lightgray; }
-}
-
-.light_blue_button {
-   border: 1px solid #ccc;
-   background: #ddd;
-   background: -webkit-gradient(linear, left top, left bottom, from(#ddd), to(#ffffff));
-   background: -webkit-linear-gradient(top, #ddd, #ffffff);
-   background: -moz-linear-gradient(top, #ddd, #ffffff);
-   background: -ms-linear-gradient(top, #ddd, #ffffff);
-   background: -o-linear-gradient(top, #ddd, #ffffff);
-   padding: 1.5px 10px 1px 10px;
-   -webkit-border-radius: 14px;
-   -moz-border-radius: 14px;
-   border-radius: 14px;
-   color: #73beff;
-   font-size: 13px;
-   font-family: Verdana, Helvetica, Arial, Sans-Serif;
-   text-decoration: none;
-   vertical-align: middle;
-   }
- 
- .light_blue_button_lg {
-    border: 1px solid #ccc;
-    background: #ddd;
-    background: -webkit-gradient(linear, left top, left bottom, from(#ddd), to(#ffffff));
-    background: -webkit-linear-gradient(top, #ddd, #ffffff);
-    background: -moz-linear-gradient(top, #ddd, #ffffff);
-    background: -ms-linear-gradient(top, #ddd, #ffffff);
-    background: -o-linear-gradient(top, #ddd, #ffffff);
-    padding: 0px 25px 0px 25px;
-    -webkit-border-radius: 14px;
-    -moz-border-radius: 14px;
-    border-radius: 14px;
-    color: #73beff;
-    font-size: 15px;
-    font-family: Verdana, Helvetica, Arial, Sans-Serif;
-    text-decoration: none;
-    vertical-align: middle;
-    }

@@ -1,0 +1,23 @@
+/* Bonnie Tabs */
+
+.nav-tabs > li > a {
+  padding-bottom:7x;
+  @include border-radius(22px 22px 0 0);
+  color:black;
+  font-family:"HelveticaNeue-Light";
+  line-height:10px;
+  font-size:15px;
+  }
+  
+#tabs {
+  padding-top:15px;
+  
+  .nav-tabs > li {
+    margin-left:12px;
+    a.active {
+      border:1px solid $numerator;
+      background-color:$numerator;
+    }
+    
+  }
+}

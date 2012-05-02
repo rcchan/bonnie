@@ -1,0 +1,10 @@
+/* Bonnie rounded button style overrides */
+
+#pageContent .btn {
+  color:#3bd;
+  @include border-radius(15px);
+  padding: 3px 16px 2px;
+  line-height:15px;
+  margin-left:10px;
+  }
+  

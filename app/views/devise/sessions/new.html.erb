@@ -1,11 +1,11 @@
 <%= form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f| %>
-<div id="login">
+<div id="login_dialog">
   <div id="cap-top"></div>
   <div id="cap-body">
     <div id="branding">
       <%= image_tag "bonnie_welcome.png", :id => 'imgLogo', :title => 'Bonnie welcomes you!', :alt => 'bonnie logo' %>
     </div>
-    <div id="panelLogin" class="panel">
+    <div class="panel">
       <%= f.label :username %>
       <%= f.email_field :username %>
       <%= f.label :password %>
@@ -16,7 +16,7 @@
       </div>
 
       <div class="actions">
-        <a class="bluebutton" href="#" onclick="submitLoginform();"><span>Login</span></a>
+        <a class="btn" href="#" onclick="submitLoginform();"><span>Login</span></a>
       </div>
 
       <%= render :partial => "devise/shared/links" %>
