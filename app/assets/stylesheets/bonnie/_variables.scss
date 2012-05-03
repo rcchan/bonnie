@@ -3,7 +3,7 @@
 
 $accountBkgColor: #fafafa;
 $inputBkgColor: #fafafa;
-$borderColor: #dddddd;
+$borderColor: #ccc;
 $errorMsgColor: #f50000;
 $graytext: #999999;
 $orange: #EDA039;
@@ -34,7 +34,6 @@ $bottom_heading-padding: 15px;
 $measurePopulationChartBar: #dddddd;
 $measurePopulationChartValue: black;
 $headerBkg: #eeeeee;
-$measureTitleText: #373737;
 $measurementPeriodText: #646464;
 $measureList: black;
 $eligibleHdr: #54b4bd;
@@ -55,6 +54,7 @@ $tableText: #646464;
 $denominator: #40b3bc;
 $numerator: #9cc45e;
 $numeratorActive : darken($numerator, 10%);
+$measureTitleText: darken($numerator, 10%);
 
 $patients: #dddddd;
 $exclusions: #eda039;
@@ -71,7 +71,6 @@ $active-tab_padding: 6px;
 $active-tab_border: 3px solid $borderColor;
   
 
-$borderColor: #cccccc;
 $eligibilityParamGroup: #a4d9dd;
 $outcomeParamGroup: #cfe1a5;
 

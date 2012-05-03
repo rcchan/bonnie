@@ -25,6 +25,22 @@
       background-color:$numerator;
       color:black;
     }
+    &.active.numerator a {
+      border:1px solid $numerator;
+      background-color:$numerator;
+      color:black;
+    }
+    &.active.denominator a {
+      border:1px solid $denominator;
+      background-color:$denominator;
+      color:black;
+    }
+    &.active.initial-population a {
+      border:1px solid $borderColor;
+      background-color:$borderColor;
+      color:black;
+    }
+    
     
   }
 }
