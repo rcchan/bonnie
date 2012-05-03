@@ -11,6 +11,7 @@ class MeasuresController < ApplicationController
   end
   
   def index
+    @measure = Measure.new
     @measures = current_user.measures
   end
 

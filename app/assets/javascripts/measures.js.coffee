@@ -42,7 +42,3 @@ renderMeasureJson = (data) ->
     $("#exclusionMeasureItems").hide()
     $("#exclusionPanel").show()
 
-# jquery-ui tabs
-$ ->
-  $('#tabs').tabs();
-  $('#tabs').tabs("select", 0);  # select my measures tab
