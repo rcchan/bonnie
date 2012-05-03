@@ -47,11 +47,16 @@ module Measures
         @db['measures'].update({"_id" => measure_def["_id"]}, measure_def)
       end
       
+      measure_defs.count
+      
     end
     
     def drop_measures
       drop_collection('bundles')
       drop_collection('measures')
+      drop_collection('selected_measures')
+      drop_collection('patient_cache')
+      drop_collection('query_cache')
     end
     
     def drop_collection(collection)
