@@ -107,4 +107,12 @@ class MeasuresController < ApplicationController
     
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "measures.zip"
   end
+  
+  def debug
+    @measure = Measure.find(params[:id])
+    # render :json => @measure.to_json
+    puts "oh hai"
+    render "measures/debug"
+  end
+  
 end

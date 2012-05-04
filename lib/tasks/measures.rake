@@ -113,7 +113,7 @@ namespace :measures do
     File.open(out_file, 'w') do |f| 
 
       if args.include_library
-        f.write("underscore_js = function () { #{File.open(File.join('.','lib','assets','javascripts','libraries','underscore_min.js')).read} }\n")
+        f.write("underscore_js = function () { #{File.open(File.join('.','app','assets','javascripts','underscore-min.js')).read} }\n")
         f.write("underscore_js();\n")
         f.write("map_reduce_utils_js = function () {#{File.open(File.join('.','lib','assets','javascripts','libraries','map_reduce_utils.js')).read}}\n")
         f.write("map_reduce_utils_js();\n")
