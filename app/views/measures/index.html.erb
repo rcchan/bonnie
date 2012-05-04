@@ -1,45 +1,72 @@
 
 <% content_for :right_column do %>
+  <div class="pull-right" id="pageButtons">
+    <a href="#createNewMeasureDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Create New</a>
+    <%= link_to 'Export All', export_all_measures_path, method: "get", class:"btn" %>
+  </div>
 
-  <%= button_to 'Create New', new_measure_path, method: "get"%>
-  <%= button_to 'Export All', export_all_measures_path, method: "get" %>
+  <%= render partial: 'dialog', locals: { submit_method: 'post', submit_text: 'Create' } %>
 
   <!-- start tab nav -->
   <div id="tabs">
-  	<ul>
-  		<li><a href="#tabs-0">my measures</a></li>
-  		<li><a href="#tabs-1">all published measures</a></li>
+  	<ul class="nav nav-tabs">
+  		<li class="active"><a href="#tabs-0" data-toggle="tab">my measures</a></li>
+  		<li><a href="#tabs-1" data-toggle="tab">all published measures</a></li>
   	</ul>
 	
     <!-- start my measures content -->
-  	<div id="tabs-0">
-  	  <table class="measureDetailTable">
-        <th>NQF</th>
-        <th>title</th>
-        <th>version</th>
-        <th>status</th>
-        <th>date</th>
-        <th>actions</th>
-
-    	  <%= render :partial => 'measure', :collection => current_user.measures %>
-    	</table>
+    <div class="tab-content">
+  	<div id="tabs-0" class="tab-pane active">
+  	  <table class="table table-measure-detail">
+  	    <thead>
+    	    <tr>
+            <th>NQF</th>
+            <th>title</th>
+            <th>version</th>
+            <th>status</th>
+            <th>date</th>
+            <th><!-- actions --></th>
+          </tr>
+        </thead>
+        <tbody>
+      	  <%= render :partial => 'measure', :collection => current_user.measures %>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td></td>
+            <td colspan="5">Total measures: <%= current_user.measures.length %></td>
+          </tr>
+        </tfoot>
+      </table>
   	</div><!-- end my measures content -->
 	
   	<!-- start published measures content -->
-  	<div id="tabs-1">
-  	  <table class="measureDetailTable">
-        <th>NQF</th>
-        <th>title</th>
-        <th>version</th>
-        <th>status</th>
-        <th>date</th>
-        <th>actions</th>
-
-  	  <%= render :partial => 'measure', :collection => @measures.published %>
+  	<div id="tabs-1" class="tab-pane">
+  	  <table class="table table-measure-detail published-measures"> 
+  	    <thead>
+          <tr>
+            <th>NQF</th>
+            <th>title</th>
+            <th>version</th>
+            <th>publisher</th>
+            <th>date</th>
+            <th><!-- actions --></th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= render :partial => 'measure', :collection => @measures.published %>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td></td>
+            <td colspan="5">Total measures: <%= @measures.published.length %></td>
+          </tr>
+        </tfoot>
     	</table>
   	</div><!-- end published measures content -->
-	
-  </div><!-- end tab nav -->
+	</div>
+  </div><!-- end #tabs -->
+
 
 
 	<br />

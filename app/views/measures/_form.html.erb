@@ -1,37 +1,17 @@
-<%= simple_form_for(@measure, :html => {:method => submit_method, :multipart => true}) do |f| %>
-  <table>
-    <tbody>
-      <% if @editing %>
-      
-      <tr>
-        <td><%= f.label :measure_id_label, "ID: " %></td>
-        <td>
-          <%= f.text_field :measure_id %>
-        </td>
-      </tr>
-      <tr>
-        <td><%= f.label :endorser_label, "Endorser: " %></td>
-        <td>
-          <%= f.text_field :endorser %>
-        </td>
-      </tr>
-      <% ["title", "description", "category", "steward"].each do |field| %>
-        <tr>
-          <td><%= f.label "#{field}_label", "#{field.capitalize}: " %></td>
-          <td><%= f.text_field "#{field}" %></td>
-        </tr>
-      <% end %>
-      <% end %>
-      <tr>
-        <td><%= f.label :value_sets_label, "Value Sets:" %></td>
-        <td><%= f.file_field :value_sets %></td>
-      </tr>
-      <tr>
-        <td><%= f.label :hqmf_label, "HQMF File:" %></td>
-        <td><%= f.file_field :hqmf %></td>
-      </tr>
-    </tbody>
-  </table>
-  
+<%= simple_form_for(@measure, :html => {:method => submit_method, :multipart => true, :class => 'form-stacked'}) do |f| %>
+  <% if @editing %>
+    <label><%= f.label :measure_id_label, "ID: " %></label>
+    <%= f.text_field :measure_id %>
+    <label><%= f.label :endorser_label, "Endorser: " %></label>
+    <%= f.text_field :endorser %>
+    <% ["title", "description", "category", "steward"].each do |field| %>
+      <label><%= f.label "#{field}_label", "#{field.capitalize}: " %></label>
+      <%= f.text_field "#{field}" %>
+    <% end %>
+  <% end %>
+  <label><%= f.label :value_sets_label, "Value Sets:" %></label>
+  <%= f.file_field :value_sets %>
+  <label><%= f.label :hqmf_label, "HQMF File:" %></label>
+  <%= f.file_field :hqmf %>
   <%= f.submit submit_text %>
 <% end %>

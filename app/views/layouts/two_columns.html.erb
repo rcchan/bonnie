@@ -20,20 +20,20 @@
 </head>
 <body>
 
-  <div id="dashboardContainer">
+  <div id="container">
     <% unless request.xhr?%>
       <%= render :partial => 'shared/header' %>
     <% end %>
-	<div id="pageContent">
-	  <div id="providerReports">
-		  <%= yield :left_column %>
-	  </div><!-- end #providerReports --> 
-	  <div id="dashboardPeriod">
-	    <div class="measureDetailTable">
-		  <%= yield :right_column %>
-	    </div><!-- end #measureDetailTable -->
-	  </div><!-- end #dashboardPeriod -->
-	</div><!-- end #pageContent -->
+  	<div id="pageContent">
+	    <div id="providerReports">
+		    <%= yield :left_column %>
+  	  </div><!-- end #providerReports --> 
+	    <div id="dashboardPeriod">
+	      <div>
+  		    <%= yield :right_column %>
+  	    </div>
+	    </div><!-- end #dashboardPeriod -->
+  	</div><!-- end #pageContent -->
   </div><!-- end #dashboardContainer -->
 
 </body>

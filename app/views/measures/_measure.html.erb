@@ -5,8 +5,10 @@
     <td><%= measure.published ? "published" : "draft" %></td>
     <td><%= measure.publish_date %></td>
     <td>
-      <%= button_to 'Publish', publish_measure_path(measure) %>
+      <!-- temporarily disable the publish button here -->
+      <%# button_to 'Publish', publish_measure_path(measure) %>
       <%= link_to 'Edit', edit_measure_path(measure) %>
-      <%= link_to 'Destroy', measure, confirm: 'Are you sure?', method: :delete %>
+      <!-- for now, hide the delete link for this measure -->
+      <%# link_to 'Destroy', measure, confirm: 'Are you sure?', method: :delete %>
     </td>
   </tr>

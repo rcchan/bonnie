@@ -1,0 +1,46 @@
+/* Bonnie Tabs */
+
+
+.nav-tabs > li > a {
+  padding-bottom:7px;
+  padding-right:15px;
+  padding-left:15px;
+  @include border-radius(22px 22px 0 0);
+  color:$gray;
+  font-family:"HelveticaNeue-Light";
+  line-height:10px;
+  font-size:15px;
+  border:1px solid $borderColor;
+  border-bottom:none;
+  }
+  
+#tabs {
+  padding-top:15px;
+  .nav {margin-bottom:0;}
+  .nav-tabs { border-color:$numerator; }
+  .nav-tabs > li {
+    margin-left:12px;
+    &.active a {
+      border:1px solid $numerator;
+      background-color:$numerator;
+      color:black;
+    }
+    &.active.numerator a {
+      border:1px solid $numerator;
+      background-color:$numerator;
+      color:black;
+    }
+    &.active.denominator a {
+      border:1px solid $denominator;
+      background-color:$denominator;
+      color:black;
+    }
+    &.active.initial-population a {
+      border:1px solid $borderColor;
+      background-color:$borderColor;
+      color:black;
+    }
+    
+    
+  }
+}

@@ -7,15 +7,30 @@ require './lib/measures/exporter'
 
 namespace :measures do
 
-  desc 'Create measure definitions'
+  desc 'Export definition fo a single measure'
   task :export,[:id] do |t, args|
     measure = Measure.by_measure_id(args.id)
 
     measure_path = File.join(".", "tmp", "measures")
     FileUtils.mkdir_p measure_path
-    file = File.open(File.expand_path(File.join(measure_path, "measures.zip")), 'w')
+
+    out_file = File.expand_path(File.join(measure_path, "measures.zip"))
+    file = File.open(out_file, 'w')
 
     zip = Measures::Exporter.export(file, measure)
+    puts "wrote measure #{args.id} definition to: #{out_file}"
+  end
+  
+  desc 'Export definitions for all measures'
+  task :export_all do |t, args|
+    measure_path = File.join(".", "tmp", "measures")
+    FileUtils.mkdir_p measure_path
+    out_file = File.expand_path(File.join(measure_path, "measures.zip"))
+    file = File.open(out_file, 'w')
+
+    measures = Measure.all
+    zip = Measures::Exporter.export(file, measures)
+    puts "wrote #{measures.count} measure definitions to: #{out_file}"
   end
   
   desc 'Remove the measures and bundles collection'
@@ -25,12 +40,15 @@ namespace :measures do
   end
 
   desc 'Load a set of measures for popHealth'
-  task :import, [:measures_zip, :db_name, :db_host, :db_port] do |task, args|
+  task :import, [:measures_zip, :db_name, :db_host, :db_port, :keep_existing] do |task, args|
+    raise "The path to the measures zip file must be specified" unless args.measures_zip
+    raise "The database name to load to must be specified" unless args.db_name
     importer = Measures::Importer.new(args.db_name, args.db_host, args.db_port)
-    importer.drop_measures()
+    importer.drop_measures() unless args.keep_existing
     zip = File.open(args.measures_zip)
     
-    importer.import(zip)
+    count = importer.import(zip)
+    puts "Successfully loaded #{count} measures from #{args.measures_zip} to #{args.db_name}"
   end
 
   desc 'Load a measure defintion into the DB'
@@ -94,43 +112,40 @@ namespace :measures do
   task :build, [:hqmf, :codes, :include_library, :patient] do |t, args|
 
     FileUtils.mkdir_p File.join(".","tmp",'measures')
-    file = File.expand_path(args.hqmf)
-    version = HQMF::Parser::HQMF_VERSION_1
-    filename = Pathname.new(file).basename
-    doc = HQMF::Parser.parse(File.open(file).read, version)
-
-    gen = HQMF2JS::Generator::JS.new(doc)
-
-    codes_file = File.expand_path(args.codes)
-    codes = HQMF2JS::Generator::CodesToJson.from_xls(codes_file)
-
+    hqmf_path = File.expand_path(args.hqmf)
+    codes_path = File.expand_path(args.codes)
+    filename = Pathname.new(hqmf_path).basename
+    
+    measure = Measures::Loader.load(hqmf_path, codes_path, nil, nil, false)
+    measure_js = Measures::Exporter.execution_logic(measure)
+        
     if args.patient
       patient_file = File.expand_path(args.patient)
-      fixture_json = File.read(patient_file)
+      patient_json = File.read(patient_file)
     end
 
     out_file = File.join(".","tmp",'measures',"#{filename}.js")
     File.open(out_file, 'w') do |f| 
 
       if args.include_library
-        f.write("underscore_js = function () { #{File.open(File.join('.','app','assets','javascripts','underscore-min.js')).read} }\n")
-        f.write("underscore_js();\n")
-        f.write("map_reduce_utils_js = function () {#{File.open(File.join('.','lib','assets','javascripts','libraries','map_reduce_utils.js')).read}}\n")
-        f.write("map_reduce_utils_js();\n")
-        library_functions = HQMF2JS::Generator::JS.library_functions if args.include_library
-        f.write(library_functions) 
+        library_functions = Measures::Exporter.library_functions
+        ['underscore_min','map_reduce_utils'].each do |function|
+          f.write("#{function}_js = function () { #{library_functions[function]} }\n")
+          f.write("#{function}_js();\n")
+        end
+        f.write(library_functions['hqmf_utils'] + "\n") 
       end
 
-      f.write(gen.to_js(codes))
+      f.write("execute_measure = function(patient) {\n #{measure_js} \n}\n")
+      f.write("emitted = []; emit = function(id, value) { emitted.push(value); } \n")
+      f.write("ObjectId = function(id, value) { return 1; } \n")
 
       if args.patient
         f.write("// #########################\n")
         f.write("// ######### PATIENT #######\n")
         f.write("// #########################\n\n")
 
-        f.write("var patient_json = #{fixture_json};\n")
-        initialize_patient = 'var patient = new hQuery.Patient(patient_json);'
-        f.write("#{initialize_patient}\n")
+        f.write("var patient = #{patient_json};\n")
       end
 
     end
