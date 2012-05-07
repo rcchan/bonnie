@@ -111,7 +111,7 @@ Although no study has determined if long-term β-adrenoceptor blocker therapy sh
    <subjectOf>
       <measureAttribute>
          <templateId root="2.16.840.1.113883.3.560.1.74"/>
-         <id root="51ED58C1-2E6D-4ED8-9B64-76C4281BBDA0"/>
+         <id root="03DDA004-7430-44A2-A351-B72C3C6145A7"/>
          <code code="MSRTP" displayName="Measurement period" codeSystem="2.16.840.1.113883.3.560"/>
          <value xsi:type="EXPR_PQ" value="12" unit="mo">
             <expression mediaType="text/plain">measureEndDate - measureStartDate</expression>
