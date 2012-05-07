@@ -33,6 +33,11 @@
     width: 2em;
     background-color: #dddddd; 
   }
+  span.not {
+    display: block;
+    background-color: #F00; 
+    width: 3.3em;
+  }
   .paramGroup {
     margin: 10px 0 10px 0px;
     border-radius: $radius;

@@ -21,9 +21,14 @@ module Measures
         zip << bundle_json
 
         measures.each do |measure|
-          measure_json = Measures::Exporter.measure_json(measure.measure_id).to_json
-          zip.put_next_entry(File.join(json_path, "#{measure.measure_id}.json"))
-          zip << measure_json
+#          begin
+            measure_json = Measures::Exporter.measure_json(measure.measure_id).to_json
+            zip.put_next_entry(File.join(json_path, "#{measure.measure_id}.json"))
+            zip << measure_json
+#          rescue Exception => e
+#            binding.pry
+#            puts "Error exporting measure #{measure.measure_id}: #{e.message} \n"
+#          end
         end
       end
     end
@@ -38,7 +43,7 @@ module Measures
     
     def self.measure_json(measure_id)
       measure = Measure.by_measure_id(measure_id).first
-      buckets = measure.parameter_json
+      buckets = Measure.pophealth_parameter_json(measure.parameter_json)
       
       {
         id: measure.measure_id,

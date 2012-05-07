@@ -5,15 +5,19 @@
         var measure = data;
         var elemParent;
         var addParamItems = function(obj,elemParent,container) {
-          var items = obj['and'] || obj['or'];
+          var items = obj["items"]
+          
           if ($.isArray(items)) {
-            var conjunction = obj['and'] ? 'and' : 'or';
+            var conjunction = obj['conjunction'];
             // add the grouping container
             if (!container) {elemParent = $("#ph_tmpl_paramGroup").tmpl({}).appendTo(elemParent).find(".paramItem:last");}
               $.each(items,function(i,node) {
                 addParamItems(node,elemParent);
                 if (i < items.length-1) {
-                  $(elemParent).append("<span class='"+conjunction+"'>"+conjunction+"</span>");
+                  next = items[i+1]
+                  var negation = ''
+                  if (next['negation']) negation = ' not'
+                  $(elemParent).append("<span class='"+conjunction+negation+"'>"+conjunction+negation+"</span>");
                 }
               });
             } else {
