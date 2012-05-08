@@ -112,7 +112,7 @@ The components of an evaluation for suicide risk [include an assessment of the f
    <subjectOf>
       <measureAttribute>
          <templateId root="2.16.840.1.113883.3.560.1.74"/>
-         <id root="D91C1A2E-B9D1-4227-8EFA-28827D03CBC6"/>
+         <id root="7E5039F8-8EDB-47BF-A55E-925D514C8F03"/>
          <code code="MSRTP" displayName="Measurement period" codeSystem="2.16.840.1.113883.3.560"/>
          <value xsi:type="EXPR_PQ" value="12" unit="mo">
             <expression mediaType="text/plain">measureEndDate - measureStartDate</expression>

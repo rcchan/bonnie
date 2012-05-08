@@ -136,7 +136,7 @@ Measurements of BMD made at the hip predict hip fracture better than measurement
    <subjectOf>
       <measureAttribute>
          <templateId root="2.16.840.1.113883.3.560.1.74"/>
-         <id root="01A8D7B4-D670-4C8A-AF96-131B2873FF1C"/>
+         <id root="5D1A9794-FCB7-4236-B502-7752DD1F9152"/>
          <code code="MSRTP" displayName="Measurement period" codeSystem="2.16.840.1.113883.3.560"/>
          <value xsi:type="EXPR_PQ" value="12" unit="mo">
             <expression mediaType="text/plain">measureEndDate - measureStartDate</expression>

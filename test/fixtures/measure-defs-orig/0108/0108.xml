@@ -146,7 +146,7 @@ In assessing for clinically significant growth reduction, it is recommended that
    <subjectOf>
       <measureAttribute>
          <templateId root="2.16.840.1.113883.3.560.1.74"/>
-         <id root="BFDC2DCB-6A8A-4495-8698-445351AE93EB"/>
+         <id root="3E74DF6E-443A-496C-BA79-D3B5547674B0"/>
          <code code="MSRTP" displayName="Measurement period" codeSystem="2.16.840.1.113883.3.560"/>
          <value xsi:type="EXPR_PQ" value="12" unit="m">
             <expression mediaType="text/plain">measureEndDate - measureStartDate</expression>

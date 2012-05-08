@@ -113,7 +113,7 @@ ACCP:  For long-term treatment after PCI, the guideline developers recommend asp
    <subjectOf>
       <measureAttribute>
          <templateId root="2.16.840.1.113883.3.560.1.74"/>
-         <id root="C1CDB0E0-7C02-4356-8951-591E527DA508"/>
+         <id root="3C626290-9105-4A4F-BF03-5258BE87A47A"/>
          <code code="MSRTP" displayName="Measurement period" codeSystem="2.16.840.1.113883.3.560"/>
          <value xsi:type="EXPR_PQ" value="12" unit="mo">
             <expression mediaType="text/plain">measureEndDate - measureStartDate</expression>

@@ -39,20 +39,46 @@ class Measure
     publishings.by_version(self.version).first
   end
   
-    # Reshapes the measure into the JSON necessary to build the popHealth parameter view for stage one measures.
-    # Returns a hash with population, numerator, denominator, and exclusions
-    def parameter_json version = HQMF::Parser::HQMF_VERSION_1
-      parameter_json = {}
+  # Reshapes the measure into the JSON necessary to build the popHealth parameter view for stage one measures.
+  # Returns a hash with population, numerator, denominator, and exclusions
+  def parameter_json version = HQMF::Parser::HQMF_VERSION_1
+    parameter_json = {}
 
-      title_mapping = { "IPP" => "population", "DENOM" => "denominator", "NUMER" => "numerator", "EXCL" => "exclusions"}
-      self.population_criteria.each do |population, criteria|
-        title = title_mapping[population]
-        logic_json = parse_hqmf_preconditions(criteria, version)
-        parameter_json[title] = logic_json
-      end
+    title_mapping = { "IPP" => "population", "DENOM" => "denominator", "NUMER" => "numerator", "EXCL" => "exclusions"}
+    self.population_criteria.each do |population, criteria|
+      title = title_mapping[population]
+      logic_json = parse_hqmf_preconditions(criteria, version)
+      element = {}
+      element["conjunction"] = "and"
+      element["items"] = logic_json
       
-      parameter_json
+      parameter_json[title] = element
     end
+    
+    parameter_json
+  end
+  
+  def self.pophealth_parameter_json(parameter_json)
+    json = {}
+    parameter_json.keys.each do |key|
+      json[key] = pophealth_element_json(parameter_json[key])
+    end
+    json
+  end
+  
+  def self.pophealth_element_json(json)
+    if (json['items'])
+      section = {}
+      items = []
+      json['items'].each do |item|
+        items << pophealth_element_json(item)
+      end
+      section[json['conjunction']] = items
+      section
+    else
+      json
+    end
+  end
   
   # Returns the hqmf-parser's ruby implementation of an HQMF document.
   # Rebuild from population_criteria, data_criteria, and measure_period JSON
@@ -79,35 +105,42 @@ class Measure
   # This is a helper for parameter_json.
   # Return recursively generated JSON that can be imported into popHealth or shown as parameters in Bonnie.
   def parse_hqmf_preconditions(criteria, version)
-    fragment = {}
     conjunction_mapping = { "allTrue" => "and", "atLeastOneTrue" => "or" } # Used to convert to stage one, if requested in version param
     
     if criteria["conjunction?"] # We're at the top of the tree
+      fragment = []
       criteria["preconditions"].each do |precondition|
-        result = parse_hqmf_preconditions(precondition, version)
-        merge_logical_elements(fragment, result)
+        fragment << parse_hqmf_preconditions(precondition, version)
       end
+      return fragment
     else # We're somewhere in the middle
       conjunction = criteria["conjunction_code"]
       conjunction = conjunction_mapping[conjunction] if conjunction_mapping[conjunction] && version == HQMF::Parser::HQMF_VERSION_1
-      fragment[conjunction] = []
+      element = {}
+      element["conjunction"] = conjunction
+      element["items"] = []
+      element["negation"] = criteria["negation"] if criteria["negation"]
       criteria["preconditions"].each do |precondition|
         if precondition["reference"] # We've hit a leaf node - This is a data criteria reference
-          fragment[conjunction] << parse_hqmf_data_criteria(data_criteria[precondition["reference"]])
+          element["items"] << parse_hqmf_data_criteria(data_criteria[precondition["reference"]])
+          if precondition['preconditions']
+            precondition['conjunction_code'] = 'and'
+            element["items"] << parse_hqmf_preconditions(precondition, version)
+          end
         else # There are additional layers below
-          fragment[conjunction] << parse_hqmf_preconditions(precondition, version)
+          element["items"] << parse_hqmf_preconditions(precondition, version)
         end
       end if criteria["preconditions"]
+      return element
     end
     
-    fragment
   end
   
   # merges logical elements.  If we have an existing element, add to the array, otherwise merge the hash
   def merge_logical_elements(root, element)
     element.keys.each do |key|
       if (root[key])
-        root[key].concat(element[key])
+        root[key]["items"].concat(element[key]["items"])
       else
         root.merge!(key => element[key])
       end
@@ -115,6 +148,7 @@ class Measure
   end
   
   def remove_category_from_name(name, category)
+    return name unless category
     last_word_of_category = category.split.last.gsub(/_/,' ')
     name =~ /#{last_word_of_category}. (.*)/i # The portion after autoformatted text, i.e. actual name (e.g. pneumococcal vaccine)
     $1
@@ -147,7 +181,7 @@ class Measure
     title = "#{name} #{temporal_text}"
     
     fragment["title"] = title
-    fragment["category"] = category.gsub(/_/,' ')
+    fragment["category"] = category.gsub(/_/,' ') if category
     fragment
   end
 

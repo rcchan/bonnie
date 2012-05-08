@@ -113,7 +113,7 @@ American Diabetes Association
    <subjectOf>
       <measureAttribute>
          <templateId root="2.16.840.1.113883.3.560.1.74"/>
-         <id root="55BFEB56-4FFF-477E-9D2D-3F34C14FD057"/>
+         <id root="FA53DA92-1ABD-4051-837D-457AF37736ED"/>
          <code code="MSRTP" displayName="Measurement period" codeSystem="2.16.840.1.113883.3.560"/>
          <value xsi:type="EXPR_PQ" value="12" unit="mo">
             <expression mediaType="text/plain">measureEndDate - measureStartDate</expression>

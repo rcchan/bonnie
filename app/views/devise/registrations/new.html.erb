@@ -46,9 +46,6 @@
             <%= f.text_field :company_url %>
           </li>
         </ul>
-        <% @bundles.each do |bundle| %>
-        <%= raw bundle["license"] %>
-        <% end %>
         <div id="regcheckbox">
           <%= f.check_box :agree_license %>
           <label for="agree_license">I agree to the above Terms and Conditions of use</label>
