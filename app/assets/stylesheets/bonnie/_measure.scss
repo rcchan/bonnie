@@ -16,7 +16,7 @@
   position: relative;
   padding-left: $main_padding-left;
   span {
-    margin: 5px 0;
+    margin: 5px 0 10px 6px;
     padding: 1px 3px;
     text-align: center;
     -moz-border-radius: 10px;
@@ -42,11 +42,12 @@
     display: table; 
   }
   .paramGroup.population {
-    background-color: #cccccc;
-    .paramGroup {
-      background-color: #cccccc;
+    background-color: #dcdcdc;
+    // color codes for nested initial population groups
+    .paramGroup { 
+      background-color: #dcdcdc;
       .paramGroup {
-        background-color: #cccccc; 
+        background-color: #dcdcdc; 
       } 
     }
     .and {
@@ -66,6 +67,13 @@
     margin-left: 10px;
     color: black;
     text-transform: lowercase;
+    .paramText {
+      padding:2px 0 0 45px;
+      
+ 
+      
+
+    }
     .paramBar {
       margin-left: 5px;
       background-color: $barValueBkg;
@@ -97,8 +105,7 @@
 }
 
 #eligibilityMeasures {
-  width: 500px;
-  xdisplay: table-cell;
+  width:500px;
   padding-right: 20px;
   h3 {
     font-size: 1.5em;
@@ -124,12 +131,34 @@
         background-color: #37696e; 
       } 
     } 
-  } 
+  }
+  .paramItem .paramText {
+     
+      &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
+        background:white url(/assets/treatment_blue_dark.png) 0 2px no-repeat;
+      }
+      &.diagnosis, &.symptom  {
+        background:white url(/assets/condition_blue_dark.png) 0 2px no-repeat;
+      }
+      &.encounter, &.physical {
+        background:white url(/assets/encounter_blue_dark.png) 0 2px no-repeat;
+      }
+      &.laboratory, &.substance {
+        background:white url(/assets/observation_blue_dark.png) 0 2px no-repeat;
+      }
+      &.medication {
+        background:white url(/assets/medication_blue_dark.png) 0 2px no-repeat;
+      }
+      &.patient, &.risk {
+        background:white url(/assets/demographic_blue_dark.png) 0 2px no-repeat;
+      }
+      
+
+    }
 }
 
 #outcomeMeasures {
-  width: 500px;
-  xdisplay: table-cell;
+  width:500px;
   h3 {
     font-size: 1.5em;
     padding: 5px 20px;
@@ -140,7 +169,8 @@
     border-radius: 20px;
     background-color: $outcomeHdr;
     em {
-      font-style: italic; } }
+      font-style: italic; }
+  }
   .paramGroup {
     background-color: $outcomeParamGroup;
     .and {
@@ -149,12 +179,31 @@
       background-color: #9db26d;
       width: auto;
       .paramGroup {
-        background-color: #68822c;
+        background-color: #6c8631;
       }
     }
   }
+  .paramItem .paramText {  
+    &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
+        background:white url(/assets/treatment_green_dark.png) 0 2px no-repeat;
+      }
+      &.diagnosis, &.symptom  {
+        background:white url(/assets/condition_green_dark.png) 0 2px no-repeat;
+      }
+      &.encounter, &.physical {
+        background:white url(/assets/encounter_green_dark.png) 0 2px no-repeat;
+      }
+      &.laboratory, &.substance {
+        background:white url(/assets/observation_green_dark.png) 0 2px no-repeat;
+      }
+      &.medication {
+        background:white url(/assets/medication_green_dark.png) 0 2px no-repeat;
+      }
+      &.patient, &.risk {
+        background:white url(/assets/demographic_green_dark.png) 0 2px no-repeat;
+      }
+    }
 }
-
 
 
 
