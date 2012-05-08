@@ -1,9 +1,17 @@
 <% content_for :right_column do %>
-	<h1>Editing measure</h1>
+  
+  <p id="notice"><%= notice %></p>
+	
+
+<h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
+<div id="measureDetailInformation" style="margin-left:15px;">
+
+	<h2>Editing measure details</h2>
 
 	<%= render partial: 'form', locals: { submit_method: 'put', submit_text: 'Save' } %>
 
-	<%= link_to 'Show', @measure %> |
-	<%= link_to 'Back', measures_path %>
+	<%= link_to 'Show parameter view', @measure %> <span class="sep">|</span>
+	<%= link_to 'Back to all measures', measures_path %>
+</div>
 <% end -%>
 
