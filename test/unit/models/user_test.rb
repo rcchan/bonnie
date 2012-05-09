@@ -17,4 +17,8 @@ class UserTest < ActiveSupport::TestCase
     assert_equal @user, found_user
   end
   
+  test "fullname should return proper value" do
+    @user.full_name.must_equal "first last"
+  end
+  
 end

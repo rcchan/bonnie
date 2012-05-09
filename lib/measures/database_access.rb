@@ -18,10 +18,6 @@ module Measures
       if @db == nil
         @db = Mongo::Connection.new(@db_host, @db_port).db(@db_name)
       end
-      Mongoid.configure do |config|
-        config.master = Mongo::Connection.new(@db_host, @db_port).db(@db_name)
-      end
-      
       @db
     end
   end

@@ -39,6 +39,14 @@ class Measure
     publishings.by_version(self.version).first
   end
   
+  def data_criteria_by_oid
+    by_oid = {}
+    data_criteria.each do |key, criteria|
+      by_oid[criteria["code_list_id"]] = criteria
+    end
+    by_oid
+  end
+  
   # Reshapes the measure into the JSON necessary to build the popHealth parameter view for stage one measures.
   # Returns a hash with population, numerator, denominator, and exclusions
   def parameter_json version = HQMF::Parser::HQMF_VERSION_1
@@ -84,13 +92,13 @@ class Measure
   # Rebuild from population_criteria, data_criteria, and measure_period JSON
   def as_hqmf_model
     json = {
-      id: self.measure_id,
-      title: self.title,
-      description: self.description,
-      population_criteria: self.population_criteria,
-      data_criteria: self.data_criteria,
-      measure_period: self.measure_period,
-      attributes: self.measure_attributes
+      "id" => self.measure_id,
+      "title" => self.title,
+      "description" => self.description,
+      "population_criteria" => self.population_criteria,
+      "data_criteria" => self.data_criteria,
+      "measure_period" => self.measure_period,
+      "attributes" => self.measure_attributes
     }
     
     HQMF::Document.from_json(json)

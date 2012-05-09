@@ -57,7 +57,7 @@ module Measures
         numerator: buckets["numerator"],
         exclusions: buckets["exclusions"],
         map_fn: measure_js(measure),
-        measure: {}
+        measure: popHealth_denormalize_measure_attributes(measure)
       }
     end
     
@@ -68,6 +68,47 @@ module Measures
         extensions: library_names,
         measures: []
       }
+    end
+    
+    def self.popHealth_denormalize_measure_attributes(measure)
+      measure_attributes = {}
+      
+      return measure_attributes unless (APP_CONFIG['generate_denormalization'])
+      
+      attribute_template = {"type"=> "array","items"=> {"type"=> "number","format"=> "utc-sec"}}
+      
+      data_criteria = measure.data_criteria_by_oid
+      value_sets = measure.value_sets
+      
+      value_sets.each do |value_set|
+        criteria = data_criteria[value_set.oid]
+        if (criteria)
+          template = attribute_template.clone
+          template["standard_concept"] = value_set.concept
+
+          template["standard_category"] = criteria["standard_category"]
+          template["qds_data_type"] = criteria["qds_data_type"]
+
+          value_set.code_sets.each do |code_set|
+            template["codes"] ||= []
+            unless (code_set.oid.nil?)
+              template["codes"] << {
+                "set"=> code_set.code_set,
+                "version"=> code_set.version,
+                "values"=> code_set.codes
+              }
+            else
+              Kernel.warn("Bad Code Set found for value set: #{value_set.oid}")
+            end
+          end
+          measure_attributes[value_set.key] = template
+        else
+          Kernel.warn("Value set not used by a data criteria #{value_set.oid}")
+        end
+        
+      end
+      
+      return measure_attributes
     end
 
     def self.measure_codes(measure)
@@ -95,6 +136,8 @@ module Measures
       "
       var patient_api = new hQuery.Patient(patient);
 
+      #{Measures::Exporter.check_disable_logger}
+      
       // clear out logger
       if (typeof Logger != 'undefined') Logger.logger = [];
       // turn on logging if it is enabled
@@ -120,5 +163,15 @@ module Measures
       map(patient, population, denominator, numerator, exclusion);
       "
     end
+    
+    def self.check_disable_logger
+      if (APP_CONFIG['disable_logging'])
+        "      // turn off the logger \n"+
+        "      Logger.enabled = false;\n"
+      else
+        ""
+      end
+    end
+    
   end
 end

@@ -1,14 +1,16 @@
 defaults: &defaults
   default_user_approved: true
   version: 0.0.1
+  generate_denormalization: true
+  disable_logging: false
   
 development:
   <<: *defaults
   
 test:
   <<: *defaults
-  default_user_approved: true
+  default_user_approved: false
   
 production:
   <<: *defaults
-  default_user_approved: true
+  default_user_approved: false

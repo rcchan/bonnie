@@ -5,9 +5,9 @@ namespace :bonnie do
 
     You must identify the user by USER_ID or EMAIL:
 
-    $ rake pophealth:users:grant_admin USER_ID=###
+    $ rake bonnie:users:grant_admin USER_ID=###
     or
-    $ rake pophealth:users:grant_admin EMAIL=xxx}
+    $ rake bonnie:users:grant_admin EMAIL=xxx}
     task :grant_admin => :environment do
       RakeUserManager.grant_admin ENV
     end
@@ -16,9 +16,9 @@ namespace :bonnie do
 
     You must identify the user by USER_ID or EMAIL:
 
-    $ rake pophealth:users:revoke_admin USER_ID=###
+    $ rake bonnie:users:revoke_admin USER_ID=###
     or
-    $ rake pophealth:users:revoke_admin EMAIL=xxx}
+    $ rake bonnie:users:revoke_admin EMAIL=xxx}
     task :revoke_admin => :environment do
       RakeUserManager.revoke_admin ENV
     end
@@ -27,9 +27,9 @@ namespace :bonnie do
 
     You must identify the user by USER_ID or EMAIL:
 
-    $ rake pophealth:users:approve USER_ID=###
+    $ rake bonnie:users:approve USER_ID=###
     or
-    $ rake pophealth:users:approve EMAIL=xxx}
+    $ rake bonnie:users:approve EMAIL=xxx}
     task :approve => :environment do
       RakeUserManager.approve ENV
     end
