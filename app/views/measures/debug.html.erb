@@ -12,7 +12,7 @@
 
   <!-- TODO: break out into a content_for block? or .js? -->
   <script type="text/javascript">
-    <%= raw(@js) %>
+    <%= raw(include_js_debug(@measure.measure_id)) %>
     
     // onload
     $(document).ready(function() {
