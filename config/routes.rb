@@ -4,8 +4,10 @@ Bonnie::Application.routes.draw do
     member do
       get :export
       get :definition
+      get :import_resource
       post :publish
       get :show_nqf
+      get :debug
     end
     collection do
       get :published
