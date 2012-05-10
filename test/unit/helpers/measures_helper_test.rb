@@ -6,10 +6,10 @@ class MeasuresHelperTest < ActionView::TestCase
   end
   
   # helper creates a javascript string from a measure number
-  test "javascript include for measure debug view" do
-    dc = DummyClass.new
-    assert_equal "", dc.include_js_debug
-  end
+  # test "javascript include for measure debug view" do
+  #   dc = DummyClass.new
+  #   assert_equal "", dc.include_js_debug
+  # end
   
   
 end

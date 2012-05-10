@@ -33,5 +33,33 @@ module MeasuresHelper
 
     return @js
   end
+
+  def dc_category_style(category)
+    case category
+    when 'diagnosis_condition_problem'
+      'diagnosis'
+    when 'laboratory_test'
+      'laboratory'
+    when 'individual_characteristic'
+      'patient'
+    else
+      category
+    end
+  end
+  
+  def dc_title(title)
+    result = title
+    
+    sections = title.split(':')
+    if (sections.size > 1)
+      category = sections[0]
+      category_sections = category.split(",")
+      if (category_sections.size > 1)
+        category = category_sections[0]
+      end
+      title = title[(category.length+1)..title.length].strip
+    end
+    
+  end
   
 end

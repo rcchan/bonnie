@@ -49,15 +49,55 @@
           $("#exclusionMeasureItems").hide();
           $("#exclusionPanel").show();
         }
+        
+        $('.logicLeaf').click(function(element) {
+          var leaf = $(element.currentTarget);
+          offset = leaf.offset().top - $('#workspace').offset().top
+          bonnie.showDataCriteria(leaf.data('id'), offset);
+        });
+        
      }
     
     $(document).ready(function() {
+      $('#dataCriteria .paramGroup').click(function(element) {
+        var category = $(element.currentTarget).data('category');
+        var children = $('.'+category+'_children')
+        if (children.is(':visible')){
+          children.hide("blind", { direction: "vertical" }, 500);
+        } else{
+          children.show("blind", { direction: "vertical" }, 500);
+        }
+      });
+      $('.nav-tabs li').click(function(element) {
+        if (!$(element.currentTarget).hasClass('active'))
+        $('#workspace').empty();
+      })
       $.getJSON("<%= definition_measure_url(@measure) %>", bonnie.renderMeasureJSON);
     });
+    
+    bonnie.showDataCriteria = function(id, offset) {
+      data_criteria = bonnie.all_data_criteria[id]
+      $('#workspace').empty();
+      element = $("#bonnie_tmpl_data_criteria").tmpl(data_criteria)
+      element.appendTo($('#workspace'));
+      offset = offset - element.height()/2
+      element.css("top",offset)
+    }
+    bonnie.getValue = function(value) {
+      if (value.low) {
+        return value.low.value
+      } else if (value.high) {
+        return value.high.value
+      } 
+      
+      return ""
+    }
+    
+    bonnie.all_data_criteria = <%= @measure.data_criteria.to_json.html_safe %>
   </script>
   
   <script type="text/html" id="ph_tmpl_paramItem">
-    <div class='paramText {{if category}}${category}{{/if}}'>
+    <div class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}data-id='${id}'{{/if}}>
       <!-- ${percentage=Math.round(Math.random()*100,2)} -->
       {{if category}}<label>${category}</label>{{/if}}
       ${title}
@@ -71,6 +111,59 @@
       <div class="paramItem"></div>
     </div>
   </script>
+  <script type="text/html" id="bonnie_tmpl_data_criteria">
+    <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
+    <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
+      <div>${title}</div>
+      <table>
+        <tr>
+          <td>Status:</td>
+          <td>
+            <select style="width: 100px;">
+              <option value="">--</option>
+              <option value="ordered">Ordered</option>
+              <option value="ordered">Administered</option>
+              <option value="ordered">Active</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Type:</td>
+          <td>
+            <select style="width: 100px;">
+              <option value="">--</option>
+              <option value="ordered">encounter outpatient</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Temporal:</td>
+          <td>
+            <select style="width: 100px;">
+              <option value="">--</option>
+              <option value="ordered">Starts Before Start</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Value:</td>
+          <td>
+            <select style="width: 100px;">
+              <option value="">--</option>
+              <option value="ordered">Equal to</option>
+              <option value="ordered">Greater than</option>
+              <option value="ordered">Less Than</option>
+            </select>
+          </td>
+          <td>
+            <input type="text" style="width: 100px;" value="{{if value}}${bonnie.getValue(value)}{{/if}}"/>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </script>
+  
+  
 <% end %>
 
 <% content_for :right_column do %>
@@ -112,9 +205,6 @@
 
 </div>
 
-
-
-
 <!-- start tab nav -->
 <div id="tabs" class="measureDetailTable">
   <ul class="nav nav-tabs">
@@ -124,8 +214,12 @@
   </ul>
 
   <div class="tab-content" id="measureEditContainer">
-    <div id="workspace" style="padding:10px;border-radius:12px;margin:10px;border:1px solid #aaa;background-color:#f5f5f5;float:right;width:340px;height:100%">
+    <div id="workspace" style="padding:10px;border-radius:12px;margin:10px;border:1px solid #aaa;background-color:#f5f5f5;float:right;width:340px;height:1000px">
       <p>Workspace edit controls go here</p>
+    </div>
+    
+    <div id="dataCriteria" style="padding:10px;margin:10px 10px 10px 0;border:1px solid #aaa;background-color:#f5f5f5;float:left;width:340px;height:100%">
+      <%= render partial: 'data_criteria', locals: {criteria_by_category: @measure.data_criteria_by_category}%>
     </div>
     
     <div id="initialPopulation" class="tab-pane">

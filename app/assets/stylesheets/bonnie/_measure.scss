@@ -47,7 +47,7 @@
     -moz-border-radius: $radius;
     -webkit-border-radius: $radius;
     padding: 2px;
-    display: table; 
+    display: table;
   }
   .paramGroup.population {
     background-color: #dcdcdc;
@@ -213,7 +213,99 @@
     }
 }
 
+/* udpate: needs review by MN */
+#dataCriteria {
 
+  .paramItem .paramText {  
+    &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
+        background:white url(/assets/treatment_green_dark.png) 0 2px no-repeat;
+      }
+      &.diagnosis, &.symptom  {
+        background:white url(/assets/condition_green_dark.png) 0 2px no-repeat;
+      }
+      &.encounter, &.physical {
+        background:white url(/assets/encounter_green_dark.png) 0 2px no-repeat;
+      }
+      &.laboratory, &.substance {
+        background:white url(/assets/observation_green_dark.png) 0 2px no-repeat;
+      }
+      &.medication {
+        background:white url(/assets/medication_green_dark.png) 0 2px no-repeat;
+      }
+      &.patient, &.risk {
+        background:white url(/assets/demographic_green_dark.png) 0 2px no-repeat;
+      }
+      min-height: 42px;
+      
+      label {
+        color: #999;
+        font-weight: bold;
+        padding-right: 4px;
+        padding-top: 10px;
+        text-transform:uppercase;
+      }
+  }
+  .paramGroup {
+    border-radius:12px; 
+    border: 1px #AAA solid; 
+    background-color: #FFF;
+    margin-bottom: 0;
+    .paramItem {
+      min-width: 320px;
+  
+    }
+  }
+  .paramChildren {
+    display: none;
+    padding-top:5px;
+    .paramItem {
+       padding-bottom:0;
+      .paramText {
+        padding-bottom:0;
+        min-height: 10px;
+        label {
+          padding: 5px;
+          text-transform:none;
+          border-radius:12px; 
+          border: 1px #AAA solid; 
+          background-color: #FFF;
+          min-width: 270px;
+        }
+      }
+      background-color: #f5f5f5;
+      &.used {
+        label {
+          color: #CCC;
+          border-radius:12px; 
+          border: 1px #CCC solid; 
+          background-color: #FFF;
+        }
+      }
+    }
+  
+  }
+  
+}
+
+/* there is probably a better way to accomplish this */
+.arrow-w {
+  border-style: dashed;
+  border-color: transparent;
+  border-width: 1.2em;
+  display: -moz-inline-box;
+  display: inline-block;
+  font-size: 30px;
+  height: 0;
+  line-height: 0;
+  position: relative;
+  vertical-align: middle;
+  width: 0;
+  border-right-width: 1em;
+  border-right-style: solid;
+  border-right-color: #aaa;
+  right: 0.25em;
+}
+/* done udpate: needs review by MN */
 
 
 .measureDetailTable {

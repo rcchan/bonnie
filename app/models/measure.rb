@@ -39,6 +39,15 @@ class Measure
     publishings.by_version(self.version).first
   end
   
+  def data_criteria_by_category
+    by_category = {}
+    data_criteria.each do |key, criteria|
+      by_category[criteria["standard_category"]] ||= []
+      by_category[criteria["standard_category"]] << criteria
+    end if data_criteria
+    by_category
+  end
+  
   def data_criteria_by_oid
     by_oid = {}
     data_criteria.each do |key, criteria|
@@ -130,7 +139,7 @@ class Measure
       element["negation"] = criteria["negation"] if criteria["negation"]
       criteria["preconditions"].each do |precondition|
         if precondition["reference"] # We've hit a leaf node - This is a data criteria reference
-          element["items"] << parse_hqmf_data_criteria(data_criteria[precondition["reference"]])
+          element["items"] << parse_hqmf_data_criteria(precondition["reference"], data_criteria[precondition["reference"]])
           if precondition['preconditions']
             precondition['conjunction_code'] = 'and'
             element["items"] << parse_hqmf_preconditions(precondition, version)
@@ -164,8 +173,8 @@ class Measure
   
   # This is a helper for parse_hqmf_preconditions.
   # Return a human readable title and category for a given data criteria
-  def parse_hqmf_data_criteria(criteria)
-    fragment = {}
+  def parse_hqmf_data_criteria(key, criteria)
+    fragment = {"id"=>key}
     name = criteria["property"].to_s
     category = criteria["standard_category"]
     criteria_orig = criteria
