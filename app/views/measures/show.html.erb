@@ -72,7 +72,7 @@
 <% content_for :right_column do %>
   <div class="pull-right" id="pageButtons">
     <a href="#" class="btn" >Save</a>
-    <a href="#" class="btn">Test</a>
+    <%= link_to 'Test', debug_measure_url(@measure), :class => 'btn' %>
     <a href="#" class="btn">Publish</a>
     <%# link_to 'Publish', publish_measure_path(@measure), class:"btn" %>
   </div>
