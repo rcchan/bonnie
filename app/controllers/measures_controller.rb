@@ -38,6 +38,7 @@ class MeasuresController < ApplicationController
     @measure = Measure.find(params[:id])
     @measure.publish
     
+    flash[:notice] = "Published #{@measure.title}."
     render :show
   end
 
