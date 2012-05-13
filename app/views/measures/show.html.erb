@@ -170,7 +170,8 @@
   <div class="pull-right" id="pageButtons">
     <a href="#" class="btn" >Save</a>
     <%= link_to 'Test', debug_measure_url(@measure), :class => 'btn' %>
-    <a href="#" class="btn">Publish</a>
+    <%= link_to 'Publish', publish_measure_path(@measure), :method => :post, :class => 'btn' %>
+    
     <%# link_to 'Publish', publish_measure_path(@measure), class:"btn" %>
   </div>
   
@@ -198,7 +199,6 @@
   	  </dl>
     <% end %>
   <%= link_to 'Export', export_measure_path(@measure) %> |
-  <%= link_to 'Publish', publish_measure_path(@measure) %> |
 	<%= link_to 'Edit', edit_measure_path(@measure) %> |
 	<%= link_to 'NQF Definition', show_nqf_measure_path(@measure), :target => "_blank" %> |
 	<%= link_to 'Back', measures_path %>

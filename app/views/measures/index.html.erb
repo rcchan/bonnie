@@ -10,13 +10,13 @@
   <!-- start tab nav -->
   <div id="tabs">
   	<ul class="nav nav-tabs">
-  		<li class="active"><a href="#tabs-0" data-toggle="tab">my measures</a></li>
-  		<li><a href="#tabs-1" data-toggle="tab">all published measures</a></li>
+  		<li <% unless @show_published %>class="active"<% end %>><a href="#tabs-0" data-toggle="tab">my measures</a></li>
+  		<li <% if @show_published %>class="active"<% end %>><a href="#tabs-1" data-toggle="tab">all published measures</a></li>
   	</ul>
 	
     <!-- start my measures content -->
     <div class="tab-content">
-  	<div id="tabs-0" class="tab-pane active">
+  	<div id="tabs-0" class="tab-pane<% unless @show_published %> active<% end %>">
   	  <table class="table table-measure-detail">
   	    <thead>
     	    <tr>
@@ -41,7 +41,7 @@
   	</div><!-- end my measures content -->
 	
   	<!-- start published measures content -->
-  	<div id="tabs-1" class="tab-pane">
+  	<div id="tabs-1" class="tab-pane<% if @show_published %> active<% end %>">
   	  <table class="table table-measure-detail published-measures"> 
   	    <thead>
           <tr>
@@ -54,12 +54,12 @@
           </tr>
         </thead>
         <tbody>
-          <%= render :partial => 'measure', :collection => @measures.published %>
+          <%= render :partial => 'measure', :collection => @all_published %>
         </tbody>
         <tfoot>
           <tr>
             <td></td>
-            <td colspan="5">Total measures: <%= @measures.published.length %></td>
+            <td colspan="5">Total measures: <%= @all_published.length %></td>
           </tr>
         </tfoot>
     	</table>
