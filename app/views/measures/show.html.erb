@@ -2,47 +2,28 @@
   <script type="text/javascript">
     var bonnie = bonnie || {};
     
+    var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
     $(document).ready(function() {
-      $('#dataCriteria .paramGroup').click(function(element) {
-        var category = $(element.currentTarget).data('category');
-        var children = $('.'+category+'_children')
-        if (children.is(':visible')){
-          children.hide("blind", { direction: "vertical" }, 500);
-        } else{
-          children.show("blind", { direction: "vertical" }, 500);
-        }
-      });
-      $('.nav-tabs li').click(function(element) {
-        if (!$(element.currentTarget).hasClass('active'))
-        $('#workspace').empty();
-      })
+      page.initialize();
       $.getJSON("<%= definition_measure_url(@measure) %>", bonnie.builder.renderMeasureJSON);
     });
     
-    bonnie.showDataCriteria = function(id, offset) {
-      data_criteria = bonnie.all_data_criteria[id]
-      $('#workspace').empty();
-      element = $("#bonnie_tmpl_data_criteria").tmpl(data_criteria)
-      element.appendTo($('#workspace'));
-      offset = offset - element.height()/2
-      element.css("top",offset)
-    }
-    bonnie.getValue = function(value) {
-      if (value.low) {
-        return value.low.value
-      } else if (value.high) {
-        return value.high.value
-      } 
-      
-      return ""
-    }
-    
-    var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>)
-    
-    bonnie.all_data_criteria = <%= @measure.data_criteria.to_json.html_safe %>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_param_group">
+    <div class='paramGroup'>
+      <div class='paramItem'></div>
+    </div>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_logic">
+    <div class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}id='${id}'{{/if}}>
+      {{if category}}<label>${category}</label>{{/if}}
+      ${title} ${temporalText}
+    </div>
   </script>
   
-  <script type="text/html" id="bonnie_tmpl_data_criteria">
+  <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
     <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
       <div>${title}</div>
@@ -87,7 +68,7 @@
             </select>
           </td>
           <td>
-            <input type="text" style="width: 100px;" value="{{if value}}${bonnie.getValue(value)}{{/if}}"/>
+            <input type="text" style="width: 100px;" value=""/>
           </td>
         </tr>
       </table>
