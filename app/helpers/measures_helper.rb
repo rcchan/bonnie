@@ -2,12 +2,31 @@ module MeasuresHelper
   
   # create a javascript object for the debug view
   def include_js_debug(measure_id)
-    hqmf_path = File.expand_path(File.join('.','test','fixtures','measure-defs',measure_id,"#{measure_id}.xml"))
-    codes_path = File.expand_path(File.join('.','test','fixtures','measure-defs',measure_id,"#{measure_id}.xls"))
-    filename = Pathname.new(hqmf_path).basename
+    # scope hack    
+    hqmf_path, codes_path, filename, measure, measure_js = 0
+
+    # DHH trick for quieting STDOUT or STDERR
+    def silence_streams(*streams)
+      on_hold = streams.collect { |stream| stream.dup }
+      streams.each do |stream|
+        stream.reopen(RUBY_PLATFORM =~ /mswin/ ? 'NUL:' : '/dev/null')
+        stream.sync = true
+      end
+      yield
+    ensure
+      streams.each_with_index do |stream, i|
+        stream.reopen(on_hold[i])
+      end
+    end
     
-    measure = Measures::Loader.load(hqmf_path, codes_path, nil, nil, false)
-    measure_js = Measures::Exporter.execution_logic(measure)
+    self.silence_streams(STDERR) {
+      hqmf_path = File.expand_path(File.join('.','test','fixtures','measure-defs',measure_id,"#{measure_id}.xml"))
+      codes_path = File.expand_path(File.join('.','test','fixtures','measure-defs',measure_id,"#{measure_id}.xls"))
+      filename = Pathname.new(hqmf_path).basename
+    
+      measure = Measures::Loader.load(hqmf_path, codes_path, nil, nil, false)
+      measure_js = Measures::Exporter.execution_logic(measure)
+    }
     
     patient_file = File.expand_path('./test/fixtures/patients/francis_drake.json')
     patient_json = File.read(patient_file)
@@ -31,7 +50,7 @@ module MeasuresHelper
     
     @js << "var patient = #{patient_json};\n"
 
-    return @js
+    return @js    
   end
 
   def dc_category_style(category)

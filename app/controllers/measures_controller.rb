@@ -43,6 +43,7 @@ class MeasuresController < ApplicationController
     @measures = current_user.measures
     @all_published = Measure.published
     
+    flash[:notice] = "Published #{@measure.title}."
     render :index
   end
 
