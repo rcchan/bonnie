@@ -58,18 +58,15 @@ class Measure
   
   # Reshapes the measure into the JSON necessary to build the popHealth parameter view for stage one measures.
   # Returns a hash with population, numerator, denominator, and exclusions
-  def parameter_json version = HQMF::Parser::HQMF_VERSION_1
+  def parameter_json 
     parameter_json = {}
 
     title_mapping = { "IPP" => "population", "DENOM" => "denominator", "NUMER" => "numerator", "EXCL" => "exclusions"}
     self.population_criteria.each do |population, criteria|
-      title = title_mapping[population]
-      logic_json = parse_hqmf_preconditions(criteria, version)
-      element = {}
-      element["conjunction"] = "and"
-      element["items"] = logic_json
-      
-      parameter_json[title] = element
+      parameter_json[title_mapping[population]] = {
+          conjunction: "and",
+          items: parse_hqmf_preconditions(criteria)
+        }
     end
     
     parameter_json
@@ -84,13 +81,13 @@ class Measure
   end
   
   def self.pophealth_element_json(json)
-    if (json['items'])
+    if (json[:items])
       section = {}
       items = []
-      json['items'].each do |item|
+      json[:items].each do |item|
         items << pophealth_element_json(item)
       end
-      section[json['conjunction']] = items
+      section[json[:conjunction]] = items
       section
     else
       json
@@ -121,86 +118,36 @@ class Measure
   
   # This is a helper for parameter_json.
   # Return recursively generated JSON that can be imported into popHealth or shown as parameters in Bonnie.
-  def parse_hqmf_preconditions(criteria, version)
+  def parse_hqmf_preconditions(criteria)
     conjunction_mapping = { "allTrue" => "and", "atLeastOneTrue" => "or" } # Used to convert to stage one, if requested in version param
     
     if criteria["conjunction?"] # We're at the top of the tree
       fragment = []
       criteria["preconditions"].each do |precondition|
-        fragment << parse_hqmf_preconditions(precondition, version)
+        fragment << parse_hqmf_preconditions(precondition)
       end
       return fragment
     else # We're somewhere in the middle
-      conjunction = criteria["conjunction_code"]
-      conjunction = conjunction_mapping[conjunction] if conjunction_mapping[conjunction] && version == HQMF::Parser::HQMF_VERSION_1
-      element = {}
-      element["conjunction"] = conjunction
-      element["items"] = []
-      element["negation"] = criteria["negation"] if criteria["negation"]
+      element = {
+        conjunction: conjunction_mapping[criteria["conjunction_code"]] || criteria["conjunction_code"],
+        items: [],
+        negation: criteria["negation"]
+      }
       criteria["preconditions"].each do |precondition|
         if precondition["reference"] # We've hit a leaf node - This is a data criteria reference
-          element["items"] << parse_hqmf_data_criteria(precondition["reference"], data_criteria[precondition["reference"]])
-          if precondition['preconditions']
-            precondition['conjunction_code'] = 'and'
-            element["items"] << parse_hqmf_preconditions(precondition, version)
-          end
-        else # There are additional layers below
-          element["items"] << parse_hqmf_preconditions(precondition, version)
+          element[:items] << {id: precondition["reference"]}
         end
+        if precondition['preconditions']
+          precondition['conjunction_code'] = 'and' if precondition["reference"]
+          element[:items] << parse_hqmf_preconditions(precondition)
+        end
+        
       end if criteria["preconditions"]
       return element
     end
     
   end
   
-  # merges logical elements.  If we have an existing element, add to the array, otherwise merge the hash
-  def merge_logical_elements(root, element)
-    element.keys.each do |key|
-      if (root[key])
-        root[key]["items"].concat(element[key]["items"])
-      else
-        root.merge!(key => element[key])
-      end
-    end
-  end
-  
-  def remove_category_from_name(name, category)
-    return name unless category
-    last_word_of_category = category.split.last.gsub(/_/,' ')
-    name =~ /#{last_word_of_category}. (.*)/i # The portion after autoformatted text, i.e. actual name (e.g. pneumococcal vaccine)
-    $1
-  end
-  
-  # This is a helper for parse_hqmf_preconditions.
-  # Return a human readable title and category for a given data criteria
-  def parse_hqmf_data_criteria(key, criteria)
-    fragment = {"id"=>key}
-    name = criteria["property"].to_s
-    category = criteria["standard_category"]
-    criteria_orig = criteria
-    # QDS data type is most specific, so use it if available. Otherwise use the standard category.
-    category_mapping = { "individual_characteristic" => "patient characteristic" }
-    if criteria["qds_data_type"]
-      category = criteria["qds_data_type"].gsub(/_/, " ") # "medication_administered" = "medication administered"
-    elsif category_mapping[category]
-      category = category_mapping[category]
-    end
-    
-    name = remove_category_from_name(criteria["title"], category)
-    if criteria["value"] # Some exceptions have the value key. Bump it forward so criteria is idenical to the format of usual coded entries
-      criteria = criteria["value"]
-    else # Find the display name as per usual for the coded entry
-      criteria = criteria["effective_time"] if criteria["effective_time"]
-    end
-    
-    measure_period["name"] = "the measure period"
-    temporal_text = parse_hqmf_time(criteria, measure_period)
-    title = "#{name} #{temporal_text}"
-    
-    fragment["title"] = title
-    fragment["category"] = category.gsub(/_/,' ') if category
-    fragment
-  end
 
   # This is a helper for parse_hqmf_data_criteria.
   # Return recursively generated human readable text about time ranges and periods

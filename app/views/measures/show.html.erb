@@ -1,62 +1,6 @@
 <% content_for :head do %>
   <script type="text/javascript">
     var bonnie = bonnie || {};
-    bonnie.renderMeasureJSON = function(data) {
-        var measure = data;
-        var elemParent;
-        var addParamItems = function(obj,elemParent,container) {
-          var items = obj["items"]
-          
-          if ($.isArray(items)) {
-            var conjunction = obj['conjunction'];
-            // add the grouping container
-            if (!container) {elemParent = $("#ph_tmpl_paramGroup").tmpl({}).appendTo(elemParent).find(".paramItem:last");}
-              $.each(items,function(i,node) {
-                addParamItems(node,elemParent);
-                if (i < items.length-1) {
-                  next = items[i+1]
-                  var negation = ''
-                  if (next['negation']) negation = ' not'
-                  $(elemParent).append("<span class='"+conjunction+negation+"'>"+conjunction+negation+"</span>");
-                }
-              });
-            } else {
-              // we dont have a nested measure clause, add the item to the bottom of the list
-              if (!elemParent.hasClass("paramItem")) {
-                elemParent = $("#ph_tmpl_paramGroup").tmpl({}).appendTo(elemParent).find(".paramItem:last");
-              }
-              $("#ph_tmpl_paramItem").tmpl(obj).appendTo(elemParent);
-            }
-        } // end addParamItems
-
-        if (data.population) {
-          elemParent = $("#ph_tmpl_paramGroup").tmpl({}).appendTo("#eligibilityMeasureItems").find(".paramItem:last");
-          addParamItems(data.population,elemParent,elemParent);
-          elemParent.parent().addClass("population");
-        }
-
-        if (!$.isEmptyObject(data.denominator)) {
-          $("#eligibilityMeasureItems").append("<span class='and'>and</span>");
-          addParamItems(data.denominator,$("#eligibilityMeasureItems"));
-        }
-
-        if (data.numerator) {
-          addParamItems(data.numerator,$("#outcomeMeasureItems"));
-        }
-
-        if ('exclusions' in data && !$.isEmptyObject(data['exclusions'])) {
-          addParamItems(data.exclusions,$("#exclusionMeasureItems"));
-          $("#exclusionMeasureItems").hide();
-          $("#exclusionPanel").show();
-        }
-        
-        $('.logicLeaf').click(function(element) {
-          var leaf = $(element.currentTarget);
-          offset = leaf.offset().top - $('#workspace').offset().top
-          bonnie.showDataCriteria(leaf.data('id'), offset);
-        });
-        
-     }
     
     $(document).ready(function() {
       $('#dataCriteria .paramGroup').click(function(element) {
@@ -72,7 +16,7 @@
         if (!$(element.currentTarget).hasClass('active'))
         $('#workspace').empty();
       })
-      $.getJSON("<%= definition_measure_url(@measure) %>", bonnie.renderMeasureJSON);
+      $.getJSON("<%= definition_measure_url(@measure) %>", bonnie.builder.renderMeasureJSON);
     });
     
     bonnie.showDataCriteria = function(id, offset) {
@@ -93,24 +37,11 @@
       return ""
     }
     
+    var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>)
+    
     bonnie.all_data_criteria = <%= @measure.data_criteria.to_json.html_safe %>
   </script>
   
-  <script type="text/html" id="ph_tmpl_paramItem">
-    <div class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}data-id='${id}'{{/if}}>
-      <!-- ${percentage=Math.round(Math.random()*100,2)} -->
-      {{if category}}<label>${category}</label>{{/if}}
-      ${title}
-    </div>
-  </script>
-  <script type="text/html" id="ph_tmpl_paramGroupContainer">
-    <div class="paramGroupContainer"></div>
-  </script>
-  <script type="text/html" id="ph_tmpl_paramGroup">
-    <div class="paramGroup">
-      <div class="paramItem"></div>
-    </div>
-  </script>
   <script type="text/html" id="bonnie_tmpl_data_criteria">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
     <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
