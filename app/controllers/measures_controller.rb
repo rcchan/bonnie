@@ -23,6 +23,7 @@ class MeasuresController < ApplicationController
   def index
     @measure = Measure.new
     @measures = current_user.measures
+    @all_published = Measure.published
   end
 
   def show
@@ -38,8 +39,12 @@ class MeasuresController < ApplicationController
     @measure = Measure.find(params[:id])
     @measure.publish
     
+    @show_published=true
+    @measures = current_user.measures
+    @all_published = Measure.published
+    
     flash[:notice] = "Published #{@measure.title}."
-    render :show
+    render :index
   end
 
   def published

@@ -1,117 +1,29 @@
 <% content_for :head do %>
   <script type="text/javascript">
     var bonnie = bonnie || {};
-    bonnie.renderMeasureJSON = function(data) {
-        var measure = data;
-        var elemParent;
-        var addParamItems = function(obj,elemParent,container) {
-          var items = obj["items"]
-          
-          if ($.isArray(items)) {
-            var conjunction = obj['conjunction'];
-            // add the grouping container
-            if (!container) {elemParent = $("#ph_tmpl_paramGroup").tmpl({}).appendTo(elemParent).find(".paramItem:last");}
-              $.each(items,function(i,node) {
-                addParamItems(node,elemParent);
-                if (i < items.length-1) {
-                  next = items[i+1]
-                  var negation = ''
-                  if (next['negation']) negation = ' not'
-                  $(elemParent).append("<span class='"+conjunction+negation+"'>"+conjunction+negation+"</span>");
-                }
-              });
-            } else {
-              // we dont have a nested measure clause, add the item to the bottom of the list
-              if (!elemParent.hasClass("paramItem")) {
-                elemParent = $("#ph_tmpl_paramGroup").tmpl({}).appendTo(elemParent).find(".paramItem:last");
-              }
-              $("#ph_tmpl_paramItem").tmpl(obj).appendTo(elemParent);
-            }
-        } // end addParamItems
-
-        if (data.population) {
-          elemParent = $("#ph_tmpl_paramGroup").tmpl({}).appendTo("#eligibilityMeasureItems").find(".paramItem:last");
-          addParamItems(data.population,elemParent,elemParent);
-          elemParent.parent().addClass("population");
-        }
-
-        if (!$.isEmptyObject(data.denominator)) {
-          $("#eligibilityMeasureItems").append("<span class='and'>and</span>");
-          addParamItems(data.denominator,$("#eligibilityMeasureItems"));
-        }
-
-        if (data.numerator) {
-          addParamItems(data.numerator,$("#outcomeMeasureItems"));
-        }
-
-        if ('exclusions' in data && !$.isEmptyObject(data['exclusions'])) {
-          addParamItems(data.exclusions,$("#exclusionMeasureItems"));
-          $("#exclusionMeasureItems").hide();
-          $("#exclusionPanel").show();
-        }
-        
-        $('.logicLeaf').click(function(element) {
-          var leaf = $(element.currentTarget);
-          offset = leaf.offset().top - $('#workspace').offset().top
-          bonnie.showDataCriteria(leaf.data('id'), offset);
-        });
-        
-     }
     
+    var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
     $(document).ready(function() {
-      $('#dataCriteria .paramGroup').click(function(element) {
-        var category = $(element.currentTarget).data('category');
-        var children = $('.'+category+'_children')
-        if (children.is(':visible')){
-          children.hide("blind", { direction: "vertical" }, 500);
-        } else{
-          children.show("blind", { direction: "vertical" }, 500);
-        }
-      });
-      $('.nav-tabs li').click(function(element) {
-        if (!$(element.currentTarget).hasClass('active'))
-        $('#workspace').empty();
-      })
-      $.getJSON("<%= definition_measure_url(@measure) %>", bonnie.renderMeasureJSON);
+      page.initialize();
+      $.getJSON("<%= definition_measure_url(@measure) %>", bonnie.builder.renderMeasureJSON);
     });
     
-    bonnie.showDataCriteria = function(id, offset) {
-      data_criteria = bonnie.all_data_criteria[id]
-      $('#workspace').empty();
-      element = $("#bonnie_tmpl_data_criteria").tmpl(data_criteria)
-      element.appendTo($('#workspace'));
-      offset = offset - element.height()/2
-      element.css("top",offset)
-    }
-    bonnie.getValue = function(value) {
-      if (value.low) {
-        return value.low.value
-      } else if (value.high) {
-        return value.high.value
-      } 
-      
-      return ""
-    }
-    
-    bonnie.all_data_criteria = <%= @measure.data_criteria.to_json.html_safe %>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_param_group">
+    <div class='paramGroup'>
+      <div class='paramItem'></div>
+    </div>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_logic">
+    <div class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}id='${id}'{{/if}}>
+      {{if category}}<label>${category}</label>{{/if}}
+      ${title} ${temporalText}
+    </div>
   </script>
   
-  <script type="text/html" id="ph_tmpl_paramItem">
-    <div class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}data-id='${id}'{{/if}}>
-      <!-- ${percentage=Math.round(Math.random()*100,2)} -->
-      {{if category}}<label>${category}</label>{{/if}}
-      ${title}
-    </div>
-  </script>
-  <script type="text/html" id="ph_tmpl_paramGroupContainer">
-    <div class="paramGroupContainer"></div>
-  </script>
-  <script type="text/html" id="ph_tmpl_paramGroup">
-    <div class="paramGroup">
-      <div class="paramItem"></div>
-    </div>
-  </script>
-  <script type="text/html" id="bonnie_tmpl_data_criteria">
+  <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
     <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
       <div>${title}</div>
@@ -156,7 +68,7 @@
             </select>
           </td>
           <td>
-            <input type="text" style="width: 100px;" value="{{if value}}${bonnie.getValue(value)}{{/if}}"/>
+            <input type="text" style="width: 100px;" value=""/>
           </td>
         </tr>
       </table>
@@ -171,7 +83,8 @@
   <div class="pull-right" id="pageButtons">
     <a href="#" class="btn" >Save</a>
     <%= link_to 'Test', debug_measure_url(@measure), :class => 'btn' %>
-    <a href="#" class="btn">Publish</a>
+    <%= link_to 'Publish', publish_measure_path(@measure), :method => :post, :class => 'btn' %>
+    
     <%# link_to 'Publish', publish_measure_path(@measure), class:"btn" %>
   </div>
 	
@@ -197,13 +110,12 @@
   	  </dl>
     <% end %>
   <%= link_to 'Export', export_measure_path(@measure) %> |
-  <%= link_to 'Publish', publish_measure_path(@measure) %> |
 	<%= link_to 'Edit', edit_measure_path(@measure) %> |
 	<%= link_to 'NQF Definition', show_nqf_measure_path(@measure), :target => "_blank" %> |
 	<%= link_to 'Back', measures_path %>
 
     <div id="dataCriteria">
-      <%= render partial: 'data_criteria', locals: {criteria_by_category: @measure.data_criteria_by_category}%>
+      <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.unique_data_criteria)}%>
     </div>
 </div>
 <!-- start tab nav -->
@@ -221,8 +133,6 @@
     <div id="workspace" style="padding:10px;border-radius:12px;margin:10px;border:1px solid #aaa;background-color:#f5f5f5;float:right;width:340px;height:1000px">
       <p>Workspace edit controls go here</p>
     </div>
-    
-
     
     <div id="initialPopulation" class="tab-pane">
       <div class="measureBox">
