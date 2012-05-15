@@ -131,7 +131,7 @@
     </div>
     
     <div id="dataCriteria" style="padding:10px;margin:10px 10px 10px 0;border:1px solid #aaa;background-color:#f5f5f5;float:left;width:340px;height:100%">
-      <%= render partial: 'data_criteria', locals: {criteria_by_category: @measure.data_criteria_by_category}%>
+      <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.unique_data_criteria)}%>
     </div>
     
     <div id="initialPopulation" class="tab-pane">

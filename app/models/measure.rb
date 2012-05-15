@@ -39,13 +39,14 @@ class Measure
     publishings.by_version(self.version).first
   end
   
-  def data_criteria_by_category
-    by_category = {}
+  def unique_data_criteria
+    unique_criteria = []
     data_criteria.each do |key, criteria|
-      by_category[criteria["standard_category"]] ||= []
-      by_category[criteria["standard_category"]] << criteria
+      identifying_fields = ["title","description","standard_category","qds_data_type","code_list_id","type","status"]
+      unique = unique_criteria.select {|current| identifying_fields.reduce(true) { |all_match, field| all_match &&= current[field] == criteria[field]} }.count == 0
+      unique_criteria << criteria if unique
     end if data_criteria
-    by_category
+    unique_criteria
   end
   
   def data_criteria_by_oid

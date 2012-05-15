@@ -66,19 +66,13 @@ module MeasuresHelper
     end
   end
   
-  def dc_title(title)
-    result = title
-    
-    sections = title.split(':')
-    if (sections.size > 1)
-      category = sections[0]
-      category_sections = category.split(",")
-      if (category_sections.size > 1)
-        category = category_sections[0]
-      end
-      title = title[(category.length+1)..title.length].strip
-    end
-    
+  def data_criteria_by_category(data_criteria)
+    by_category = {}
+    data_criteria.each do |criteria|
+      by_category[criteria["standard_category"]] ||= []
+      by_category[criteria["standard_category"]] << criteria
+    end if data_criteria
+    by_category
   end
   
 end

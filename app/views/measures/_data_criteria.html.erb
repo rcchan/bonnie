@@ -11,7 +11,7 @@
     <% criteria_by_category[category].each do |criteria| %>
     <div class="paramItem">
       <div class="paramText">
-        <label><%= dc_title(criteria['title']) %></label>
+        <label><%= criteria['title'] %><%= ": #{criteria['status']}" if criteria['status'] %></label>
       </div>
     </div>
     <% end %>
