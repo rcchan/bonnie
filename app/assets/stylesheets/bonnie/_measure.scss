@@ -1,17 +1,27 @@
 .measure-title {
-  display:inline-block;
+  display:table;
   border:1px solid $borderColor;
   @include border-radius(10px);
   padding: 4px 10px;
   font-style:italic;
   font-size: 1.65em;
+  background-color:white;
   margin-left: $measureDetailTable-padding;
   color:$measureTitleText;
-  @include box-shadow(0 2px 10px 1px rgba(0,0,0,0.05));
+  @include box-shadow(0 2px 10px 1px rgba(0,0,0,0.15));
 }
 
 #measureDetailInformation {
-  margin:20px;
+  margin:0;
+  position:absolute;
+  background-color:#f5f5f5;
+  top:0;
+  bottom:0;
+  z-index:-1;
+  width:245px;
+  padding:100px 20px 20px 20px;
+  height:100%;
+  border-right:15px solid #b3b3b3;
   }
 #measureEditContainer {
   border-top: 1px solid $measureBorderColor;
@@ -216,69 +226,64 @@
 /* udpate: needs review by MN */
 #dataCriteria {
 
-  .paramItem .paramText {  
-    &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
-        background:white url(/assets/treatment_green_dark.png) 0 2px no-repeat;
-      }
-      &.diagnosis, &.symptom  {
-        background:white url(/assets/condition_green_dark.png) 0 2px no-repeat;
-      }
-      &.encounter, &.physical {
-        background:white url(/assets/encounter_green_dark.png) 0 2px no-repeat;
-      }
-      &.laboratory, &.substance {
-        background:white url(/assets/observation_green_dark.png) 0 2px no-repeat;
-      }
-      &.medication {
-        background:white url(/assets/medication_green_dark.png) 0 2px no-repeat;
-      }
-      &.patient, &.risk {
-        background:white url(/assets/demographic_green_dark.png) 0 2px no-repeat;
-      }
-      min-height: 42px;
-      
-      label {
-        color: #999;
-        font-weight: bold;
-        padding-right: 4px;
-        padding-top: 10px;
-        text-transform:uppercase;
-      }
-  }
-  .paramGroup {
-    border-radius:12px; 
-    border: 1px #AAA solid; 
-    background-color: #FFF;
-    margin-bottom: 0;
-    .paramItem {
-      min-width: 320px;
+  padding:10px;
+  margin:10px 10px 10px 0;
+  width:230px;
   
+  
+  .paramGroup {
+    border-radius:20px; 
+    background-color:#fff;
+    border:1px solid #999;
+    margin-bottom: 0;
+    vertical-align:middle;
+    
+   .paramItem {
+
+     .paramText {  
+       padding:10px 0 10px 45px;
+       text-transform:uppercase;
+       label {color:red}
+      &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
+          background:transparent url(/assets/treatment_gray.png) 0 2px no-repeat;
+        }
+        &.diagnosis, &.symptom  {
+          background:transparent url(/assets/condition_gray.png) 0 2px no-repeat;
+        }
+        &.encounter, &.physical {
+          background:transparent url(/assets/encounter_gray.png) 0 2px no-repeat;
+        }
+        &.laboratory, &.substance {
+          background:transparent url(/assets/observation_gray.png) 0 2px no-repeat;
+        }
+        &.medication {
+          background:transparent url(/assets/medication_gray.png) 0 2px no-repeat;
+        }
+        &.patient, &.risk {
+          background:transparent url(/assets/demographic_gray.png) 0 2px no-repeat;
+        }
+        
     }
   }
-  .paramChildren {
+  }
+  .xparamChildren {
     display: none;
     padding-top:5px;
     .paramItem {
        padding-bottom:0;
+       border-radius:20px;
       .paramText {
         padding-bottom:0;
         min-height: 10px;
         label {
           padding: 5px;
-          text-transform:none;
-          border-radius:12px; 
-          border: 1px #AAA solid; 
-          background-color: #FFF;
-          min-width: 270px;
+          text-transform:uppercase;
         }
       }
       background-color: #f5f5f5;
       &.used {
         label {
           color: #CCC;
-          border-radius:12px; 
-          border: 1px #CCC solid; 
-          background-color: #FFF;
         }
       }
     }
@@ -310,7 +315,7 @@
 
 .measureDetailTable {
   padding-top: $top_heading-padding;
-
+  margin-left:300px;
   .measureDetailTable table td, #dashboardContainer .measureDetailTable table td {
     vertical-align: top;
     padding: 0;

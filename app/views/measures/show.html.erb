@@ -167,18 +167,17 @@
 <% end %>
 
 <% content_for :right_column do %>
+<div style="position:relative;top:0;margin:0;padding-top:10px;">
   <div class="pull-right" id="pageButtons">
     <a href="#" class="btn" >Save</a>
     <%= link_to 'Test', debug_measure_url(@measure), :class => 'btn' %>
     <a href="#" class="btn">Publish</a>
     <%# link_to 'Publish', publish_measure_path(@measure), class:"btn" %>
   </div>
-  
-  <p id="notice"><%= notice %></p>
 	
 
 <h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
-<div id="measureDetailInformation" style="margin-left:15px;">
+<div id="measureDetailInformation">
     <dl>
       <dt>Reporting Period:</dt>
       <dd>
@@ -203,10 +202,15 @@
 	<%= link_to 'NQF Definition', show_nqf_measure_path(@measure), :target => "_blank" %> |
 	<%= link_to 'Back', measures_path %>
 
+    <div id="dataCriteria">
+      <%= render partial: 'data_criteria', locals: {criteria_by_category: @measure.data_criteria_by_category}%>
+    </div>
 </div>
-
 <!-- start tab nav -->
 <div id="tabs" class="measureDetailTable">
+  
+  <p id="notice"><%= notice %></p>
+
   <ul class="nav nav-tabs">
     <li class="initial-population"><a href="#initialPopulation" data-toggle="tab">initial pop.</a></li>
     <li class="active denominator"><a href="#eligibilityMeasures" data-toggle="tab">denominator</a></li>
@@ -218,9 +222,7 @@
       <p>Workspace edit controls go here</p>
     </div>
     
-    <div id="dataCriteria" style="padding:10px;margin:10px 10px 10px 0;border:1px solid #aaa;background-color:#f5f5f5;float:left;width:340px;height:100%">
-      <%= render partial: 'data_criteria', locals: {criteria_by_category: @measure.data_criteria_by_category}%>
-    </div>
+
     
     <div id="initialPopulation" class="tab-pane">
       <div class="measureBox">
@@ -242,5 +244,6 @@
   </div>
 
 </div><!-- end #tabs -->
+</div>
 
 <% end -%>
