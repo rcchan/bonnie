@@ -20,6 +20,10 @@ $basefont:                13px !default;
 $baseFontFamily:          "Myriad Pro", "Frutiger", Calibri,Thonburi, Helvetica, Arial, sans-serif;
 $linkColor:               #439fac;
 
+// Sprite icons path
+$iconSpritePath:          "/assets/glyphicons-halflings.png";
+$iconWhiteSpritePath:     "/assets/glyphicons-halflings-white.png";
+
 @import "bootstrap/mixins";
 
 @mixin font-sans-serif($size: $baseFontSize, $weight: normal, $lineHeight: $baseLineHeight) {
@@ -80,6 +84,7 @@ $linkColor:               #439fac;
 // Bonine specific component styles
 @import "bonnie/variables";
 @import "bonnie/mixins";
+@import "bonnie/layout";
 @import "bonnie/account";
 @import "bonnie/header";
 @import "bonnie/buttons";
@@ -88,9 +93,11 @@ $linkColor:               #439fac;
 @import "bonnie/measure";
 @import "bonnie/utility";
 
+html {height:100%}
+body {height:100%}
 
 #pageButtons {
-  margin:10px;
+  margin:10px 10px 10px 25px;
   form { float:right;margin:0}
 }
 

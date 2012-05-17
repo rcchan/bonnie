@@ -1,6 +1,6 @@
 /* Bonnie rounded button style overrides */
 
-#pageContent .btn {
+#container .btn {
   color:#19b;
   @include border-radius(15px);
   padding: 3px 16px 2px;

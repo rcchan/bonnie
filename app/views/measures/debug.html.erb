@@ -1,13 +1,11 @@
-<% content_for :left_column do %>
+<% content_for :page_content do %>
+
 <div class="pull-left" style="margin-left:2em;">
   <h1>Measure Debug</h1>
   <em><%= @measure.title %></em><br>
   <%= Time.new.inspect %>
 </div>
-<% end %>
 
-
-<% content_for :right_column do %>
 <div class="pull-right" style="margin-right:2em;">
 
   <!-- TODO: break out into a content_for block? or .js? -->
