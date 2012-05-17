@@ -331,3 +331,16 @@
       padding-left: 0; } 
   }
 }
+
+.CodeRay {
+  width: 60%;
+  padding-top: 2em;
+}
+
+.CodeRay .line-numbers {
+  text-align: left;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  margin-right: 10px;
+}
