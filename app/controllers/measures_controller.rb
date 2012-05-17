@@ -93,7 +93,7 @@ class MeasuresController < ApplicationController
     when 'show_nqf'
       "empty"
     else
-      "two_columns"
+      "measure_page"
     end
   end
   
