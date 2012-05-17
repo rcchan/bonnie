@@ -21,6 +21,7 @@ gem "bson"
 gem 'bson_ext'
 
 gem 'simple_form'
+gem 'coderay'   # for javascript syntax highlighting
 
 gem 'pry'
 gem 'pry-nav'
