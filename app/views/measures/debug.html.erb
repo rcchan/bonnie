@@ -1,34 +1,28 @@
 <% content_for :left_column do %>
-<div class="pull-left" style="margin-left:2em;">
-  <h1>Measure Debug</h1>
-  <em><%= @measure.title %></em><br>
-  <%= Time.new.inspect %>
-</div>
+  <!-- TODO: break out into a content_for block? or .js? -->
+  <% @js = include_js_debug(@measure.measure_id) %>
+  <%= javascript_tag do %>
+    <%= raw(@js) %>
+    <%= raw(include_js_libs(['map_reduce_utils'])) %>
+  <% end %>
+
+  <div class="pull-left" style="margin-left:2em;">
+    <h1>Measure Debug</h1>
+    <em><%= @measure.title %></em><br>
+    <%= link_to 'Run Numerator', 'run_numerator', :id => 'run_numerator_link' %> | 
+    <%= link_to 'Run Denominator', 'run_denominator', :id => 'run_denominator_link' %> |
+  
+    <%= link_to 'Toggle Code', '#toggle_code', :id => 'toggle_code_link' -%>
+
+    <% html = CodeRay.scan(@js, :javascript).div(:wrap => :div, :line_numbers => :inline) %>
+    <%= raw(html) %>
+    <textarea id='log' style="width:100%; height:95em;">
+    </textarea>
+    
+  </div>
 <% end %>
 
 
 <% content_for :right_column do %>
-<div class="pull-right" style="margin-right:2em;">
-
-  <!-- TODO: break out into a content_for block? or .js? -->
-  <script type="text/javascript">
-    <%= raw(include_js_debug(@measure.measure_id)) %>
-    
-    // onload
-    $(document).ready(function() {
-      execute_measure(patient);
-      emitted[0].logger.forEach(function(e){
-        $('#log').append(e);
-        $('#log').append('\n');
-      });
-
-      // execute_measure(patient)
-      // append emitted to 
-    });
-  
-  </script>
-  
-  <textarea id='log' style="width:45em; height:20em">
-  </textarea>
-</div>
+  <div class="pull-right" style="margin-right:2em;"></div>
 <% end %>
