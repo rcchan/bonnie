@@ -226,6 +226,7 @@ DEPENDENCIES
   bson
   bson_ext
   cancan
+  coderay
   coffee-rails (~> 3.2.1)
   cover_me
   devise
