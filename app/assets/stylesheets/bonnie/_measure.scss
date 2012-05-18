@@ -175,7 +175,7 @@
       &.encounter, &.physical {
         background:white url(/assets/encounter_blue_dark.png) 0 2px no-repeat;
       }
-      &.laboratory, &.substance {
+      &.laboratory, &.diagnostic, &.diagnostic_study, &.substance {
         background:white url(/assets/observation_blue_dark.png) 0 2px no-repeat;
       }
       &.medication {
@@ -225,7 +225,7 @@
       &.encounter, &.physical {
         background:white url(/assets/encounter_green_dark.png) 0 2px no-repeat;
       }
-      &.laboratory, &.substance {
+      &.laboratory, &.diagnostic, &.diagnostic_study, &.substance {
         background:white url(/assets/observation_green_dark.png) 0 2px no-repeat;
       }
       &.medication {
@@ -276,7 +276,7 @@
         &.encounter, &.physical {
           background:transparent url(/assets/encounter_gray.png) 0 50% no-repeat;
         }
-        &.laboratory, &.substance {
+        &.laboratory, &.diagnostic, &.diagnostic_study ,&.substance {
           background:transparent url(/assets/observation_gray.png) 0 50% no-repeat;
         }
         &.medication {

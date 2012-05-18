@@ -4,6 +4,7 @@ append_div = (div, message) ->
   div.append('\n')
 
 # onload
+###
 $ ->
   # reusable selectors
   code_element = $('.CodeRay')
@@ -43,3 +44,4 @@ $ ->
     else
       code_element.show()
       log_element.hide()
+###

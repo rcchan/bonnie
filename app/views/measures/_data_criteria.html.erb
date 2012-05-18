@@ -2,7 +2,7 @@
   <div class="paramGroup" data-category="<%= category %>">
     <div class="paramItem">
       <div class="paramText <%= dc_category_style(category) %>">
-        <label><%= category.titleize %></label>
+        <label><%= category.titleize %> <span>(<%= criteria_by_category[category].length %></span>)</label>
       </div>
     </div>
   </div>
