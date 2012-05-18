@@ -12,9 +12,7 @@ class MeasuresHelperTest < ActionView::TestCase
     js = dc.include_js_debug("0001")
     # some simple content tests to see if the generated javascript is at least close
     assert_match(Regexp.new('var patient'), js)
-    assert_match(Regexp.new('map_reduce_utils_js = function ()'), js)
     assert_match(Regexp.new('hqmfjs.DENOM'), js)
   end
   
 end
-
