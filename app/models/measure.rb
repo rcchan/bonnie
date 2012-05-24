@@ -73,27 +73,45 @@ class Measure
     parameter_json
   end
   
-  def self.pophealth_parameter_json(parameter_json)
+  def self.pophealth_parameter_json(parameter_json, data_criteria)
     json = {}
     parameter_json.keys.each do |key|
-      json[key] = pophealth_element_json(parameter_json[key])
+      json[key] = pophealth_element_json(parameter_json[key], data_criteria)
     end
     json
   end
   
-  def self.pophealth_element_json(json)
+  def self.pophealth_element_json(json, data_criteria)
     if (json[:items])
       section = {}
       items = []
       json[:items].each do |item|
-        items << pophealth_element_json(item)
+        items << pophealth_element_json(item, data_criteria)
       end
       section[json[:conjunction]] = items
       section
     else
-      json
+      pophealth_criteria_json(json[:id], data_criteria)
     end
   end
+  def self.pophealth_criteria_json(id, data_criteria)
+    criteria = data_criteria[id]
+    if criteria["children_criteria"].nil? or criteria["children_criteria"].empty?
+      {"category" => criteria['standard_category'].titleize + (criteria['status'] ? ": #{criteria['status']}" : ''), "title" => criteria['title']}
+    else
+      pophealth_parent_criteria_json(criteria, data_criteria)
+    end
+  end
+  def self.pophealth_parent_criteria_json(criteria, data_criteria)
+    section = {}
+    items = []
+    criteria["children_criteria"].each do |id|
+      items << pophealth_criteria_json(id, data_criteria)
+    end
+    section['OR'] = items
+    section
+  end
+  
   
   # Returns the hqmf-parser's ruby implementation of an HQMF document.
   # Rebuild from population_criteria, data_criteria, and measure_period JSON

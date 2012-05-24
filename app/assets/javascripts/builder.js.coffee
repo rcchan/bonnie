@@ -51,24 +51,48 @@ class @bonnie.Builder
   addParamItems: (obj,elemParent,container) =>
     builder = bonnie.builder
     items = obj["items"]
-
-    if $.isArray(items)
+    data_criteria = builder.dataCriteria(obj.id) if (obj.id)
+    
+    if (data_criteria?)
+      if (data_criteria.subset_operators?)
+        for subset_operator in data_criteria.subset_operators
+          $(elemParent).append("<span class='#{subset_operator.type}'>#{subset_operator.title()}</span>")
+            
+      if (data_criteria.children_criteria?)
+        items = data_criteria.childrenCriteriaItems()
+      else
+        # we dont have a nested measure clause, add the item to the bottom of the list
+        # if (!elemParent.hasClass("paramItem"))
+        items = data_criteria.temporalReferenceItems()
+        elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last") 
+        data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
+    
+    if ($.isArray(items))
       conjunction = obj['conjunction']
-      # add the grouping container
-      elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last") if (!container)
+      builder.renderParamItems(conjunction, items, elemParent, container)
+  
+  renderParamItems: (conjunction, items, elemParent, container) =>
+    builder = bonnie.builder
 
-      $.each(items, (i,node) ->
-        builder.addParamItems(node,elemParent)
-        if (i < items.length-1)
-          next = items[i+1]
-          negation = ''
-          negation = ' not' if (next['negation'])
-          $(elemParent).append("<span class='"+conjunction+negation+"'>"+conjunction+negation+"</span>"))
-    else
-      # we dont have a nested measure clause, add the item to the bottom of the list
-      if (!elemParent.hasClass("paramItem"))
-        elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last")
-      bonnie.builder.dataCriteria(obj.id).asHtml('data_criteria_logic').appendTo(elemParent)
+    elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last") if items.length > 1 and !container?
+
+    $.each(items, (i,node) ->
+      if (node.temporal)
+        $(elemParent).append("<span class='#{node.conjunction}'>#{node.title}</span>")
+      
+      # if (!container and i == 0)
+      #   if (!node.temporal && !node.items?)
+      #     elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last")
+      
+      builder.addParamItems(node,elemParent)
+
+      if (i < items.length-1 and !node.temporal)
+        next = items[i+1]
+        negation = ''
+        negation = ' not' if (next['negation'])
+        conjunction = node.conjunction if !conjunction
+        $(elemParent).append("<span class='"+conjunction+negation+"'>"+conjunction+negation+"</span>"))
+    
   
   toggleDataCriteriaTree: (element) =>
     category = $(element.currentTarget).data('category');
@@ -77,6 +101,35 @@ class @bonnie.Builder
       children.hide("blind", { direction: "vertical" }, 500)
     else
       children.show("blind", { direction: "vertical" }, 500)
+
+class @bonnie.TemporalReference
+  constructor: (temporal_reference) ->
+    @offset = new bonnie.Value(temporal_reference.offset) if temporal_reference.offset
+    @reference = temporal_reference.reference
+    @type = temporal_reference.type
+    @type_decoder = {'DURING':'During','SBS':'Starts Before Start of','SAS':'Starts After Start of','SBE':'Starts Before End of','SAE':'Starts After End of','EBS':'Ends Before Start of','EAS':'Ends After Start of'
+                     ,'EBE':'Ends Before End of','EAE':'Ends After End of','SDU':'Starts During','EDU':'Ends During','ECW':'Ends Concurrent with','SCW':'Starts Concurrent with','CONCURRENT':'Concurrent with'}
+  offset_text: =>
+    if(@offset?)
+      value = @offset.value
+      unit =  @offset.unit_text()
+      inclusive = @offset.inclusive_text()
+      if value > 0
+        ">#{inclusive} #{value} #{unit}"
+      else
+        "<#{inclusive} #{Math.abs(value)} #{unit}"
+    else
+      ''
+  type_text: =>
+    @type_decoder[@type]
+
+class @bonnie.SubsetOperator
+  constructor: (subset_operator) ->
+    @range = new bonnie.Range(subset_operator.value) if subset_operator.value
+    @type = subset_operator.type
+  title: =>
+    range = " #{@range.text()}" if @range
+    "#{@type}#{range || ''} of"
 
 class @bonnie.DataCriteria
   constructor: (id, criteria, measure_period) ->
@@ -88,56 +141,51 @@ class @bonnie.DataCriteria
     @title = criteria.title
     @type = criteria.type
     @category = this.buildCategory()
-    @temporalText = this.temporalText(criteria, measure_period)
+    @children_criteria = criteria.children_criteria
+    @temporal_references = []
+    if criteria.temporal_references
+      for temporal in criteria.temporal_references
+        @temporal_references.push(new bonnie.TemporalReference(temporal))
+    @subset_operators = []
+    if criteria.subset_operators
+      for subset in criteria.subset_operators
+        @subset_operators.push(new bonnie.SubsetOperator(subset))
+        
+    @temporalText = this.temporalText(measure_period)
   
   asHtml: (template) =>
     bonnie.template(template,this)
     
-  temporalText: (criteria, measure_period) =>
-    # Some exceptions have the value key. Bump it forward so criteria is identical to the format of usual coded entries
-    if criteria["value"] 
-      value = criteria["value"]
-    else # Find the display name as per usual for the coded entry
-      effective_time = criteria["effective_time"] if criteria["effective_time"]
-    
-    temporal_text = @parse_hqmf_time(effective_time || value || criteria, measure_period)
-    title = "#{name} #{temporal_text}"
+  temporalText: (measure_period) =>
+    text = ''
+    for temporal_reference in @temporal_references
+      if temporal_reference.reference == 'MeasurePeriod'
+        text += ' and ' if text.length > 0
+        text += "#{temporal_reference.offset_text()}#{temporal_reference.type_text()} #{measure_period.name}"
+    text
   
-  # This is a helper for parse_hqmf_data_criteria.
-  # Return recursively generated human readable text about time ranges and periods
-  parse_hqmf_time: (criteria, relative_time) =>
-    temporal_text = ""
-    type = criteria["type"]
-    switch type
-      when "IVL_TS"
-        temporal_text = "#{@parse_hqmf_time(criteria["width"], relative_time)} " if criteria["width"]
-        temporal_text += ">#{@parse_hqmf_time_stamp("low", criteria, relative_time)} start" if criteria["low"]
-        temporal_text += " and " if criteria["low"] && criteria["high"]
-        temporal_text += "<#{@parse_hqmf_time_stamp("high", criteria, relative_time)} end" if criteria["high"]
-      when "IVL_PQ"
-        temporal_text = @parse_hqmf_time_vector(criteria["low"], ">") if criteria["low"]
-        temporal_text += " and " if criteria["low"] && criteria["high"]
-        temporal_text += @parse_hqmf_time_vector(criteria["high"], "<") if criteria["high"]
-    temporal_text
-
-  parse_hqmf_time_stamp: (point, timestamp, relative_timestamp) =>
-    if timestamp[point]["value"] == relative_timestamp[point]["value"]
-      "= #{relative_timestamp["name"]}"
+  temporalReferenceItems: =>
+    items = []
+    if @temporal_references.length > 0
+      for temporal_reference in @temporal_references
+        if temporal_reference.reference != 'MeasurePeriod'
+          items.push({'conjunction':temporal_reference.type, 'items': [{'id':temporal_reference.reference}], 'negation':null, 'temporal':true, 'title': "#{temporal_reference.offset_text()}#{temporal_reference.type_text()}"})
+    if (items.length > 0)
+      items
     else
-      year = timestamp[point]["value"][0..3]
-      month = timestamp[point]["value"][4..5]
-      day = timestamp[point]["value"][6..7]
-      " #{Time.new(year, month, day).strftime("%m/%d/%Y")}"
+      null
 
-  parse_hqmf_time_vector: (vector, symbol) =>
-    decoder = {'a':'year','mo':'month','d':'day','h':'hour','min':'minute'}
-    inclusive = if vector["inclusive?"] then '=' else ''
-    unit = decoder[vector["unit"]]
-    unit += "s" if vector["value"] != 1
-    temporal_text = "#{symbol}#{inclusive} #{vector['value']}"
-    temporal_text += " #{unit}" if unit?
-    temporal_text
-    
+  childrenCriteriaItems: =>
+    items = []
+    if @children_criteria.length > 0
+      for child in @children_criteria
+        items.push({'conjunction':'or', 'items': [{'id':child}], 'negation':null})
+    if (items.length > 0)
+      items
+    else
+      null
+
+  
   # get the category for the data criteria... check standard_category then qds_data_type
   # this probably needs to be done in a better way... probably direct f 
   buildCategory: =>
@@ -155,12 +203,44 @@ class @bonnie.MeasurePeriod
     @high = new bonnie.Value(measure_period['high'])
     @low = new bonnie.Value(measure_period['low'])
     @width = new bonnie.Value(measure_period['width'])
+
+class @bonnie.Range
+  constructor: (range) ->
+    @type = range['type']
+    @high = new bonnie.Value(range['high']) if range['high']
+    @low = new bonnie.Value(range['low']) if range['low']
+    @width = new bonnie.Value(range['width']) if range['width']
+  text: =>
+    if (@high? && @low?)
+      if (@high.value == @low.value and @high.inclusive and low.inclusive)
+        "=#{@low.value}"
+      else
+        ">#{@low.inclusive_text()} #{@low.value} and <#{@high.inclusive_text()} #{@high.value}}"
+    else if (@high?)
+      "<#{@high.inclusive_text()} #{@high.value}"
+    else if (@low?)
+      ">#{@low.inclusive_text()} #{@low.value}"
+    else
+      ''
     
 class @bonnie.Value
   constructor: (value) ->
     @type = value['type']
     @unit = value['unit']
     @value = value['value']
+    @inclusive = value['inclusive?']
+    @unit_decoder = {'a':'year','mo':'month','wk':'week','d':'day','h':'hour','min':'minute','s':'second'}
+  unit_text: =>
+    if (@unit?)
+      unit = @unit_decoder[@unit]
+      unit += "s " if @value != 1
+    else
+      ''
+  inclusive_text: =>
+    if (@inclusive? and @inclusive)
+      '='
+    else
+      ''
 
 @bonnie.template = (id, object={}) =>
   $("#bonnie_tmpl_#{id}").tmpl(object)
