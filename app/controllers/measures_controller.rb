@@ -85,7 +85,7 @@ class MeasuresController < ApplicationController
       "property" => params[:property],
       "type" => params[:type]
     })
-    render :json => @measure.save
+    render :json => @measure if @measure.save
   end
 
   def update
