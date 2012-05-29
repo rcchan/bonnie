@@ -18,3 +18,27 @@
   </div>
 
 <% end %>
+<div class="paramGroup" data-category="newDataCriteria">
+  <div class="paramItem">
+    <div class="paramText">
+      <label>Add New Data Criterion</label>
+    </div>
+  </div>
+</div>
+<div class="paramChildren newDataCriteria_children" style="background-color: #F5F5F5;">
+  <div class="paramItem">
+    <div class="paramText">
+      <form method="GET" action="<%= url_for :action => 'add_criteria' %>">
+        <label>criteria_id <input name="criteria_id" /></label>
+        <label>code_list_id <input name="code_list_id" /></label>
+        <label>property <input name="property" /></label>
+        <label>standard_category <input name="standard_category" /></label>
+        <label>qds_data_type <input name="qds_data_type" /></label>
+        <label>title <input name="title" /></label>
+        <label>type <input name="type" /></label>
+        <input type="hidden" name="measure" value="<%= params[:id] %>" />
+        <label><input type="submit" value="Create" /></label>
+      </form>
+    </div>
+  </div>
+</div>

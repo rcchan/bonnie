@@ -1,13 +1,13 @@
 class Measure
   include Mongoid::Document
-  
+
   field :endorser, type: String
   field :measure_id, type: String
   field :title, type: String
   field :description, type: String
   field :category, type: String
   field :steward, type: String    # organization who's writing the measure
-  
+
   field :published, type: Boolean
   field :publish_date, type: Date
   field :version, type: Integer
@@ -34,11 +34,11 @@ class Measure
     self.publishings << as_publishing
     self.save!
   end
-  
+
   def latest_version
     publishings.by_version(self.version).first
   end
-  
+
   def unique_data_criteria
     unique_criteria = []
     data_criteria.each do |key, criteria|
@@ -48,7 +48,7 @@ class Measure
     end if data_criteria
     unique_criteria
   end
-  
+
   def data_criteria_by_oid
     by_oid = {}
     data_criteria.each do |key, criteria|
@@ -56,10 +56,10 @@ class Measure
     end
     by_oid
   end
-  
+
   # Reshapes the measure into the JSON necessary to build the popHealth parameter view for stage one measures.
   # Returns a hash with population, numerator, denominator, and exclusions
-  def parameter_json 
+  def parameter_json
     parameter_json = {}
 
     title_mapping = { "IPP" => "population", "DENOM" => "denominator", "NUMER" => "numerator", "EXCL" => "exclusions"}
@@ -69,10 +69,10 @@ class Measure
           items: parse_hqmf_preconditions(criteria)
         }
     end
-    
+
     parameter_json
   end
-  
+
   def self.pophealth_parameter_json(parameter_json)
     json = {}
     parameter_json.keys.each do |key|
@@ -80,7 +80,7 @@ class Measure
     end
     json
   end
-  
+
   def self.pophealth_element_json(json)
     if (json[:items])
       section = {}
@@ -94,7 +94,7 @@ class Measure
       json
     end
   end
-  
+
   # Returns the hqmf-parser's ruby implementation of an HQMF document.
   # Rebuild from population_criteria, data_criteria, and measure_period JSON
   def as_hqmf_model
@@ -107,21 +107,25 @@ class Measure
       "measure_period" => self.measure_period,
       "attributes" => self.measure_attributes
     }
-    
+
     HQMF::Document.from_json(json)
   end
-  
-  private 
-  
+
+  def add_data_criteria(criteria)
+    self.data_criteria[criteria['id']] = criteria
+  end
+
+  private
+
   def as_publishing
     Publishing.new(self.attributes.except('_id','publishings', 'published', 'nqf_id'));
   end
-  
+
   # This is a helper for parameter_json.
   # Return recursively generated JSON that can be imported into popHealth or shown as parameters in Bonnie.
   def parse_hqmf_preconditions(criteria)
     conjunction_mapping = { "allTrue" => "and", "atLeastOneTrue" => "or" } # Used to convert to stage one, if requested in version param
-    
+
     if criteria["conjunction?"] # We're at the top of the tree
       fragment = []
       criteria["preconditions"].each do |precondition|
@@ -142,10 +146,10 @@ class Measure
           precondition['conjunction_code'] = 'and' if precondition["reference"]
           element[:items] << parse_hqmf_preconditions(precondition)
         end
-        
+
       end if criteria["preconditions"]
       return element
     end
-    
+
   end
 end

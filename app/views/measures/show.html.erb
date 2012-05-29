@@ -1,7 +1,7 @@
 <% content_for :head do %>
   <script type="text/javascript">
     var bonnie = bonnie || {};
-    
+
     var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
     $(document).ready(function() {
       page.initialize();
@@ -20,7 +20,7 @@
      $(window).on("resize",matchTitleHeight);
      matchTitleHeight();
     });
-    
+
   </script>
 
   <script type="text/html" id="bonnie_tmpl_param_group">
@@ -35,7 +35,7 @@
       ${title} ${temporalText}
     </div>
   </script>
-  
+
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
     <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
@@ -87,8 +87,8 @@
       </table>
     </div>
   </script>
-  
-  
+
+
 <% end %>
 
 <% content_for :page_content do %>
@@ -97,7 +97,7 @@
     <a href="#" class="btn" >Save</a>
     <%= link_to 'Test', debug_measure_url(@measure), :class => 'btn' %>
     <%= link_to 'Publish', publish_measure_path(@measure), :method => :post, :class => 'btn' %>
-    
+
     <%# link_to 'Publish', publish_measure_path(@measure), class:"btn" %>
   </div>
 	<h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
@@ -128,7 +128,7 @@
       <%= link_to 'Edit', edit_measure_path(@measure) %> |
       <%= link_to 'NQF Definition', show_nqf_measure_path(@measure), :target => "_blank" %> |
       <%= link_to 'Back', measures_path %>
-  
+
       <div id="dataCriteria">
         <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.unique_data_criteria)}%>
       </div>
@@ -139,37 +139,37 @@
   <div id="tabs" class="measureDetailTable">
 
     <p id="notice"><%= notice %></p>
-  
+
     <ul class="nav nav-tabs">
       <li class="initial-population"><a href="#initialPopulation" data-toggle="tab">initial pop.</a></li>
       <li class="active denominator"><a href="#eligibilityMeasures" data-toggle="tab">denominator</a></li>
       <li class="numerator"><a href="#outcomeMeasures" data-toggle="tab">numerator</a></li>
     </ul>
-  
+
     <div class="tab-content" id="measureEditContainer">
       <div id="workspace" style="padding:10px;border-radius:12px;margin:10px;border:1px solid #aaa;background-color:#f5f5f5;float:right;width:340px;height:700px">
         <p>Workspace edit controls go here</p>
       </div>
-      
+
       <div id="initialPopulation" class="tab-pane">
         <div class="measureBox">
           <div id="initialPopulationItems"></div>
         </div>
       </div>
-      
+
       <div id="eligibilityMeasures" class="tab-pane active">
         <div class="measureBox">
           <div id="eligibilityMeasureItems"></div>
         </div>
       </div>
-      
+
       <div id="outcomeMeasures" class="tab-pane">
         <div class="measureBox">
           <div id="outcomeMeasureItems"></div>
         </div>
       </div>
     </div>
-  
+
   </div><!-- end #tabs -->
 
 <% end -%>
