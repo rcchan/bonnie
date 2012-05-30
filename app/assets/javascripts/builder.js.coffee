@@ -6,38 +6,38 @@ class @bonnie.Builder
     @data_criteria = {}
     for key in _.keys(data_criteria)
       @data_criteria[key] = new bonnie.DataCriteria(key, data_criteria[key], @measure_period)
-      
+
   dataKeys: =>
     _.keys(@data_criteria)
-    
+
   dataCriteria: (key) =>
     @data_criteria[key]
-  
+
   updateDisplay: () =>
     alert "updating display: " + @data_criteria
-    
+
   renderMeasureJSON: (data) =>
     if (data.population)
       elemParent = bonnie.template('param_group').appendTo("#eligibilityMeasureItems").find(".paramItem:last")
       @addParamItems(data.population,elemParent,elemParent)
       elemParent.parent().addClass("population")
 
-    if (!$.isEmptyObject(data.denominator)) 
+    if (!$.isEmptyObject(data.denominator))
       $("#eligibilityMeasureItems").append("<span class='and'>and</span>")
       @addParamItems(data.denominator,$("#eligibilityMeasureItems"))
 
-    if (data.numerator) 
+    if (data.numerator)
       @addParamItems(data.numerator,$("#outcomeMeasureItems"))
 
     if ('exclusions' in data && !$.isEmptyObject(data['exclusions']))
       @addParamItems(data.exclusions,$("#exclusionMeasureItems"))
       $("#exclusionMeasureItems").hide()
       $("#exclusionPanel").show()
-    
-    $('.logicLeaf').click((element) => 
+
+    $('.logicLeaf').click((element) =>
       id = $(element.currentTarget).attr('id')
       @editDataCriteria(id))
-      
+
   editDataCriteria: (id) =>
     leaf = $("##{id}")
     offset = leaf.offset().top - $('#workspace').offset().top
@@ -69,7 +69,7 @@ class @bonnie.Builder
       if (!elemParent.hasClass("paramItem"))
         elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last")
       bonnie.builder.dataCriteria(obj.id).asHtml('data_criteria_logic').appendTo(elemParent)
-  
+
   toggleDataCriteriaTree: (element) =>
     category = $(element.currentTarget).data('category');
     children = $(".#{category}_children")
@@ -77,6 +77,31 @@ class @bonnie.Builder
       children.hide("blind", { direction: "vertical" }, 500)
     else
       children.show("blind", { direction: "vertical" }, 500)
+
+  addDataCriteria: (criteria) =>
+    $c = $('#dataCriteria>div.paramGroup[data-category="' + criteria.standard_category + '"]');
+    if $c.length
+      $e = $c.find('span')
+      $e.text(parseInt($e.text()) + 1)
+    else
+      $c = $('
+        <div class="paramGroup" data-category="' + criteria.standard_category + '">
+          <div class="paramItem">
+            <div class="paramText ' + criteria.standard_category + '">
+              <label>' + criteria.standard_category + '<span>(1</span>)</label>
+            </div>
+          </div>
+        </div>
+      ').insertBefore('#dataCriteria .paramGroup[data-category=newDataCriteria]')
+    $('
+      <div class="paramChildren ' + criteria.standard_category + '_children" style="background-color: #F5F5F5;">
+        <div class="paramItem">
+          <div class="paramText">
+            <label>' + criteria.title + (criteria.status || '') + '</label>
+          </div>
+        </div>
+      </div>
+    ').insertAfter($($c.nextUntil('#dataCriteria .paramGroup').last()[0] || $c))
 
 class @bonnie.DataCriteria
   constructor: (id, criteria, measure_period) ->
@@ -89,20 +114,20 @@ class @bonnie.DataCriteria
     @type = criteria.type
     @category = this.buildCategory()
     @temporalText = this.temporalText(criteria, measure_period)
-  
+
   asHtml: (template) =>
     bonnie.template(template,this)
-    
+
   temporalText: (criteria, measure_period) =>
     # Some exceptions have the value key. Bump it forward so criteria is identical to the format of usual coded entries
-    if criteria["value"] 
+    if criteria["value"]
       value = criteria["value"]
     else # Find the display name as per usual for the coded entry
       effective_time = criteria["effective_time"] if criteria["effective_time"]
-    
+
     temporal_text = @parse_hqmf_time(effective_time || value || criteria, measure_period)
     title = "#{name} #{temporal_text}"
-  
+
   # This is a helper for parse_hqmf_data_criteria.
   # Return recursively generated human readable text about time ranges and periods
   parse_hqmf_time: (criteria, relative_time) =>
@@ -137,9 +162,9 @@ class @bonnie.DataCriteria
     temporal_text = "#{symbol}#{inclusive} #{vector['value']}"
     temporal_text += " #{unit}" if unit?
     temporal_text
-    
+
   # get the category for the data criteria... check standard_category then qds_data_type
-  # this probably needs to be done in a better way... probably direct f 
+  # this probably needs to be done in a better way... probably direct f
   buildCategory: =>
     category = @standard_category
     # QDS data type is most specific, so use it if available. Otherwise use the standard category.
@@ -155,7 +180,7 @@ class @bonnie.MeasurePeriod
     @high = new bonnie.Value(measure_period['high'])
     @low = new bonnie.Value(measure_period['low'])
     @width = new bonnie.Value(measure_period['width'])
-    
+
 class @bonnie.Value
   constructor: (value) ->
     @type = value['type']
@@ -168,7 +193,7 @@ class @bonnie.Value
 class Page
   constructor: (data_criteria, measure_period) ->
     bonnie.builder = new bonnie.Builder(data_criteria, measure_period)
-    
+
   initialize: () =>
-    $('#dataCriteria .paramGroup').click(bonnie.builder.toggleDataCriteriaTree)
+    $(document).on('click', '#dataCriteria .paramGroup', bonnie.builder.toggleDataCriteriaTree)
     $('.nav-tabs li').click((element) -> $('#workspace').empty() if !$(element.currentTarget).hasClass('active') )

@@ -76,7 +76,7 @@ class MeasuresController < ApplicationController
 
   def add_criteria
     @measure = Measure.find(params[:id])
-    @measure.add_data_criteria({
+    criteria = {
       "id" => params[:criteria_id],
       "title" => params[:title],
       "description" => params[:description],
@@ -84,8 +84,9 @@ class MeasuresController < ApplicationController
       "code_list_id" => params[:code_list_id],
       "property" => params[:property],
       "type" => params[:type]
-    })
-    render :json => @measure if @measure.save
+    }
+    @measure.add_data_criteria(criteria)
+    render :json => criteria if @measure.save
   end
 
   def update
