@@ -83,7 +83,8 @@ class MeasuresController < ApplicationController
       "standard_category" => params[:standard_category],
       "code_list_id" => params[:code_list_id],
       "property" => params[:property],
-      "type" => params[:type]
+      "type" => params[:type],
+      "status" => params[:status]
     }
     @measure.add_data_criteria(criteria)
     render :json => criteria if @measure.save

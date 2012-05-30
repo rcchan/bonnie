@@ -103,7 +103,7 @@ class @bonnie.Builder
       children.show("blind", { direction: "vertical" }, 500)
 
   addDataCriteria: (criteria) =>
-    $c = $('#dataCriteria>div.paramGroup[data-category="' + criteria.standard_category + '"]');
+    $c = $('#dataCriteria>div.paramGroup[data-category="' + criteria.standard_category.replace(`/ /g`, '_') + '"]');
     if $c.length
       $e = $c.find('span')
       $e.text(parseInt($e.text()) + 1)
@@ -120,7 +120,7 @@ class @bonnie.Builder
     $('
       <div class="paramItem">
         <div class="paramText">
-          <label>' + criteria.title + (criteria.status || '') + '</label>
+          <label>' + criteria.title + (if criteria.status then ': '+ criteria.status else '') + '</label>
         </div>
       </div>
     ').appendTo(

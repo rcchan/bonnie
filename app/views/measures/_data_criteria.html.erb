@@ -30,12 +30,13 @@
     <div class="paramText">
       <form method="GET" action="<%= url_for :action => 'add_criteria' %>" onsubmit="return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);">
         <label>criteria_id <input name="criteria_id" /></label>
-        <label>code_list_id <input name="code_list_id" /></label>
-        <label>property <input name="property" /></label>
+        <label>title <input name="title" /></label>
         <label>standard_category <input name="standard_category" /></label>
         <label>qds_data_type <input name="qds_data_type" /></label>
-        <label>title <input name="title" /></label>
+        <label>code_list_id <input name="code_list_id" /></label>
+        <label>property <input name="property" /></label>
         <label>type <input name="type" /></label>
+        <label>status <input name="status" /></label>
         <input type="hidden" name="measure" value="<%= params[:id] %>" />
         <label><input type="submit" value="Create" /></label>
       </form>
