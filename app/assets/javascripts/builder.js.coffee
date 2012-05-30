@@ -34,18 +34,19 @@ class @bonnie.Builder
       $("#exclusionMeasureItems").hide()
       $("#exclusionPanel").show()
 
-    $('.logicLeaf').click((element) =>
-      id = $(element.currentTarget).attr('id')
-      @editDataCriteria(id))
+    $('.logicLeaf').click((event) =>
+      @editDataCriteria(event.currentTarget))
 
-  editDataCriteria: (id) =>
-    leaf = $("##{id}")
-    data_criteria = @dataCriteria(id)
+  editDataCriteria: (element) =>
+    leaf = $(element)
+    data_criteria = @dataCriteria($(element).attr('id'))
     $('#workspace').empty();
     element = data_criteria.asHtml('data_criteria_edit')
     element.appendTo($('#workspace'))
-    offset = leaf.offset().top - $('#workspace').offset().top - element.height()/2
+    offset = leaf.offset().top + leaf.height()/2 - $('#workspace').offset().top - element.height()/2
     offset = 0 if offset < 0
+    maxoffset = $('#measureEditContainer').height() - element.outerHeight(true) - $('#workspace').position().top - $('#workspace').outerHeight(true) + $('#workspace').height()
+    offset = maxoffset if offset > maxoffset
     element.css("top",offset)
     element.find('select[name=status]').val(data_criteria.status)
     element.find('select[name=type]').val(data_criteria.type)
