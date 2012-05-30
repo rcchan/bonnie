@@ -43,7 +43,7 @@ module Measures
     
     def self.measure_json(measure_id)
       measure = Measure.by_measure_id(measure_id).first
-      buckets = Measure.pophealth_parameter_json(measure.parameter_json)
+      buckets = Measure.pophealth_parameter_json(measure.parameter_json, measure.data_criteria)
       
       {
         id: measure.measure_id,

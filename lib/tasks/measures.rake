@@ -60,7 +60,7 @@ namespace :measures do
     user = User.by_username args.username
     raise "The user #{args.username} could not be found." unless user
 
-    if args.delete_existing
+    if args.delete_existing != 'false'
       count = user.measures.delete_all 
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
