@@ -52,25 +52,25 @@ class @bonnie.Builder
     builder = bonnie.builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
-    
+
     if (data_criteria?)
       if (data_criteria.subset_operators?)
         for subset_operator in data_criteria.subset_operators
           $(elemParent).append("<span class='#{subset_operator.type}'>#{subset_operator.title()}</span>")
-            
+
       if (data_criteria.children_criteria?)
         items = data_criteria.childrenCriteriaItems()
       else
         # we dont have a nested measure clause, add the item to the bottom of the list
         # if (!elemParent.hasClass("paramItem"))
         items = data_criteria.temporalReferenceItems()
-        elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last") 
+        elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last")
         data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
-    
+
     if ($.isArray(items))
       conjunction = obj['conjunction']
       builder.renderParamItems(conjunction, items, elemParent, container)
-  
+
   renderParamItems: (conjunction, items, elemParent, container) =>
     builder = bonnie.builder
 
@@ -79,11 +79,11 @@ class @bonnie.Builder
     $.each(items, (i,node) ->
       if (node.temporal)
         $(elemParent).append("<span class='#{node.conjunction}'>#{node.title}</span>")
-      
+
       # if (!container and i == 0)
       #   if (!node.temporal && !node.items?)
       #     elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last")
-      
+
       builder.addParamItems(node,elemParent)
 
       if (i < items.length-1 and !node.temporal)
@@ -92,8 +92,8 @@ class @bonnie.Builder
         negation = ' not' if (next['negation'])
         conjunction = node.conjunction if !conjunction
         $(elemParent).append("<span class='"+conjunction+negation+"'>"+conjunction+negation+"</span>"))
-    
-  
+
+
   toggleDataCriteriaTree: (element) =>
     category = $(element.currentTarget).data('category');
     children = $(".#{category}_children")
@@ -118,14 +118,12 @@ class @bonnie.Builder
         </div>
       ').insertBefore('#dataCriteria .paramGroup[data-category=newDataCriteria]')
     $('
-      <div class="paramChildren ' + criteria.standard_category + '_children" style="background-color: #F5F5F5;">
-        <div class="paramItem">
-          <div class="paramText">
-            <label>' + criteria.title + (criteria.status || '') + '</label>
-          </div>
+      <div class="paramItem">
+        <div class="paramText">
+          <label>' + criteria.title + (criteria.status || '') + '</label>
         </div>
       </div>
-    ').insertAfter($($c.nextUntil('#dataCriteria .paramGroup').last()[0] || $c))
+    ').appendTo($($c.nextUntil('#dataCriteria .paramGroup', '#dataCriteria .paramChildren')[0] || $('<div class="paramChildren ' + criteria.standard_category + '_children" style="background-color: #F5F5F5;"></div>').insertAfter($c)))
 
 class @bonnie.TemporalReference
   constructor: (temporal_reference) ->
@@ -175,7 +173,7 @@ class @bonnie.DataCriteria
     if criteria.subset_operators
       for subset in criteria.subset_operators
         @subset_operators.push(new bonnie.SubsetOperator(subset))
-        
+
     @temporalText = this.temporalText(measure_period)
 
   asHtml: (template) =>
@@ -210,7 +208,7 @@ class @bonnie.DataCriteria
     else
       null
 
-  
+
   # get the category for the data criteria... check standard_category then qds_data_type
   # this probably needs to be done in a better way... probably direct f
   buildCategory: =>
@@ -247,7 +245,7 @@ class @bonnie.Range
       ">#{@low.inclusive_text()} #{@low.value}"
     else
       ''
-    
+
 class @bonnie.Value
   constructor: (value) ->
     @type = value['type']
