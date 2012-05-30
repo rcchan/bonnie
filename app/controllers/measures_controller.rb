@@ -90,6 +90,14 @@ class MeasuresController < ApplicationController
     render :json => criteria if @measure.save
   end
 
+  def update_criteria
+    @measure = Measure.find(params[:id])
+    criteria = {"id" => params[:criteria_id]}
+    ["status", "type", "value"].each { |f| criteria[f] = params[f] if !params[f].blank? }
+    @measure.update_data_criteria(criteria)
+    render :json => criteria if @measure.save
+  end
+
   def update
     @measure = Measure.find(params[:id])
     @measure.update_attributes!(params[:measure])

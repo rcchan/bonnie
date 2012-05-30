@@ -132,6 +132,10 @@ class Measure
     self.data_criteria[criteria['id']] = criteria
   end
 
+  def update_data_criteria(criteria)
+    self.data_criteria[criteria['id']].merge!(criteria)
+  end
+
   private
 
   def as_publishing

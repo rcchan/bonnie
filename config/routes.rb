@@ -9,6 +9,7 @@ Bonnie::Application.routes.draw do
       get :show_nqf
       get :debug
       match :add_criteria
+      match :update_criteria
     end
     collection do
       get :published

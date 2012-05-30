@@ -40,52 +40,61 @@
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
     <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
-      <div>${title}</div>
-      <table>
-        <tr>
-          <td>Status:</td>
-          <td>
-            <select style="width: 100px;">
-              <option value="">--</option>
-              <option value="ordered">Ordered</option>
-              <option value="administered">Administered</option>
-              <option value="active">Active</option>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td>Type:</td>
-          <td>
-            <select style="width: 100px;">
-              <option value="">--</option>
-              <option value="encounter outpatient">encounter outpatient</option>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td>Temporal:</td>
-          <td>
-            <select style="width: 100px;">
-              <option value="">--</option>
-              <option value="sbs">Starts Before Start</option>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td>Value:</td>
-          <td>
-            <select style="width: 100px;">
-              <option value="">--</option>
-              <option value="eq">Equal to</option>
-              <option value="gt">Greater than</option>
-              <option value="lt">Less Than</option>
-            </select>
-          </td>
-          <td>
-            <input type="text" style="width: 100px;" value=""/>
-          </td>
-        </tr>
-      </table>
+      <form method="GET" action="<%= url_for :action => 'update_criteria' %>" onsubmit="return !$(this).ajaxSubmit();">
+        <input type="hidden" name="id" value="<%= params[:id] %>" />
+        <input type="hidden" name="criteria_id" value="${id}">
+        <div>${title}</div>
+        <table>
+          <tr>
+            <td>Status:</td>
+            <td>
+              <select name="status" style="width: 100px;">
+                <option value="">--</option>
+                <option value="ordered">Ordered</option>
+                <option value="administered">Administered</option>
+                <option value="active">Active</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Type:</td>
+            <td>
+              <select name="type" style="width: 100px;">
+                <option value="">--</option>
+                <option value="encounter outpatient">encounter outpatient</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Temporal:</td>
+            <td>
+              <select style="width: 100px;">
+                <option value="">--</option>
+                <option value="sbs">Starts Before Start</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Value:</td>
+            <td>
+              <select style="width: 100px;">
+                <option value="">--</option>
+                <option value="eq">Equal to</option>
+                <option value="gt">Greater than</option>
+                <option value="lt">Less Than</option>
+              </select>
+            </td>
+            <td>
+              <input name="value" type="text" style="width: 100px;" value=""/>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><input type="submit" value="save"></td>
+          </tr>
+          </tr>
+        </table>
+      </form>
     </div>
   </script>
 
