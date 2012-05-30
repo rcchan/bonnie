@@ -1,13 +1,13 @@
 <% criteria_by_category.keys.each do |category| %>
-  <div class="paramGroup" data-category="<%= category %>">
+  <div class="paramGroup" data-category="<%= category.gsub(' ', '_') %>">
     <div class="paramItem">
-      <div class="paramText <%= dc_category_style(category) %>">
+      <div class="paramText <%= dc_category_style(category.gsub(' ', '_')) %>">
         <label><%= category.titleize %> (<span><%= criteria_by_category[category].length %></span>)</label>
       </div>
     </div>
   </div>
 
-  <div class="paramChildren <%= category %>_children" style="background-color: #F5F5F5;">
+  <div class="paramChildren <%= category.gsub(' ', '_') %>_children" style="background-color: #F5F5F5;">
     <% criteria_by_category[category].each do |criteria| %>
     <div class="paramItem">
       <div class="paramText">
