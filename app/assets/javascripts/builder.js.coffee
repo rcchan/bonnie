@@ -40,12 +40,12 @@ class @bonnie.Builder
 
   editDataCriteria: (id) =>
     leaf = $("##{id}")
-    offset = leaf.offset().top - $('#workspace').offset().top
     data_criteria = @dataCriteria(id)
     $('#workspace').empty();
     element = data_criteria.asHtml('data_criteria_edit')
     element.appendTo($('#workspace'))
-    offset = offset - element.height()/2
+    offset = leaf.offset().top - $('#workspace').offset().top - element.height()/2
+    offset = 0 if offset < 0
     element.css("top",offset)
 
   addParamItems: (obj,elemParent,container) =>
