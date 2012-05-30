@@ -47,6 +47,9 @@ class @bonnie.Builder
     offset = leaf.offset().top - $('#workspace').offset().top - element.height()/2
     offset = 0 if offset < 0
     element.css("top",offset)
+    element.find('select[name=status]').val(data_criteria.status)
+    element.find('select[name=type]').val(data_criteria.type)
+    element.find('input[name=value]').val(data_criteria.value)
 
   addParamItems: (obj,elemParent,container) =>
     builder = bonnie.builder
@@ -167,7 +170,9 @@ class @bonnie.DataCriteria
     @standard_category = criteria.standard_category
     @qds_data_type = criteria.qds_data_type
     @title = criteria.title
+    @status = criteria.status
     @type = criteria.type
+    @value =criteria.value
     @category = this.buildCategory()
     @children_criteria = criteria.children_criteria
     @temporal_references = []
