@@ -109,10 +109,10 @@ class @bonnie.Builder
       $e.text(parseInt($e.text()) + 1)
     else
       $c = $('
-        <div class="paramGroup" data-category="' + `criteria.standard_category.replace(/ /g, '_')` + '">
+        <div class="paramGroup" data-category="' + criteria.standard_category.replace(`/ /g`, '_') + '">
           <div class="paramItem">
-            <div class="paramText ' + `criteria.standard_category.replace(/ /g, '_')` + '">
-              <label>' + criteria.standard_category + '<span>(1</span>)</label>
+            <div class="paramText ' + criteria.standard_category.replace(`/ /g`, '_') + '">
+              <label>' + criteria.standard_category + '(<span>1</span>)</label>
             </div>
           </div>
         </div>
@@ -123,7 +123,12 @@ class @bonnie.Builder
           <label>' + criteria.title + (criteria.status || '') + '</label>
         </div>
       </div>
-    ').appendTo($($c.nextUntil('#dataCriteria .paramGroup', '#dataCriteria .paramChildren')[0] || $('<div class="paramChildren ' + `criteria.standard_category.replace(/ /g, '_')` + '_children" style="background-color: #F5F5F5;"></div>').insertAfter($c)))
+    ').appendTo(
+      $(
+        $c.nextUntil('#dataCriteria .paramGroup', '#dataCriteria .paramChildren')[0] ||
+        $('<div class="paramChildren ' + criteria.standard_category.replace(`/ /g`, '_') + '_children" style="background-color: #F5F5F5;"></div>').insertAfter($c)
+      )
+    )
 
 class @bonnie.TemporalReference
   constructor: (temporal_reference) ->
