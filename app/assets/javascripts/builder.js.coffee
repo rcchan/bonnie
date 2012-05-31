@@ -45,7 +45,9 @@ class @bonnie.Builder
     maxoffset = $('#measureEditContainer').height() - element.outerHeight(true) - $('#workspace').position().top - $('#workspace').outerHeight(true) + $('#workspace').height()
     offset = maxoffset if offset > maxoffset
     element.css("top", offset)
-    $('.arrow-w').css('top',leaf.offset().top + leaf.height()/2 - element.offset().top - $('.arrow-w').outerHeight()/2)
+    arrowOffset = leaf.offset().top + leaf.height()/2 - element.offset().top - $('.arrow-w').outerHeight()/2
+    arrowOffset = 0 if arrowOffset < 0
+    $('.arrow-w').css('top', arrowOffset)
     element.css("top", top)
     element.animate({top: offset})
     element.find('select[name=status]').val(data_criteria.status)
