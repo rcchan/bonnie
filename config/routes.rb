@@ -7,7 +7,9 @@ Bonnie::Application.routes.draw do
       get :import_resource
       post :publish
       get :show_nqf
-      get :debug
+      get :debug  # measure debug page
+      get :test   # select patients form
+      post :test  # handle select patients form
     end
     collection do
       get :published

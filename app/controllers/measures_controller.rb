@@ -129,5 +129,11 @@ class MeasuresController < ApplicationController
     @measure = Measure.find(params[:id])
     render "measures/debug"
   end
+
+  def test
+    @measure = Measure.find(params[:id])
+    @patient_names = Record.all.limit(5).entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
+  end
+
   
 end

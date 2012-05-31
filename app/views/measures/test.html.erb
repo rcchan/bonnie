@@ -1,0 +1,29 @@
+<% content_for :head do %>
+  <script type="text/javascript">
+    $(document).ready(function() {
+    });
+  </script>
+<% end %>
+
+<% content_for :page_content do %>
+  <%= debug params %>
+
+  <h3>Testing Measure</h3>
+  <p>
+    <em><%= @measure.title %></em>
+  </p>
+
+  <br>
+  
+  <%= simple_form_for(:patients, :url => test_measure_path, :method => :post, :html => { :class => 'form-horizontal' }) do |f| %>
+    <!-- checkboxes are checked by default for all patients -->
+
+    <%= f.submit 'Debug Measure',:class => 'btn-primary' %><br>
+    
+    <a href="#">Select All</a> | <a href="#">Deselect All</a><br>
+    <%= f.input(:patients, :label => false, :collection => @patient_names, 
+      :as => :check_boxes, :required => false, :input_html => {:checked => true}) %>
+
+  <% end %>
+  
+<% end %>
