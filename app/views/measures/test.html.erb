@@ -6,7 +6,6 @@
 <% end %>
 
 <% content_for :page_content do %>
-  <%= debug params %>
 
   <h3>Testing Measure</h3>
   <p>
@@ -21,9 +20,17 @@
     <%= f.submit 'Debug Measure',:class => 'btn-primary' %><br>
     
     <a href="#">Select All</a> | <a href="#">Deselect All</a><br>
-    <%= f.input(:patients, :label => false, :collection => @patient_names, 
+    <%= f.input(:patient_names, :label => false, :collection => @patient_names, 
       :as => :check_boxes, :required => false, :input_html => {:checked => true}) %>
 
+  <% end %>
+  
+  <% if params[:patients] %>
+    <% @js = include_js_debug(@measure.measure_id, params[:patients]["patient_names"].reject {|p| p.empty?} ) %>
+    <%= debug params %>
+    <%= javascript_tag do %>
+      <%= raw(@js) %>
+    <% end %>
   <% end %>
   
 <% end %>
