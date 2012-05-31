@@ -55,6 +55,11 @@ class @bonnie.Builder
 
   editDataCriteria_callback: (changes) =>
     @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
+    $('#edit_save_message').append('<span style="color: green">Saved!</span>')
+    setTimeout (->
+      $("#edit_save_message > span").fadeOut ->
+        $(this).remove()
+    ), 3000
 
   addParamItems: (obj,elemParent,container) =>
     builder = bonnie.builder
