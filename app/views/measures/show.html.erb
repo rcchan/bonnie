@@ -8,7 +8,9 @@
       $.getJSON("<%= definition_measure_url(@measure) %>", bonnie.builder.renderMeasureJSON);
       $("#measureDetailBorder").click(function() {
         var md = $("#measureDetailInformation");
-        md.width() > 15 ? md.width(15) | $("#tabs").css("margin-left","15px") : md.width(300) | $("#tabs").css("margin-left","300px");
+        md.css('left') == '0px' ?
+          md.find('.inner').animate({right: 285}) | md.animate({left: -285}) | $("#tabs").animate({'margin-left': 15}) :
+          md.animate({left: 0}) | md.find('.inner').animate({right: 0}) | $("#tabs").animate({"margin-left": 300});
         $("#measureDetailBorder i").toggleClass("icon-backward").toggleClass("icon-forward");
       });
       var measureDetail = $("#measureDetailInformation");
@@ -117,7 +119,7 @@
 
   <div id="measureDetailInformation">
     <div id="measureDetailBorder"><i class="icon-backward icon-white"></i></div>
-    <div class="inner" style="margin:15px 20px 15px 15px;">
+    <div class="inner" style="position:relative; margin:15px 20px 15px 15px;">
       <dl>
         <dt>Reporting Period:</dt>
         <dd>
