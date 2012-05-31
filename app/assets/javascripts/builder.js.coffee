@@ -40,6 +40,7 @@ class @bonnie.Builder
   editDataCriteria: (element) =>
     leaf = $(element)
     data_criteria = @dataCriteria($(element).attr('id'))
+    top = $('#workspace > div').css('top')
     $('#workspace').empty();
     element = data_criteria.asHtml('data_criteria_edit')
     element.appendTo($('#workspace'))
@@ -47,8 +48,10 @@ class @bonnie.Builder
     offset = 0 if offset < 0
     maxoffset = $('#measureEditContainer').height() - element.outerHeight(true) - $('#workspace').position().top - $('#workspace').outerHeight(true) + $('#workspace').height()
     offset = maxoffset if offset > maxoffset
-    element.css("top",offset)
-    $('.arrow-w').css('top', leaf.offset().top + leaf.height()/2 - element.offset().top - $('.arrow-w').outerHeight()/2)
+    element.css("top", offset)
+    $('.arrow-w').css('top',leaf.offset().top + leaf.height()/2 - element.offset().top - $('.arrow-w').outerHeight()/2)
+    element.css("top", top)
+    element.animate({top: offset})
     element.find('select[name=status]').val(data_criteria.status)
     element.find('select[name=type]').val(data_criteria.type)
     element.find('input[name=value]').val(data_criteria.value)
