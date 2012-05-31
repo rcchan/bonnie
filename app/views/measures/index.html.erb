@@ -13,7 +13,7 @@
   		<li <% unless @show_published %>class="active"<% end %>><a href="#tabs-0" data-toggle="tab">my measures</a></li>
   		<li <% if @show_published %>class="active"<% end %>><a href="#tabs-1" data-toggle="tab">all published measures</a></li>
   	</ul>
-	
+
     <!-- start my measures content -->
     <div class="tab-content">
   	<div id="tabs-0" class="tab-pane<% unless @show_published %> active<% end %>">
@@ -39,10 +39,10 @@
         </tfoot>
       </table>
   	</div><!-- end my measures content -->
-	
+
   	<!-- start published measures content -->
   	<div id="tabs-1" class="tab-pane<% if @show_published %> active<% end %>">
-  	  <table class="table table-measure-detail published-measures"> 
+  	  <table class="table table-measure-detail published-measures">
   	    <thead>
           <tr>
             <th>NQF</th>
@@ -72,4 +72,4 @@
 	<br />
 
 <% end -%>
-  
+

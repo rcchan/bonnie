@@ -40,7 +40,7 @@
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
     <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
-      <form method="GET" action="<%= url_for :action => 'update_criteria' %>" onsubmit="return !$(this).ajaxSubmit();">
+      <form method="GET" action="<%= url_for :action => 'update_criteria' %>" onsubmit="return !$(this).ajaxSubmit(bonnie.builder.editDataCriteria_callback);">
         <input type="hidden" name="id" value="<%= params[:id] %>" />
         <input type="hidden" name="criteria_id" value="${id}">
         <div>${title}</div>

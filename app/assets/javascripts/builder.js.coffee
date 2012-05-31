@@ -52,6 +52,9 @@ class @bonnie.Builder
     element.find('select[name=type]').val(data_criteria.type)
     element.find('input[name=value]').val(data_criteria.value)
 
+  editDataCriteria_callback: (changes) =>
+    @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
+
   addParamItems: (obj,elemParent,container) =>
     builder = bonnie.builder
     items = obj["items"]
@@ -107,15 +110,16 @@ class @bonnie.Builder
       children.show("blind", { direction: "vertical" }, 500)
 
   addDataCriteria: (criteria) =>
+    @data_criteria[criteria.id] = criteria = new bonnie.DataCriteria(criteria.id, criteria)
     $c = $('#dataCriteria>div.paramGroup[data-category="' + criteria.standard_category.replace(`/ /g`, '_') + '"]');
     if $c.length
       $e = $c.find('span')
       $e.text(parseInt($e.text()) + 1)
     else
       $c = $('
-        <div class="paramGroup" data-category="' + criteria.standard_category.replace(`/ /g`, '_') + '">
+        <div class="paramGroup" data-category="' + criteria.buildCategory() + '">
           <div class="paramItem">
-            <div class="paramText ' + criteria.standard_category.replace(`/ /g`, '_') + '">
+            <div class="paramText ' + criteria.buildCategory() + '">
               <label>' + criteria.standard_category + '(<span>1</span>)</label>
             </div>
           </div>
@@ -130,7 +134,7 @@ class @bonnie.Builder
     ').appendTo(
       $(
         $c.nextUntil('#dataCriteria .paramGroup', '#dataCriteria .paramChildren')[0] ||
-        $('<div class="paramChildren ' + criteria.standard_category.replace(`/ /g`, '_') + '_children" style="background-color: #F5F5F5;"></div>').insertAfter($c)
+        $('<div class="paramChildren ' + criteria.buildCategory() + '_children" style="background-color: #F5F5F5;"></div>').insertAfter($c)
       )
     )
 
