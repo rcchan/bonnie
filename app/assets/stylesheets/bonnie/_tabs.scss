@@ -15,7 +15,7 @@
   border-bottom:none;
   outline:none;
   }
-  
+
 #tabs {
   padding-top:15px;
   .nav {margin-bottom:0;}
@@ -42,7 +42,11 @@
       background-color:$borderColor;
       color:black;
     }
-    
-    
+    &.active.exclusions a {
+      border:1px solid $exclusions;
+      background-color:$exclusions;
+      color:black;
+    }
+
   }
 }

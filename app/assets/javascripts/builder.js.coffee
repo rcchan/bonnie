@@ -17,22 +17,18 @@ class @bonnie.Builder
     alert "updating display: " + @data_criteria
 
   renderMeasureJSON: (data) =>
-    if (data.population)
-      elemParent = bonnie.template('param_group').appendTo("#eligibilityMeasureItems").find(".paramItem:last")
-      @addParamItems(data.population,elemParent,elemParent)
-      elemParent.parent().addClass("population")
+    if (!$.isEmptyObject(data.population))
+      @addParamItems(data.population,$("#initialPopulationItems"))
+      $("#initialPopulationItems .paramGroup").addClass("population")
 
     if (!$.isEmptyObject(data.denominator))
-      $("#eligibilityMeasureItems").append("<span class='and'>and</span>")
       @addParamItems(data.denominator,$("#eligibilityMeasureItems"))
 
-    if (data.numerator)
+    if (!$.isEmptyObject(data.numerator))
       @addParamItems(data.numerator,$("#outcomeMeasureItems"))
 
-    if ('exclusions' in data && !$.isEmptyObject(data['exclusions']))
+    if (!$.isEmptyObject(data['exclusions']))
       @addParamItems(data.exclusions,$("#exclusionMeasureItems"))
-      $("#exclusionMeasureItems").hide()
-      $("#exclusionPanel").show()
 
     $('.logicLeaf').click((event) =>
       @editDataCriteria(event.currentTarget))
