@@ -110,9 +110,7 @@
   <div class="pull-right" id="pageButtons">
     <a href="#" class="btn" >Save</a>
     <%= link_to 'Test', debug_measure_url(@measure), :class => 'btn' %>
-    <%= link_to 'Publish', publish_measure_path(@measure), :method => :post, :class => 'btn' %>
-
-    <%# link_to 'Publish', publish_measure_path(@measure), class:"btn" %>
+    <a class="btn" data-toggle="modal" data-show="false" href="#publishConfirm">Publish</a>
   </div>
 	<h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
 
@@ -192,5 +190,20 @@
     </div>
 
   </div><!-- end #tabs -->
-
+  <div class="modal hide fade in" id="publishConfirm">
+    <div class="modal-header">
+      <button class="close" data-dismiss="modal"></button>
+      <h3>PUBLISH</h3>
+    </div>
+    <div class="modal-body">
+      <p>One fine body</p>
+    </div>
+    <div class="modal-footer">
+      <!--<a href="#" class="btn">Close</a>-->
+      <a class="close btn" data-dismiss="modal" href="#">Close</a>
+      <%= form_tag(:action => 'publish') do %>
+        <input type="submit" class="btn btn-primary" value="Save changes"></a>
+      <% end %>
+    </div>
+  </div>
 <% end -%>
