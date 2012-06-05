@@ -200,23 +200,23 @@
         <tbody>
           <tr>
             <td>NQF#</td>
-            <td></td>
+            <td><%= @measure.measure_id %></td>
           </tr>
           <tr>
             <td>Title</td>
-            <td></td>
+            <td><%= @measure.title %></td>
           </tr>
           <tr>
             <td>Version</td>
-            <td></td>
+            <td><%= (@measure.version || 0) + 1 %></td>
           </tr>
           <tr>
             <td>Date</td>
-            <td></td>
+            <td><%= Time.now().strftime('%D') %></td>
           </tr>
           <tr>
             <td>Publisher</td>
-            <td></td>
+            <td><%= current_user.last_name.capitalize + ', ' + current_user.first_name.capitalize %></td>
           </tr>
         </tbody>
       </table>
