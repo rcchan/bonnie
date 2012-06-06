@@ -159,7 +159,11 @@
       <li class="exclusions"><a href="#exclusionMeasures" data-toggle="tab">exclusions</a></li>
       <li id="selector">
         <select>
-          <option>Population Criteria 1</option>
+          <option value="<%= url_for :population => 0 %>">Population Criteria 1</option>
+          <% current = 1 %>
+          <% while (@measure.population_criteria["NUMER_#{current}"]) do %>
+            <option value="<%= url_for :population => current %>">Population Criteria <%= current += 1 %></option>
+          <% end %>
         </select>
       </li>
     </ul>
