@@ -60,7 +60,7 @@ class @bonnie.Builder
     criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
     $element = $('#' + changes.id)
     $element.find('label').text(criteria.buildCategory())
-    $('#edit_save_message').append('<span style="color: green">Saved!</span>')
+    $('#edit_save_message').empty().append('<span style="color: green">Saved!</span>')
     setTimeout (->
       $("#edit_save_message > span").fadeOut ->
         $(this).remove()
