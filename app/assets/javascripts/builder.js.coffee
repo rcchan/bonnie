@@ -27,7 +27,7 @@ class @bonnie.Builder
     if (!$.isEmptyObject(data.numerator))
       @addParamItems(data.numerator,$("#outcomeMeasureItems"))
 
-    if (!$.isEmptyObject(data['exclusions']))
+    if (!$.isEmptyObject(data.exclusions))
       @addParamItems(data.exclusions,$("#exclusionMeasureItems"))
 
     $('.logicLeaf').click((event) =>

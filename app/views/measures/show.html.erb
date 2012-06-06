@@ -23,7 +23,8 @@
       matchTitleHeight();
       $('#selector > select').change(
         function(){
-          window.location.href = $(this).val();
+          $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems").empty();
+          $.getJSON($(this).val(), bonnie.builder.renderMeasureJSON);
         }
       )
     });
@@ -164,10 +165,10 @@
       <li class="exclusions"><a href="#exclusionMeasures" data-toggle="tab">exclusions</a></li>
       <li id="selector">
         <select>
-          <option value="<%= url_for :population => nil %>">Population Criteria 1</option>
+          <option value="<%= url_for :population => nil, :action => 'definition' %>">Population Criteria 1</option>
           <% current = 1 %>
           <% while (@measure.population_criteria["NUMER_#{current}"]) do %>
-            <option value="<%= url_for :population => current %>"<%= ' selected="selected"' if current == params[:population].to_i%>>Population Criteria <%= current += 1 %></option>
+            <option value="<%= url_for :population => current, :action => 'definition' %>"<%= ' selected="selected"' if current == params[:population].to_i%>>Population Criteria <%= current += 1 %></option>
           <% end %>
         </select>
       </li>
