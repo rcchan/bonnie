@@ -19,7 +19,10 @@
 #tabs {
   padding-top:15px;
   .nav {margin-bottom:0;}
-  .nav-tabs { border-color:$numerator; }
+  .nav-tabs {
+    border-color:$numerator;
+    position: relative;
+  }
   .nav-tabs > li {
     margin-left:12px;
     &.active a {
@@ -48,5 +51,16 @@
       color:black;
     }
 
+  }
+  .nav-tabs > #selector {
+    position: absolute;
+    right: 10px;
+    height: 25px;
+    top: 0;
+
+    select {
+      height: 100%;
+      width: 181px;
+    }
   }
 }
