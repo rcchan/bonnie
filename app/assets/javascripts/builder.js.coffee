@@ -119,7 +119,7 @@ class @bonnie.Builder
 
   addDataCriteria: (criteria) =>
     @data_criteria[criteria.id] = criteria = new bonnie.DataCriteria(criteria.id, criteria)
-    $c = $('#dataCriteria>div.paramGroup[data-category="' + criteria.standard_category.replace(`/ /g`, '_') + '"]');
+    $c = $('#dataCriteria>div.paramGroup[data-category="' + criteria.buildCategory() + '"]');
     if $c.length
       $e = $c.find('span')
       $e.text(parseInt($e.text()) + 1)
