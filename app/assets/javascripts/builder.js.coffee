@@ -53,6 +53,7 @@ class @bonnie.Builder
     element.find('select[name=status]').val(data_criteria.status)
     element.find('select[name=type]').val(data_criteria.type)
     element.find('input[name=value]').val(data_criteria.value)
+    element.find('input[name=standard_category]').val(data_criteria.standard_category)
 
   editDataCriteria_callback: (changes) =>
     @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
