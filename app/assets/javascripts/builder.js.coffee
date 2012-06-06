@@ -261,7 +261,7 @@ class @bonnie.Range
     @width = new bonnie.Value(range['width']) if range['width']
   text: =>
     if (@high? && @low?)
-      if (@high.value == @low.value and @high.inclusive and low.inclusive)
+      if (@high.value == @low.value and @high.inclusive and @low.inclusive)
         "=#{@low.value}"
       else
         ">#{@low.inclusive_text()} #{@low.value} and <#{@high.inclusive_text()} #{@high.value}}"

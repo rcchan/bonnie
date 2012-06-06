@@ -3,7 +3,7 @@ append_div = (div, message) ->
   div.append(message)
   div.append('\n')
 
-# BROKEN BUILD FROM INCLUDE TREE
+# function for measures/debug view
 debug_js_load = () ->
   # reusable selectors
   code_element = $('.CodeRay')
