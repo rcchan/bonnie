@@ -128,7 +128,7 @@ class MeasuresController < ApplicationController
 
   def definition
     measure = Measure.find(params[:id])
-    render :json => measure.parameter_json
+    render :json => measure.parameter_json(params[:population])
   end
 
   def export

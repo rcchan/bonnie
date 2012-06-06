@@ -3,7 +3,6 @@ Bonnie::Application.routes.draw do
   resources :measures do
     member do
       get :export
-      get :definition
       get :import_resource
       post :publish
       get :show_nqf
@@ -16,6 +15,10 @@ Bonnie::Application.routes.draw do
       get :export_all
     end
   end
+
+  get 'measures/:id/:population' => 'measures#show', :constraints => {:population => /\d+/}
+  get 'measures/:id/definition' => 'measures#definition'
+  get 'measures/:id/:population/definition' => 'measures#definition'
 
   devise_for :users, :controllers => {:registrations => "registrations"}
 

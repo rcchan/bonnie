@@ -59,10 +59,10 @@ class Measure
 
   # Reshapes the measure into the JSON necessary to build the popHealth parameter view for stage one measures.
   # Returns a hash with population, numerator, denominator, and exclusions
-  def parameter_json
+  def parameter_json(population=0)
     parameter_json = {}
-
-    title_mapping = { "IPP" => "population", "DENOM" => "denominator", "NUMER" => "numerator", "EXCL" => "exclusions"}
+    population = population.to_i || 0
+    title_mapping = { "IPP#{population > 0 ? '_' + population.to_s : ''}" => "population", "DENOM#{population > 0 ? '_' + population.to_s : ''}" => "denominator", "NUMER#{population > 0 ? '_' + population.to_s : ''}" => "numerator", "EXCL#{population > 0 ? '_' + population.to_s : ''}" => "exclusions"}
     self.population_criteria.each do |population, criteria|
       parameter_json[title_mapping[population]] = {
           conjunction: "and",

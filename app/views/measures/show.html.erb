@@ -5,7 +5,7 @@
     var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
     $(document).ready(function() {
       page.initialize();
-      $.getJSON("<%= definition_measure_url(@measure) %>", bonnie.builder.renderMeasureJSON);
+      $.getJSON("<%= url_for :action => 'definition' %>", bonnie.builder.renderMeasureJSON);
       $("#measureDetailBorder").click(function() {
         var md = $("#measureDetailInformation");
         md.css('left') == '0px' ?
@@ -19,8 +19,13 @@
         measureDetail.css("padding-top",h+20);
         measureDetail.find("#measureDetailBorder i").css("margin-top",h+30);
       };
-     $(window).on("resize",matchTitleHeight);
-     matchTitleHeight();
+      $(window).on("resize",matchTitleHeight);
+      matchTitleHeight();
+      $('#selector > select').change(
+        function(){
+          window.location.href = $(this).val();
+        }
+      )
     });
 
   </script>
@@ -159,10 +164,10 @@
       <li class="exclusions"><a href="#exclusionMeasures" data-toggle="tab">exclusions</a></li>
       <li id="selector">
         <select>
-          <option value="<%= url_for :population => 0 %>">Population Criteria 1</option>
+          <option value="<%= url_for :population => nil %>">Population Criteria 1</option>
           <% current = 1 %>
           <% while (@measure.population_criteria["NUMER_#{current}"]) do %>
-            <option value="<%= url_for :population => current %>">Population Criteria <%= current += 1 %></option>
+            <option value="<%= url_for :population => current %>"<%= ' selected="selected"' if current == params[:population].to_i%>>Population Criteria <%= current += 1 %></option>
           <% end %>
         </select>
       </li>
