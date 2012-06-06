@@ -55,7 +55,7 @@
         <table>
           <tr>
             <td>Status:</td>
-            <td colspan="2">
+            <td>
               <select name="status">
                 <option value="">--</option>
                 <option value="ordered">Ordered</option>
@@ -66,7 +66,7 @@
           </tr>
           <tr>
             <td>Type:</td>
-            <td colspan="2">
+            <td>
               <select name="type">
                 <option value="">--</option>
                 <option value="encounterOutpatient">encounter outpatient</option>
@@ -82,31 +82,53 @@
           </tr>
           <tr>
             <td>Temporal:</td>
-            <td colspan="2">
+            <td>
               <select>
                 <option value="">--</option>
-                <option value="sbs">Starts Before Start</option>
+                <option value="CONCURRENT">Concurrent with</option>
+                <option value="DURING">During</option>
+                <option value="EAE">Ends After End of</option>
+                <option value="EAS">Ends After Start of</option>
+                <option value="EBE">Ends Before End of</option>
+                <option value="EBS">Ends Before Start of</option>
+                <option value="ECW">Ends Concurrent with</option>
+                <option value="EDU">Ends During</option>
+                <option value="SAE">Starts After End of</option>
+                <option value="SAS">Starts After Start of</option>
+                <option value="SBE">Starts Before End of</option>
+                <option value="SBS">Starts Before Start of</option>
+                <option value="SCW">Starts Concurrent with</option>
+                <option value="SDU">Starts During</option>
               </select>
-            </td>
-          </tr>
-          <tr>
-            <td>Value:</td>
-            <td>
-              <select style="width: 100px;">
-                <option value="">--</option>
-                <option value="eq">Equal to</option>
-                <option value="gt">Greater than</option>
-                <option value="lt">Less Than</option>
-              </select>
-            </td>
-            <td>
-              <input name="value" type="text" style="width: 100px;" value=""/>
             </td>
           </tr>
           <tr>
             <td></td>
-            <td><input type="submit" value="save"></td>
-            <td id="edit_save_message"></td>
+            <td>
+              <select style="width: 60px;">
+                <option value="">--</option>
+                <option value="gt">&gt;</option>
+                <option value="gte">&gt;=</option>
+                <option value="eq">=</option>
+                <option value="lte">&lt;=</option>
+                <option value="lt">&lt;</option>
+              </select>
+              <input name="value" type="text" style="width: 60px;" value=""/>
+              <select style="width: 80px;">
+                <option value="">--</option>
+                <option value="a">yrs</option>
+                <option value="d">days</option>
+                <option value="h">hrs</option>
+                <option value="min">mins</option>
+                <option value="mo">mo.</option>
+                <option value="s">secs</option>
+                <option value="wk">wks</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><input type="submit" value="save"><span id="edit_save_message"></span></td>
           </tr>
           </tr>
         </table>
