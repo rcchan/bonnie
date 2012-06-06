@@ -40,7 +40,7 @@
           </tr>
         </thead>
         <tbody>
-      	  <%= render :partial => 'measure', :collection => current_user.measures.sort! { |a,b| a['measure_id'] <=> b['measure_id'] } %>
+          <%= render :partial => 'measure', :collection => current_user.measures.sort! { |a,b| (a['measure_id'] || '') <=> (b['measure_id'] || '') } %>
         </tbody>
         <tfoot>
           <tr>
