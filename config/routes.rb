@@ -22,5 +22,9 @@ Bonnie::Application.routes.draw do
   root :to => 'measures#index'
   
   resources :value_sets
+  
+  # FIXME: too nested, don't have another option right now - cdillon
+  # one-off debug url with measure and patient ids
+  match 'measures/:measure_id/debug/:record_id' => 'Measures#debug', :as => :debug_measure
 
  end

@@ -47,9 +47,10 @@
       $().ready(function() {
         for (p in patient) {
           var name = patient[p].first + " " + patient[p].last;
+          emitted = [];
           execute_measure(patient[p]);
           
-          $('#log').append("<b>" + name + "</b><br>");
+          $('#log').append("<a href='/measures/<%= @measure._id -%>/debug/" + patient[p]._id + "'>" + name + "</a><br>");
           $('#log').append("numerator: " + emitted[0].numerator + "<br>");
           $('#log').append("denominator: " + emitted[0].denominator + "<br>");
           $('#log').append("population: " + emitted[0].population + "<br>");
