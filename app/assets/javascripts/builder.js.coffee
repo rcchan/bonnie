@@ -236,7 +236,7 @@ class @bonnie.DataCriteria
     items = []
     if @temporal_references.length > 0
       for temporal_reference in @temporal_references
-        if temporal_reference.reference != 'MeasurePeriod'
+        if temporal_reference.reference && temporal_reference.reference != 'MeasurePeriod'
           items.push({'conjunction':temporal_reference.type, 'items': [{'id':temporal_reference.reference}], 'negation':null, 'temporal':true, 'title': "#{temporal_reference.offset_text()}#{temporal_reference.type_text()}"})
     if (items.length > 0)
       items
