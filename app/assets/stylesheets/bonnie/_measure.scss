@@ -88,10 +88,6 @@
     text-transform: lowercase;
     .paramText {
       padding:2px 0 0 45px;
-
-
-
-
     }
     .paramBar {
       margin-left: 5px;
@@ -383,6 +379,18 @@
   border-right-color: #aaa;
   right: 0.25em;
 }
+
+.dropLabel {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 18px;
+  color: black;
+  text-shadow: 0 1px 0 white;
+  opacity: 0.2;
+}
+
+
 /* done udpate: needs review by MN */
 
 
@@ -421,4 +429,27 @@
   -moz-user-select: none;
   user-select: none;
   margin-right: 10px;
+}
+
+#workspace {
+  .paramText {
+    &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
+      background:white url(/assets/treatment_gray.png) 0 2px no-repeat;
+    }
+    &.diagnosis, &.symptom  {
+      background:white url(/assets/condition_gray.png) 0 2px no-repeat;
+    }
+    &.encounter, &.physical {
+      background:white url(/assets/encounter_gray.png) 0 2px no-repeat;
+    }
+    &.laboratory, &.diagnostic, &.diagnostic_study, &.substance {
+      background:white url(/assets/observation_gray.png) 0 2px no-repeat;
+    }
+    &.medication {
+      background:white url(/assets/medication_gray.png) 0 2px no-repeat;
+    }
+    &.patient, &.risk {
+      background:white url(/assets/demographic_gray.png) 0 2px no-repeat;
+    }
+  }
 }

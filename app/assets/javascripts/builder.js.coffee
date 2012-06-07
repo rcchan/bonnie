@@ -36,6 +36,15 @@ class @bonnie.Builder
   editDataCriteria: (element) =>
     leaf = $(element)
     data_criteria = @dataCriteria($(element).attr('id'))
+    data_criteria.getProperty = (ns) ->
+      obj = this
+      y = ns.split(".")
+      for i in [0..y.length-1]
+        if obj[y[i]]
+          obj = obj[y[i]]
+        else
+          return
+      obj
     top = $('#workspace > div').css('top')
     $('#workspace').empty();
     element = data_criteria.asHtml('data_criteria_edit')
@@ -55,6 +64,17 @@ class @bonnie.Builder
     element.find('input[name=value]').val(data_criteria.value)
     element.find('input[name=standard_category]').val(data_criteria.standard_category)
     element.find('input[name=qds_data_type]').val(data_criteria.qds_data_type)
+    element.find('select[name=temporal_type]').val(data_criteria.getProperty('temporal_references.0.type'))
+    element.find('select[name=temporal_relation]').val(
+      (if data_criteria.getProperty('temporal_references.0.offset.value') < 0 then 'lt' else 'gt') +
+      if data_criteria.getProperty('temporal_references.0.offset.inclusive') then 'e' else ''
+    )
+    element.find('input[name=temporal_value]').val(Math.abs(data_criteria.getProperty('temporal_references.0.offset.value')) || '')
+    element.find('select[name=temporal_unit]').val(data_criteria.getProperty('temporal_references.0.offset.unit'))
+    element.find('#temporal_drop_label').append(
+      if $('#'+ data_criteria.getProperty('temporal_references.0.reference')).length
+        $('#'+data_criteria.getProperty('temporal_references.0.reference')).clone()
+      else data_criteria.getProperty('temporal_references.0.reference') || 'Drop Reference Here');
 
   editDataCriteria_callback: (changes) =>
     criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
