@@ -208,7 +208,6 @@ class @bonnie.DataCriteria
     @title = criteria.title
     @status = criteria.status
     @type = criteria.type
-    @value =criteria.value
     @category = this.buildCategory()
     @children_criteria = criteria.children_criteria
     @temporal_references = []
