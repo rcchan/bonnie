@@ -177,14 +177,15 @@ class @bonnie.TemporalReference
     @type_decoder = {'DURING':'During','SBS':'Starts Before Start of','SAS':'Starts After Start of','SBE':'Starts Before End of','SAE':'Starts After End of','EBS':'Ends Before Start of','EAS':'Ends After Start of'
                      ,'EBE':'Ends Before End of','EAE':'Ends After End of','SDU':'Starts During','EDU':'Ends During','ECW':'Ends Concurrent with','SCW':'Starts Concurrent with','CONCURRENT':'Concurrent with'}
   offset_text: =>
-    if(@offset?)
+    if(@offset)
       value = @offset.value
       unit =  @offset.unit_text()
       inclusive = @offset.inclusive_text()
       if value > 0
         ">#{inclusive} #{value} #{unit}"
-      else
+      else if value < 0
         "<#{inclusive} #{Math.abs(value)} #{unit}"
+      else ''
     else
       ''
   type_text: =>
@@ -299,7 +300,7 @@ class @bonnie.Value
     @inclusive = value['inclusive?']
     @unit_decoder = {'a':'year','mo':'month','wk':'week','d':'day','h':'hour','min':'minute','s':'second'}
   unit_text: =>
-    if (@unit?)
+    if (@unit)
       unit = @unit_decoder[@unit]
       unit += "s " if @value != 1
     else
