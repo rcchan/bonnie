@@ -1,0 +1,64 @@
+<% content_for :head do %>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      // FIXME: remove this ready function if not needed after this feature is done
+    });
+  </script>
+<% end %>
+
+<% content_for :page_content do %>
+
+  <h3>Testing Measure</h3>
+  <p>
+    <em><%= @measure.title %></em>
+  </p>
+
+  <br>
+  
+  <div id="left-pane" class="pull-left">
+  <%= simple_form_for(:patients, :url => test_measure_path, :method => :post, :html => { :class => 'form-horizontal' }) do |f| %>
+    <!-- checkboxes are checked by default for all patients -->
+
+    <%= f.submit 'Test Measure',:class => 'btn-primary' %><br>
+    
+    <a href="#">Select All</a> | <a href="#">Deselect All</a><br>
+    <%= f.input(:patient_names, :label => false, :collection => @patient_names, 
+      :as => :check_boxes, :required => false, :input_html => {:checked => true}) %>
+
+  <% end %>
+  </div>
+  
+  <% if params[:patients] %>
+    <% @js = include_js_debug(@measure.measure_id, params[:patients]["patient_names"].reject {|p| p.empty?} ) %>
+    <%= javascript_tag do %>
+      <%= raw(@js) %>
+      <%= raw(include_js_libs(['map_reduce_utils'])) %>
+    <% end %>
+    
+    <div id="right-pane" class="pull-right" style="margin-right:5%; border: 1px lightgray solid; width: 50%;">
+      <h3>Test Summary</h3>
+      <div id="log">
+        <%# debug params %>
+      </div>
+    </div>
+    
+    <!-- TODO: coffeescript here instead? -->
+    <%= javascript_tag do %>
+      $().ready(function() {
+        for (p in patient) {
+          var name = patient[p].first + " " + patient[p].last;
+          execute_measure(patient[p]);
+          
+          $('#log').append("<b>" + name + "</b><br>");
+          $('#log').append("numerator: " + emitted[0].numerator + "<br>");
+          $('#log').append("denominator: " + emitted[0].denominator + "<br>");
+          $('#log').append("population: " + emitted[0].population + "<br>");
+          $('#log').append("exclusions: " + emitted[0].exclusions + "<br>");
+          $('#log').append("<br>");
+        }        
+      });
+    <% end %>
+
+  <% end %>
+
+<% end %>
