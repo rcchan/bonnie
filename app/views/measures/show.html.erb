@@ -4,6 +4,21 @@
   <script type="text/javascript">
     var bonnie = bonnie || {};
 
+    var flushDrop = function(e){
+      $(e).find('input[name=temporal_reference]').val('');
+      $(e).find('#temporal_drop_label').text('Drop Reference Here');
+      $(e).find('.close').hide();
+      $(e).removeClass('fullDrop');
+    }
+
+    var fillDrop = function(id){
+      if (id == 'temporal_drop_zone_element') return;
+      $('#temporal_drop_zone input[name=temporal_reference]').val(id);
+      $('#temporal_drop_zone #temporal_drop_label').empty().append($('#' + id).clone().attr('id', 'temporal_drop_zone_element'));
+      $('#temporal_drop_zone .close').show();
+      $('#temporal_drop_zone').addClass('fullDrop');
+    }
+
     var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
     $(document).ready(function() {
       page.initialize();
@@ -33,30 +48,26 @@
 
       $(document.body).on('dragstart', '.logicLeaf',
         function(e){
-          console.log(e.target);
-          e.originalEvent.dataTransfer.setData('text', $(e.target).attr('id'))
+          e.originalEvent.dataTransfer.setData('text', $(e.target).attr('id'));
         }
       );
-      $(document.body).on('dragover', '#temporal_drop_zone',
-        function(e){
+      $(document.body).on('dragover',
+        function(e){console.log(e.originalEvent.dataTransfer.getData('text'))
           e.preventDefault();
+          //if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element' || $.inArray(e.target, $('#temporal_drop_zone, #temporal_drop_zone *')) > -1) e.preventDefault();
         }
       );
-      $(document.body).on('drop', '#temporal_drop_zone',
+
+      $(document.body).on('drop',
         function(e){
-          $(this).find('input[name=temporal_reference]').val(e.originalEvent.dataTransfer.getData('text'))
-          $(this).find('#temporal_drop_label').empty().append($('#' + e.originalEvent.dataTransfer.getData('text')).clone())
-          $(this).find('.close').show();
-          $(this).removeClass('fullDrop')
+          if ($.inArray(e.target, $('#temporal_drop_zone, #temporal_drop_zone *')) > -1) fillDrop(e.originalEvent.dataTransfer.getData('text'));
+          else if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element') flushDrop('#temporal_drop_zone');
         }
       );
+
       $(document.body).on('click', '#temporal_drop_zone .close',
         function(e){
-          $e = $(e.target).parent();
-          $e.find('input[name=temporal_reference]').val('');
-          $e.find('#temporal_drop_label').text('Drop Reference Here')
-          $e.find('.close').hide();
-          $e.addClass('fullDrop')
+          flushDrop($(e.target).parent());
         }
       );
 
