@@ -43,16 +43,18 @@
       $(document.body).on('drop', '#temporal_drop_zone',
         function(e){
           $(this).find('input[name=temporal_reference]').val(e.originalEvent.dataTransfer.getData('text'))
-          $(this).find('#temporal_drop_label').empty().append($('#' + e.originalEvent.dataTransfer.getData('text')).clone()).removeClass('dropLabel')//text(e.originalEvent.dataTransfer.getData('text')).removeClass('dropLabel')
+          $(this).find('#temporal_drop_label').empty().append($('#' + e.originalEvent.dataTransfer.getData('text')).clone())
           $(this).find('.close').show();
+          $(this).removeClass('fullDrop')
         }
       );
       $(document.body).on('click', '#temporal_drop_zone .close',
         function(e){
           $e = $(e.target).parent();
           $e.find('input[name=temporal_reference]').val('');
-          $e.find('#temporal_drop_label').text('Drop Reference Here').addClass('dropLabel')
+          $e.find('#temporal_drop_label').text('Drop Reference Here')
           $e.find('.close').hide();
+          $e.addClass('fullDrop')
         }
       );
 
@@ -162,13 +164,13 @@
           </tr>
           <tr>
             <td></td>
-            <td id="temporal_drop_zone" style="display: block; background: #BBB; min-height: 25px; border: 3px dashed grey; width: 214px; position: relative; padding: 1px; margin: 0;" class="paramItem">
+            <td id="temporal_drop_zone" class="paramItem{{if temporal_references[0] && temporal_references[0].reference}} fullDrop{{/if}}">
               <input name="temporal_reference" type="hidden"{{if temporal_references[0] && temporal_references[0].reference}} value="${temporal_references[0].reference}"{{/if}} />
-              <div id="temporal_drop_label" style="word-wrap: break-word; margin-right: 20px;"{{if !temporal_references[0] || !temporal_references[0].reference}} class="dropLabel"{{/if}}></div>
-              <div class="close" style="position: absolute; top: 0; right: 5px;{{if !temporal_references[0] || !temporal_references[0].reference}} display: none;{{/if}}">&times;</div>
+              <div id="temporal_drop_label"{{if !temporal_references[0] || !temporal_references[0].reference}} class="dropLabel"{{/if}}></div>
+              <div class="close">&times;</div>
             </td>
-          </tr>
           <tr>
+          </tr>
             <td></td>
             <td><input type="submit" value="save"><span id="edit_save_message"></span></td>
           </tr>

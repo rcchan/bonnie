@@ -380,14 +380,41 @@
   right: 0.25em;
 }
 
-.dropLabel {
-  text-align: center;
-  font-size: 18px;
-  font-weight: bold;
-  line-height: 18px;
-  color: black;
-  text-shadow: 0 1px 0 white;
-  opacity: 0.2;
+
+#measureEditContainer #temporal_drop_zone {
+  display: block;
+  background-color: #BBB;
+  min-height: 25px;
+  border: 3px dashed grey;
+  width: 214px;
+  position: relative;
+  padding: 1px;
+  margin: 0;
+
+  &.fullDrop {
+    background-color: white;
+  }
+
+  .dropLabel {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 18px;
+    color: black;
+    text-shadow: 0 1px 0 white;
+    opacity: 0.2;
+  }
+
+  #temporal_drop_label {
+    word-wrap: break-word;
+    margin-right: 20px;
+  }
+
+  .close {
+    position: absolute;
+    top: 0;
+    right: 5px;
+  }
 }
 
 
