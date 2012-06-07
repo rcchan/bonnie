@@ -1,12 +1,13 @@
 <% content_for :head do %>
   <script type="text/javascript" src="/assets/jquery-ui-1.8.21.min.js"></script>
+  <script type="text/javascript" src="/assets/jquery.bbq.min.js"></script>
   <script type="text/javascript">
     var bonnie = bonnie || {};
 
     var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
     $(document).ready(function() {
       page.initialize();
-      $.getJSON("<%= url_for :action => 'definition' %>", bonnie.builder.renderMeasureJSON);
+      $.getJSON($.bbq.getState('population') || "<%= url_for :action => 'definition' %>", bonnie.builder.renderMeasureJSON);
       $("#measureDetailBorder").click(function() {
         var md = $("#measureDetailInformation");
         md.css('left') == '0px' ?
@@ -24,6 +25,7 @@
       matchTitleHeight();
       $('#selector > select').change(
         function(){
+          $.bbq.pushState({population: $(this).val()});
           $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems").empty();
           $.getJSON($(this).val(), bonnie.builder.renderMeasureJSON);
         }
