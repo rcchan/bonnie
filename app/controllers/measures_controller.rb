@@ -94,6 +94,18 @@ class MeasuresController < ApplicationController
     @measure = Measure.find(params[:id])
     criteria = {"id" => params[:criteria_id]}
     ["status", "type", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
+    criteria['temporal_references'] = @measure.data_criteria[criteria['id']]['temporal_references'] || [{}]
+    criteria['temporal_references'][0].merge!({
+      "type" => params[:temporal_type],
+      "offset" => (criteria['temporal_references'][0]['offset'] || {}).merge({
+        "inclusive?" => ['gte', 'lte'].include?(params[:temporal_relation]),
+        "type" => 'PQ',
+        "unit" => params[:temporal_unit],
+        "value" => params[:temporal_value]
+      }),
+      "reference" => params[:temporal_reference],
+      "type" => params[:temporal_type]
+    })
     @measure.update_data_criteria(criteria)
     render :json => criteria if @measure.save
   end

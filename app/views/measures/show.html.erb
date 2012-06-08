@@ -1,11 +1,28 @@
 <% content_for :head do %>
+  <script type="text/javascript" src="/assets/jquery-ui-1.8.21.min.js"></script>
+  <script type="text/javascript" src="/assets/jquery.bbq.min.js"></script>
   <script type="text/javascript">
     var bonnie = bonnie || {};
+
+    var flushDrop = function(e){
+      $(e).find('input[name=temporal_reference]').val('');
+      $(e).find('#temporal_drop_label').text('Drop Reference Here');
+      $(e).find('.close').hide();
+      $(e).removeClass('fullDrop');
+    }
+
+    var fillDrop = function(id){
+      if (id == 'temporal_drop_zone_element') return;
+      $('#temporal_drop_zone input[name=temporal_reference]').val(id);
+      $('#temporal_drop_zone #temporal_drop_label').empty().append($('#' + id).clone().attr('id', 'temporal_drop_zone_element'));
+      $('#temporal_drop_zone .close').show();
+      $('#temporal_drop_zone').addClass('fullDrop');
+    }
 
     var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
     $(document).ready(function() {
       page.initialize();
-      $.getJSON("<%= url_for :action => 'definition' %>", bonnie.builder.renderMeasureJSON);
+      $.getJSON($.bbq.getState('population') || "<%= url_for :action => 'definition' %>", bonnie.builder.renderMeasureJSON);
       $("#measureDetailBorder").click(function() {
         var md = $("#measureDetailInformation");
         md.css('left') == '0px' ?
@@ -23,10 +40,37 @@
       matchTitleHeight();
       $('#selector > select').change(
         function(){
+          $.bbq.pushState({population: $(this).val()});
           $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems").empty();
           $.getJSON($(this).val(), bonnie.builder.renderMeasureJSON);
         }
       )
+
+      $(document.body).on('dragstart', '.logicLeaf, #MeasurePeriod',
+        function(e){
+          e.originalEvent.dataTransfer.setData('text', $(e.target).attr('id'));
+        }
+      );
+      $(document.body).on('dragover',
+        function(e){console.log(e.originalEvent.dataTransfer.getData('text'))
+          e.preventDefault();
+          //if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element' || $.inArray(e.target, $('#temporal_drop_zone, #temporal_drop_zone *')) > -1) e.preventDefault();
+        }
+      );
+
+      $(document.body).on('drop',
+        function(e){
+          if ($.inArray(e.target, $('#temporal_drop_zone, #temporal_drop_zone *')) > -1) fillDrop(e.originalEvent.dataTransfer.getData('text'));
+          else if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element') flushDrop('#temporal_drop_zone');
+        }
+      );
+
+      $(document.body).on('click', '#temporal_drop_zone .close',
+        function(e){
+          flushDrop($(e.target).parent());
+        }
+      );
+
     });
 
   </script>
@@ -38,7 +82,7 @@
   </script>
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_logic">
-    <div class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}id='${id}'{{/if}}>
+    <div draggable="true" class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}id='${id}'{{/if}}>
       {{if operator}}<label>${operator}</label>{{/if}}
       {{if category}}<label>${category}</label>{{/if}}
       ${title} ${temporalText}
@@ -89,7 +133,7 @@
           <tr>
             <td>Temporal:</td>
             <td>
-              <select>
+              <select name="temporal_type">
                 <option value="">--</option>
                 <option value="CONCURRENT">Concurrent with</option>
                 <option value="DURING">During</option>
@@ -111,16 +155,15 @@
           <tr>
             <td></td>
             <td>
-              <select style="width: 60px;">
+              <select name="temporal_relation" style="width: 60px;">
                 <option value="">--</option>
                 <option value="gt">&gt;</option>
                 <option value="gte">&gt;=</option>
-                <option value="eq">=</option>
                 <option value="lte">&lt;=</option>
                 <option value="lt">&lt;</option>
               </select>
-              <input name="value" type="text" style="width: 60px;" value=""/>
-              <select style="width: 80px;">
+              <input name="temporal_value" type="text" style="width: 60px;" value=""/>
+              <select name="temporal_unit" style="width: 80px;">
                 <option value="">--</option>
                 <option value="a">yrs</option>
                 <option value="d">days</option>
@@ -133,6 +176,14 @@
             </td>
           </tr>
           <tr>
+            <td></td>
+            <td id="temporal_drop_zone" class="paramItem{{if temporal_references[0] && temporal_references[0].reference}} fullDrop{{/if}}">
+              <input name="temporal_reference" type="hidden"{{if temporal_references[0] && temporal_references[0].reference}} value="${temporal_references[0].reference}"{{/if}} />
+              <div id="temporal_drop_label"></div>
+              <div class="close">&times;</div>
+            </td>
+          <tr>
+          </tr>
             <td></td>
             <td><input type="submit" value="save"><span id="edit_save_message"></span></td>
           </tr>

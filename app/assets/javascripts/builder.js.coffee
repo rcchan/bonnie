@@ -36,6 +36,15 @@ class @bonnie.Builder
   editDataCriteria: (element) =>
     leaf = $(element)
     data_criteria = @dataCriteria($(element).attr('id'))
+    data_criteria.getProperty = (ns) ->
+      obj = this
+      y = ns.split(".")
+      for i in [0..y.length-1]
+        if obj[y[i]]
+          obj = obj[y[i]]
+        else
+          return
+      obj
     top = $('#workspace > div').css('top')
     $('#workspace').empty();
     element = data_criteria.asHtml('data_criteria_edit')
@@ -55,6 +64,17 @@ class @bonnie.Builder
     element.find('input[name=value]').val(data_criteria.value)
     element.find('input[name=standard_category]').val(data_criteria.standard_category)
     element.find('input[name=qds_data_type]').val(data_criteria.qds_data_type)
+    element.find('select[name=temporal_type]').val(data_criteria.getProperty('temporal_references.0.type'))
+    element.find('select[name=temporal_relation]').val(
+      (if data_criteria.getProperty('temporal_references.0.offset.value') < 0 then 'lt' else 'gt') +
+      if data_criteria.getProperty('temporal_references.0.offset.inclusive') then 'e' else ''
+    )
+    element.find('input[name=temporal_value]').val(Math.abs(data_criteria.getProperty('temporal_references.0.offset.value')) || '')
+    element.find('select[name=temporal_unit]').val(data_criteria.getProperty('temporal_references.0.offset.unit'))
+    element.find('#temporal_drop_label').append(
+      if $('#'+ data_criteria.getProperty('temporal_references.0.reference')).length
+        fillDrop(data_criteria.getProperty('temporal_references.0.reference'))
+      else data_criteria.getProperty('temporal_references.0.reference') || 'Drop Reference Here');
 
   editDataCriteria_callback: (changes) =>
     criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
@@ -157,14 +177,15 @@ class @bonnie.TemporalReference
     @type_decoder = {'DURING':'During','SBS':'Starts Before Start of','SAS':'Starts After Start of','SBE':'Starts Before End of','SAE':'Starts After End of','EBS':'Ends Before Start of','EAS':'Ends After Start of'
                      ,'EBE':'Ends Before End of','EAE':'Ends After End of','SDU':'Starts During','EDU':'Ends During','ECW':'Ends Concurrent with','SCW':'Starts Concurrent with','CONCURRENT':'Concurrent with'}
   offset_text: =>
-    if(@offset?)
+    if(@offset)
       value = @offset.value
       unit =  @offset.unit_text()
       inclusive = @offset.inclusive_text()
       if value > 0
         ">#{inclusive} #{value} #{unit}"
-      else
+      else if value < 0
         "<#{inclusive} #{Math.abs(value)} #{unit}"
+      else ''
     else
       ''
   type_text: =>
@@ -188,7 +209,6 @@ class @bonnie.DataCriteria
     @title = criteria.title
     @status = criteria.status
     @type = criteria.type
-    @value =criteria.value
     @category = this.buildCategory()
     @children_criteria = criteria.children_criteria
     @temporal_references = []
@@ -217,7 +237,7 @@ class @bonnie.DataCriteria
     items = []
     if @temporal_references.length > 0
       for temporal_reference in @temporal_references
-        if temporal_reference.reference != 'MeasurePeriod'
+        if temporal_reference.reference && temporal_reference.reference != 'MeasurePeriod'
           items.push({'conjunction':temporal_reference.type, 'items': [{'id':temporal_reference.reference}], 'negation':null, 'temporal':true, 'title': "#{temporal_reference.offset_text()}#{temporal_reference.type_text()}"})
     if (items.length > 0)
       items
@@ -280,7 +300,7 @@ class @bonnie.Value
     @inclusive = value['inclusive?']
     @unit_decoder = {'a':'year','mo':'month','wk':'week','d':'day','h':'hour','min':'minute','s':'second'}
   unit_text: =>
-    if (@unit?)
+    if (@unit)
       unit = @unit_decoder[@unit]
       unit += "s " if @value != 1
     else
