@@ -150,7 +150,8 @@ class MeasuresController < ApplicationController
   end
 
   def debug
-    @measure = Measure.find(params[:id])
+    @measure = Measure.find(params[:measure_id])
+    @patient = Record.find(params[:record_id])
     render "measures/debug"
   end
 
