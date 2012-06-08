@@ -395,7 +395,7 @@
     background-color: white;
   }
 
-  .dropLabel {
+  &:not(.fullDrop) #temporal_drop_label {
     text-align: center;
     font-size: 18px;
     font-weight: bold;
