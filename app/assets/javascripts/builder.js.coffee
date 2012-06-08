@@ -61,9 +61,6 @@ class @bonnie.Builder
     element.animate({top: offset})
     element.find('select[name=status]').val(data_criteria.status)
     element.find('select[name=type]').val(data_criteria.type)
-    element.find('input[name=value]').val(data_criteria.value)
-    element.find('input[name=standard_category]').val(data_criteria.standard_category)
-    element.find('input[name=qds_data_type]').val(data_criteria.qds_data_type)
     element.find('select[name=temporal_type]').val(data_criteria.getProperty('temporal_references.0.type'))
     element.find('select[name=temporal_relation]').val(
       (if data_criteria.getProperty('temporal_references.0.offset.value') < 0 then 'lt' else 'gt') +
