@@ -46,7 +46,7 @@
         }
       )
 
-      $(document.body).on('dragstart', '.logicLeaf',
+      $(document.body).on('dragstart', '.logicLeaf, #MeasurePeriod',
         function(e){
           e.originalEvent.dataTransfer.setData('text', $(e.target).attr('id'));
         }
