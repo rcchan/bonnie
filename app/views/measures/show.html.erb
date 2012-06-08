@@ -52,7 +52,7 @@
         }
       );
       $(document.body).on('dragover',
-        function(e){console.log(e.originalEvent.dataTransfer.getData('text'))
+        function(e){
           e.preventDefault();
           //if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element' || $.inArray(e.target, $('#temporal_drop_zone, #temporal_drop_zone *')) > -1) e.preventDefault();
         }
