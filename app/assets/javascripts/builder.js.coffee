@@ -68,10 +68,9 @@ class @bonnie.Builder
     )
     element.find('input[name=temporal_value]').val(Math.abs(data_criteria.getProperty('temporal_references.0.offset.value')) || '')
     element.find('select[name=temporal_unit]').val(data_criteria.getProperty('temporal_references.0.offset.unit'))
-    element.find('#temporal_drop_label').append(
-      if $('#'+ data_criteria.getProperty('temporal_references.0.reference')).length
-        fillDrop(data_criteria.getProperty('temporal_references.0.reference'))
-      else data_criteria.getProperty('temporal_references.0.reference') || 'Drop Reference Here');
+    element.find('.temporal_drop_zone').each((i, e) ->
+      fillDrop(e);
+    );
 
   editDataCriteria_callback: (changes) =>
     criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)

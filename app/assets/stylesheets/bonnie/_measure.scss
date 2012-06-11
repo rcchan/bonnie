@@ -381,7 +381,7 @@
 }
 
 
-#measureEditContainer #temporal_drop_zone {
+#measureEditContainer .temporal_drop_zone {
   display: block;
   background-color: #BBB;
   min-height: 25px;
@@ -390,12 +390,13 @@
   position: relative;
   padding: 1px;
   margin: 0;
+  margin-bottom: 9px;
 
   &.fullDrop {
     background-color: white;
   }
 
-  &:not(.fullDrop) #temporal_drop_label {
+  &:not(.fullDrop) .temporal_drop_label {
     text-align: center;
     font-size: 18px;
     font-weight: bold;
@@ -405,7 +406,7 @@
     opacity: 0.2;
   }
 
-  #temporal_drop_label {
+  .temporal_drop_label {
     word-wrap: break-word;
     margin-right: 20px;
   }
