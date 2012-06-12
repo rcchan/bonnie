@@ -62,16 +62,8 @@
         function(e){
           //e.originalEvent.dataTransfer.setData('text', !$(e.target).hasClass('temporal_drop_zone_element') ? $(e.target).attr('id') : JSON.stringify(e.target));
           e.originalEvent.dataTransfer.setData('text', 'TODO');
+          if (!$(e.target).hasClass('temporal_drop_zone_element')) fillDrop($('#bonnie_tmpl_data_criteria_temporal_drop_zone').tmpl().insertAfter($('.temporal_reference .temporal_drop_zone:last-child')));
           $(e.target).attr('id', 'dragged')
-          if (!$(e.target).hasClass('temporal_drop_zone_element')) $(
-            '\
-              <div draggable="true" class="temporal_drop_zone paramItem">\
-                <input name="temporal_reference" type="hidden" />\
-                <div class="temporal_drop_label">Drop Reference Here</div>\
-                <div class="close">&times;</div>\
-              </div>\
-            '
-          ).insertAfter($('.temporal_reference .temporal_drop_zone:last-child'));
         }
       );
       $(document.body).on('dragover',
@@ -114,6 +106,13 @@
     </div>
   </script>
 
+  <script type="text/html" id="bonnie_tmpl_data_criteria_temporal_drop_zone">
+    <div draggable="true" class="temporal_drop_zone paramItem">
+      <input name="temporal_reference" type="hidden"{{if reference}} value="${reference}"{{/if}} />
+      <div class="temporal_drop_label"></div>
+      <div class="close">&times;</div>
+    </div>
+  </script>
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
     <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
@@ -198,11 +197,7 @@
                   <option value="wk">wks</option>
                 </select>
               </div>
-              <div draggable="true" class="temporal_drop_zone paramItem">
-                <input name="temporal_reference" type="hidden"{{if $value.reference}} value="${$value.reference}"{{/if}} />
-                <div class="temporal_drop_label"></div>
-                <div class="close">&times;</div>
-              </div>
+              {{tmpl($value) '#bonnie_tmpl_data_criteria_temporal_drop_zone'}}
             </td>
           </tr>
           {{/each}}
