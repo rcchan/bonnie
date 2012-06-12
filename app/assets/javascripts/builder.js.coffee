@@ -75,6 +75,11 @@ class @bonnie.Builder
       );
     );
 
+  getNextChildCriteriaId: =>
+    id = 1
+    id++  while @data_criteria["EncounterEncounterAmbulatoryIncludingPediatrics_precondition_60_CHILDREN_" + id]
+    id
+
   editDataCriteria_submit: (form) =>
     temporal_references = [];
     fields = ['temporal_type', 'temporal_relation', 'temporal_value', 'temporal_unit', 'temporal_reference_value']
@@ -87,7 +92,16 @@ class @bonnie.Builder
           unit: $(e).find('.temporal_unit').val(),
           value: $(e).find('.temporal_value').val() * if $(e).find('.temporal_relation').val().indexOf('lt') > -1 then -1 else 1
         },
-        reference: $(e).find('.temporal_reference_value').val()
+        reference: (
+          if $(e).find('.temporal_reference_value').length > 1
+            $.post('/measures/' + $(form).find('input[type=hidden][name=id]').val() + '/add_criteria', {
+              criteria_id: (id = $(form).find('input[type=hidden][name=criteria_id]').val() + '_CHILDREN_' + bonnie.builder.getNextChildCriteriaId())
+              children_criteria: $.map($(e).find('.temporal_reference_value'), ((e) -> $(e).val()))
+              standard_category: 'temporal'
+              type: 'derived'
+            }) && id
+          else $(e).find('.temporal_reference_value').val()
+        )
       })
     )
     !$(form).ajaxSubmit({
