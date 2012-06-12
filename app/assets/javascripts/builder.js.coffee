@@ -87,18 +87,16 @@ class @bonnie.Builder
     )
     !$(form).ajaxSubmit({
       data: data
-      success: bonnie.builder.editDataCriteria_callback
+      success: (changes) =>
+        criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
+        $element = $('#' + changes.id)
+        $element.find('label').text(criteria.buildCategory())
+        $('#edit_save_message').empty().append('<span style="color: green">Saved!</span>')
+        setTimeout (->
+          $("#edit_save_message > span").fadeOut ->
+            $(this).remove()
+        ), 3000
     });
-
-  editDataCriteria_callback: (changes) =>
-    criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
-    $element = $('#' + changes.id)
-    $element.find('label').text(criteria.buildCategory())
-    $('#edit_save_message').empty().append('<span style="color: green">Saved!</span>')
-    setTimeout (->
-      $("#edit_save_message > span").fadeOut ->
-        $(this).remove()
-    ), 3000
 
   addParamItems: (obj,elemParent,container) =>
     builder = bonnie.builder
