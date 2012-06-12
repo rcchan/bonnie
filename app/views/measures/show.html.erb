@@ -6,7 +6,7 @@
 
     var flushDrop = function(e){
       e = e || $('#dragged').parents('.temporal_drop_zone');
-      $(e).find('input[name=temporal_reference]').val('');
+      $(e).find('.temporal_reference_value').val('');
       $(e).find('.temporal_drop_label').text('Drop Reference Here');
       $(e).find('.close').hide();
       $(e).removeClass('fullDrop');
@@ -14,12 +14,14 @@
     }
 
     var fillDrop = function(obj, id){
-      id = id || $(obj).find('input[name=temporal_reference]').val() || ($('#dragged').length && 'dragged');
+      id = id || $(obj).find('.temporal_reference_value').val() || ($('#dragged').length && 'dragged');
       //(obj.originalEvent && obj.originalEvent.dataTransfer && obj.originalEvent.dataTransfer.getData('text'));
       obj = (obj.target && ($(obj.target).hasClass('temporal_drop_zone') ? obj.target : $(obj.target).parents('.temporal_drop_zone'))) || obj;
 
       // Disallow dropping a reference on a reference
       if ($('#' + id).hasClass('temporal_drop_zone_element')) return;
+
+      $(obj).find('.temporal_reference_value').val(id);
 
       var $e
       $(obj).find('.temporal_drop_label').empty().append(
@@ -108,15 +110,16 @@
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_temporal_drop_zone">
     <div draggable="true" class="temporal_drop_zone paramItem">
-      <input name="temporal_reference" type="hidden"{{if reference}} value="${reference}"{{/if}} />
+      <input class="temporal_reference_value" type="hidden"{{if reference}} value="${reference}"{{/if}} />
       <div class="temporal_drop_label"></div>
       <div class="close">&times;</div>
     </div>
   </script>
+
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
     <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
-      <form method="GET" action="<%= url_for :action => 'update_criteria' %>" onsubmit="return !$(this).ajaxSubmit(bonnie.builder.editDataCriteria_callback);">
+      <%= form_tag({:action => 'update_criteria'}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
         <input type="hidden" name="criteria_id" value="${id}">
         <div>${title}</div>
@@ -159,7 +162,7 @@
             <td>Temporal:</td>
             <td class="temporal_reference">
               <div>
-                <select name="temporal_type">
+                <select class="temporal_type">
                   <option value="">--</option>
                   <option value="CONCURRENT">Concurrent with</option>
                   <option value="DURING">During</option>
@@ -178,15 +181,15 @@
                 </select>
               </div>
               <div>
-                <select name="temporal_relation" style="width: 60px;">
+                <select class="temporal_relation" style="width: 60px;">
                   <option value="">--</option>
                   <option value="gt">&gt;</option>
                   <option value="gte">&gt;=</option>
                   <option value="lte">&lt;=</option>
                   <option value="lt">&lt;</option>
                 </select>
-                <input name="temporal_value" type="text" style="width: 60px;" value=""/>
-                <select name="temporal_unit" style="width: 80px;">
+                <input class="temporal_value" type="text" style="width: 60px;" value=""/>
+                <select class="temporal_unit" style="width: 80px;">
                   <option value="">--</option>
                   <option value="a">yrs</option>
                   <option value="d">days</option>
@@ -207,7 +210,7 @@
           </tr>
           </tr>
         </table>
-      </form>
+      <% end %>
     </div>
   </script>
 

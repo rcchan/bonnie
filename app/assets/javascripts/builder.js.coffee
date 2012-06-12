@@ -63,17 +63,32 @@ class @bonnie.Builder
       temporal_element = $(element).find('.temporal_reference').filter((j) -> i == j)
       temporal_element.find('select[name=status]').val(data_criteria.status)
       temporal_element.find('select[name=type]').val(data_criteria.type)
-      temporal_element.find('select[name=temporal_type]').val(e.type)
-      temporal_element.find('select[name=temporal_relation]').val(
+      temporal_element.find('.temporal_type').val(e.type)
+      temporal_element.find('.temporal_relation').val(
         (if e.offset && e.offset.value < 0 then 'lt' else 'gt') +
         if e.offset && e.offset.inclusive then 'e' else ''
       )
-      temporal_element.find('input[name=temporal_value]').val(Math.abs(e.offset && e.offset.value) || '')
-      temporal_element.find('select[name=temporal_unit]').val(e.offset && e.offset.unit)
+      temporal_element.find('.temporal_value').val(Math.abs(e.offset && e.offset.value) || '')
+      temporal_element.find('.temporal_unit').val(e.offset && e.offset.unit)
       temporal_element.find('.temporal_drop_zone').each((i, e) ->
         fillDrop(e);
       );
     );
+
+  editDataCriteria_submit: (form) =>
+    data = {temporal_references: []};
+    fields = ['temporal_type', 'temporal_relation', 'temporal_value', 'temporal_unit', 'temporal_reference_value']
+    $(form).find('.temporal_reference').each((i, e) ->
+      d = {}
+      $.each(fields, (j, f) ->
+        d[f] = $(e).find('.' + f).val()
+      )
+      data['temporal_references'].push(d)
+    )
+    !$(form).ajaxSubmit({
+      data: data
+      success: bonnie.builder.editDataCriteria_callback
+    });
 
   editDataCriteria_callback: (changes) =>
     criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
