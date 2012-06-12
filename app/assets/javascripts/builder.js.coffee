@@ -76,17 +76,22 @@ class @bonnie.Builder
     );
 
   editDataCriteria_submit: (form) =>
-    data = {temporal_references: []};
+    temporal_references = [];
     fields = ['temporal_type', 'temporal_relation', 'temporal_value', 'temporal_unit', 'temporal_reference_value']
     $(form).find('.temporal_reference').each((i, e) ->
-      d = {}
-      $.each(fields, (j, f) ->
-        d[f] = $(e).find('.' + f).val()
-      )
-      data['temporal_references'].push(d)
+      temporal_references.push({
+        type: $(e).find('.temporal_type').val(),
+        offset: {
+          'inclusive?': $(e).find('.temporal_relation').val().indexOf('e') > -1,
+          type: 'PQ',
+          unit: $(e).find('.temporal_unit').val(),
+          value: $(e).find('.temporal_value').val() * if $(e).find('.temporal_relation').val().indexOf('lt') > -1 then -1 else 1
+        },
+        reference: $(e).find('.temporal_reference_value').val()
+      })
     )
     !$(form).ajaxSubmit({
-      data: data
+      data: {temporal_references: JSON.stringify(temporal_references)}
       success: (changes) =>
         criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
         $element = $('#' + changes.id)

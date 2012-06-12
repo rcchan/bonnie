@@ -464,9 +464,11 @@
     vertical-align: top;
   }
   .temporal_reference {
-    padding-top: 15px;
     padding-bottom: 15px;
     border-top: 1px solid #BBB;
+    & > .close {
+      margin-bottom: 5px;
+    }
   }
   .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
