@@ -5,30 +5,29 @@
     var bonnie = bonnie || {};
 
     var flushDrop = function(e){
+      e = e || $('#dragged').parents('.temporal_drop_zone');
       $(e).find('input[name=temporal_reference]').val('');
       $(e).find('.temporal_drop_label').text('Drop Reference Here');
       $(e).find('.close').hide();
       $(e).removeClass('fullDrop');
+      $(e).not($('.temporal_drop_zone:first-child')).remove();
     }
 
     var fillDrop = function(obj, id){
-      // if obj is an event
-      id = id || (obj.originalEvent && obj.originalEvent.dataTransfer && obj.originalEvent.dataTransfer.getData('text'));
+      id = id || $(obj).find('input[name=temporal_reference]').val() || ($('#dragged').length && 'dragged');
+      //(obj.originalEvent && obj.originalEvent.dataTransfer && obj.originalEvent.dataTransfer.getData('text'));
       obj = (obj.target && ($(obj.target).hasClass('temporal_drop_zone') ? obj.target : $(obj.target).parents('.temporal_drop_zone'))) || obj;
 
       // Disallow dropping a reference on a reference
       if ($('#' + id).hasClass('temporal_drop_zone_element')) return;
 
-      // obj is drop zone element, id is value
-      // fill in id from hidden element if unspecified
-      id = id || $(obj).find('input[name=temporal_reference]').val()
       var $e
       $(obj).find('.temporal_drop_label').empty().append(
         id ? (
           $(obj).find('.close').show() &&
           $(obj).addClass('fullDrop') &&
-          ($e = $('#' + id)).length ? $e.clone().addClass('temporal_drop_zone_element').attr('id', null) : id
-        ) : 'Drop Reference Here'
+          ($e = $('#' + id)).length ? $e.clone().attr('id', null) : $(document.createElement('div')).attr('draggable', 'true').text(id)
+        ).addClass('temporal_drop_zone_element') : 'Drop Reference Here'
       );
     }
 
@@ -59,24 +58,26 @@
         }
       )
 
-      $(document.body).on('dragstart', '.logicLeaf, #MeasurePeriod',
+      $(document.body).on('dragstart', '.logicLeaf, #MeasurePeriod, .temporal_drop_zone_element',
         function(e){
-          e.originalEvent.dataTransfer.setData('text', $(e.target).attr('id') != 'temporal_drop_zone_element' ? $(e.target).attr('id') : $(e.target).parent().attr('id'));
-          $(
-            '<tr>\
-              <td></td>\
-              <td class="temporal_drop_zone paramItem">\
+          //e.originalEvent.dataTransfer.setData('text', !$(e.target).hasClass('temporal_drop_zone_element') ? $(e.target).attr('id') : JSON.stringify(e.target));
+          e.originalEvent.dataTransfer.setData('text', 'TODO');
+          $(e.target).attr('id', 'dragged')
+          if (!$(e.target).hasClass('temporal_drop_zone_element')) $(
+            '\
+              <div draggable="true" class="temporal_drop_zone paramItem">\
                 <input name="temporal_reference" type="hidden" />\
                 <div class="temporal_drop_label">Drop Reference Here</div>\
                 <div class="close">&times;</div>\
-              </td>\
-            </tr>'
-          ).insertAfter($('.temporal_drop_zone:last').parent());
+              </div>\
+            '
+          ).insertAfter($('.temporal_reference .temporal_drop_zone:last-child'));
         }
       );
       $(document.body).on('dragover',
         function(e){
           e.preventDefault();
+          //if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element' || $.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1) e.preventDefault();
           //if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element' || $.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1) e.preventDefault();
         }
       );
@@ -84,7 +85,8 @@
       $(document.body).on('drop',
         function(e){
           if ($.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1) fillDrop(e);
-          else if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element') flushDrop('#temporal_drop_zone');
+          else flushDrop();//if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element') flushDrop('#temporal_drop_zone');
+          $('.temporal_reference .temporal_drop_zone').not('.fullDrop').not($('.temporal_drop_zone:first-child')).remove();
         }
       );
 
@@ -153,58 +155,54 @@
               <input name="qds_data_type" type="text" value="${qds_data_type || ''}"/>
             </td>
           </tr>
-          <tr>
-            <td>Temporal:</td>
-            <td>
-              <select name="temporal_type">
-                <option value="">--</option>
-                <option value="CONCURRENT">Concurrent with</option>
-                <option value="DURING">During</option>
-                <option value="EAE">Ends After End of</option>
-                <option value="EAS">Ends After Start of</option>
-                <option value="EBE">Ends Before End of</option>
-                <option value="EBS">Ends Before Start of</option>
-                <option value="ECW">Ends Concurrent with</option>
-                <option value="EDU">Ends During</option>
-                <option value="SAE">Starts After End of</option>
-                <option value="SAS">Starts After Start of</option>
-                <option value="SBE">Starts Before End of</option>
-                <option value="SBS">Starts Before Start of</option>
-                <option value="SCW">Starts Concurrent with</option>
-                <option value="SDU">Starts During</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>
-              <select name="temporal_relation" style="width: 60px;">
-                <option value="">--</option>
-                <option value="gt">&gt;</option>
-                <option value="gte">&gt;=</option>
-                <option value="lte">&lt;=</option>
-                <option value="lt">&lt;</option>
-              </select>
-              <input name="temporal_value" type="text" style="width: 60px;" value=""/>
-              <select name="temporal_unit" style="width: 80px;">
-                <option value="">--</option>
-                <option value="a">yrs</option>
-                <option value="d">days</option>
-                <option value="h">hrs</option>
-                <option value="min">mins</option>
-                <option value="mo">mo.</option>
-                <option value="s">secs</option>
-                <option value="wk">wks</option>
-              </select>
-            </td>
-          </tr>
           {{each temporal_references}}
           <tr>
-            <td></td>
-            <td class="temporal_drop_zone paramItem">
-              <input name="temporal_reference" type="hidden"{{if $value.reference}} value="${$value.reference}"{{/if}} />
-              <div class="temporal_drop_label"></div>
-              <div class="close">&times;</div>
+            <td>Temporal:</td>
+            <td class="temporal_reference">
+              <div>
+                <select name="temporal_type">
+                  <option value="">--</option>
+                  <option value="CONCURRENT">Concurrent with</option>
+                  <option value="DURING">During</option>
+                  <option value="EAE">Ends After End of</option>
+                  <option value="EAS">Ends After Start of</option>
+                  <option value="EBE">Ends Before End of</option>
+                  <option value="EBS">Ends Before Start of</option>
+                  <option value="ECW">Ends Concurrent with</option>
+                  <option value="EDU">Ends During</option>
+                  <option value="SAE">Starts After End of</option>
+                  <option value="SAS">Starts After Start of</option>
+                  <option value="SBE">Starts Before End of</option>
+                  <option value="SBS">Starts Before Start of</option>
+                  <option value="SCW">Starts Concurrent with</option>
+                  <option value="SDU">Starts During</option>
+                </select>
+              </div>
+              <div>
+                <select name="temporal_relation" style="width: 60px;">
+                  <option value="">--</option>
+                  <option value="gt">&gt;</option>
+                  <option value="gte">&gt;=</option>
+                  <option value="lte">&lt;=</option>
+                  <option value="lt">&lt;</option>
+                </select>
+                <input name="temporal_value" type="text" style="width: 60px;" value=""/>
+                <select name="temporal_unit" style="width: 80px;">
+                  <option value="">--</option>
+                  <option value="a">yrs</option>
+                  <option value="d">days</option>
+                  <option value="h">hrs</option>
+                  <option value="min">mins</option>
+                  <option value="mo">mo.</option>
+                  <option value="s">secs</option>
+                  <option value="wk">wks</option>
+                </select>
+              </div>
+              <div draggable="true" class="temporal_drop_zone paramItem">
+                <input name="temporal_reference" type="hidden"{{if $value.reference}} value="${$value.reference}"{{/if}} />
+                <div class="temporal_drop_label"></div>
+                <div class="close">&times;</div>
+              </div>
             </td>
           </tr>
           {{/each}}

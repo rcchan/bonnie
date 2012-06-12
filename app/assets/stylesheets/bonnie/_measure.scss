@@ -460,6 +460,14 @@
 }
 
 #workspace {
+  td {
+    vertical-align: top;
+  }
+  .temporal_reference {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-top: 1px solid #BBB;
+  }
   .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
       background:white url(/assets/treatment_gray.png) 0 2px no-repeat;

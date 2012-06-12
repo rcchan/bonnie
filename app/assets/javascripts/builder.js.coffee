@@ -59,17 +59,20 @@ class @bonnie.Builder
     $('.arrow-w').css('top', arrowOffset)
     element.css("top", top)
     element.animate({top: offset})
-    element.find('select[name=status]').val(data_criteria.status)
-    element.find('select[name=type]').val(data_criteria.type)
-    element.find('select[name=temporal_type]').val(data_criteria.getProperty('temporal_references.0.type'))
-    element.find('select[name=temporal_relation]').val(
-      (if data_criteria.getProperty('temporal_references.0.offset.value') < 0 then 'lt' else 'gt') +
-      if data_criteria.getProperty('temporal_references.0.offset.inclusive') then 'e' else ''
-    )
-    element.find('input[name=temporal_value]').val(Math.abs(data_criteria.getProperty('temporal_references.0.offset.value')) || '')
-    element.find('select[name=temporal_unit]').val(data_criteria.getProperty('temporal_references.0.offset.unit'))
-    element.find('.temporal_drop_zone').each((i, e) ->
-      fillDrop(e);
+    $.each(data_criteria.temporal_references, (i, e) ->
+      temporal_element = $(element).find('.temporal_reference').filter((j) -> i == j)
+      temporal_element.find('select[name=status]').val(data_criteria.status)
+      temporal_element.find('select[name=type]').val(data_criteria.type)
+      temporal_element.find('select[name=temporal_type]').val(e.type)
+      temporal_element.find('select[name=temporal_relation]').val(
+        (if e.offset && e.offset.value < 0 then 'lt' else 'gt') +
+        if e.offset && e.offset.inclusive then 'e' else ''
+      )
+      temporal_element.find('input[name=temporal_value]').val(Math.abs(e.offset && e.offset.value) || '')
+      temporal_element.find('select[name=temporal_unit]').val(e.offset && e.offset.unit)
+      temporal_element.find('.temporal_drop_zone').each((i, e) ->
+        fillDrop(e);
+      );
     );
 
   editDataCriteria_callback: (changes) =>
