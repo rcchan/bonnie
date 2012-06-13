@@ -490,4 +490,10 @@
       background:white url(/assets/demographic_gray.png) 0 2px no-repeat;
     }
   }
+
+  .subset_operator {
+    label, input {
+      display: inline;
+    }
+  }
 }
