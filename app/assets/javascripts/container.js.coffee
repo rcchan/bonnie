@@ -6,23 +6,20 @@
 # Will need to either update to hold multitple num/denominators or switch to hold just one generic tree
 class queryStructure.Query
   constructor: ->
-    @denominator = new queryStructure.AND(null)
-    @numerator = new queryStructure.AND(null)
+    @structure = new queryStructure.AND(null)
 
   toJson: -> 
-    return { 'denominator' : @denominator.toJson(), 'numerator' : @numerator.toJson() }
+    return @structure.toJson()
   
   rebuildFromJson: (json) ->
-    @denominator = if json['denominator'] then @buildFromJson(null, json['denominator']) else new queryStructure.AND(null)
-    @numerator = if json['numerator'] then @buildFromJson(null, json['numerator'] ) else new queryStructure.AND(null)
+    @structure = if json then @buildFromJson(null, json) else new queryStructure.AND(null)
     
   buildFromJson: (parent, element) ->
-    debugger
     if @getElementType(element) == 'rule'
       return  { 'id': element.id }
     else
       container = @getContainerType(element)
-      newContainer = new queryStructure[container](parent, [], element.name, element.title, element.negation)
+      newContainer = new queryStructure[container](parent, [], element.negation)
       for child in element['items']
         newContainer.add(@buildFromJson(newContainer, child))
       return newContainer
@@ -45,7 +42,7 @@ class queryStructure.Query
 ##############
 
 class queryStructure.Container
-  constructor: (@parent, @children = [], @name, @title, @negation = false) ->
+  constructor: (@parent, @children = [], @negation = false) ->
     @children ||= []
 
   add: (element, after) ->
@@ -114,7 +111,7 @@ class queryStructure.Container
 class queryStructure.OR extends queryStructure.Container
   toJson: ->
     childJson = @childrenToJson()
-    return { "name" : @name, "or" : childJson, "negation" : @negation, "title" : @title }
+    return { "conjunction" : "or", "items" : childJson, "negation" : @negation }
   
   test: (patient) -> 
     if (@children.length == 0)
@@ -130,7 +127,7 @@ class queryStructure.OR extends queryStructure.Container
 class queryStructure.AND extends queryStructure.Container
   toJson: ->
     childJson = @childrenToJson()
-    return { "name" : @name, "and" : childJson, "negation" : @negation, "title" : @title }
+    return { "conjunction" : "and", "items" : childJson, "negation" : @negation }
 
   test: (patient) ->
     if (@children.length == 0)
