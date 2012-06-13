@@ -231,25 +231,9 @@
             </td>
           </tr>
           <tr>
-            <td>Type:</td>
-            <td>
-              <select name="type">
-                <option value="">--</option>
-                <option value="encounterOutpatient">encounter outpatient</option>
-                <option value="activeDiagnoses">active diagnoses</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
             <td>Standard Category:</td>
             <td>
               <input name="standard_category" type="text" value="${standard_category || ''}"/>
-            </td>
-          </tr>
-          <tr>
-            <td>QDS Data Type:</td>
-            <td>
-              <input name="qds_data_type" type="text" value="${qds_data_type || ''}"/>
             </td>
           </tr>
           {{each temporal_references}}

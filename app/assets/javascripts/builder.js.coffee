@@ -59,10 +59,10 @@ class @bonnie.Builder
     $('.arrow-w').css('top', arrowOffset)
     element.css("top", top)
     element.animate({top: offset})
+
+    element.find('select[name=status]').val(data_criteria.status)
     $.each(data_criteria.temporal_references, (i, e) ->
       temporal_element = $(element).find('.temporal_reference').filter((j) -> i == j)
-      temporal_element.find('select[name=status]').val(data_criteria.status)
-      temporal_element.find('select[name=type]').val(data_criteria.type)
       temporal_element.find('.temporal_type').val(e.type)
       temporal_element.find('.temporal_relation').val(
         (if e.offset && e.offset.value < 0 then 'lt' else 'gt') +

@@ -83,7 +83,6 @@ class MeasuresController < ApplicationController
       "standard_category" => params[:standard_category],
       "code_list_id" => params[:code_list_id],
       "property" => params[:property],
-      "type" => params[:type],
       "status" => params[:status],
       "children_criteria" => params[:children_criteria]
     }
