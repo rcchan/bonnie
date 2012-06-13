@@ -92,8 +92,8 @@
       );
       $(document.body).on('dragover',
         function(e){
-          e.preventDefault();
-          //if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element' || $.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1) e.preventDefault();
+          //e.preventDefault();
+          if (!$('.dragged').hasClass('temporal_drop_zone_element') ^ !($.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1)) e.preventDefault();
         }
       );
 
@@ -109,6 +109,12 @@
           // Clear any extra empty drop zones and remove drag class
           $('.temporal_reference .temporal_drop_zone:not(.fullDrop)').filter(function(){return $(this).siblings('.temporal_drop_zone').length;}).remove();
           $('.dragged').removeClass('dragged');
+        }
+      );
+
+      $(document.body).on('dragend',
+        function(){
+          $('.temporal_reference .temporal_drop_zone:not(.fullDrop)').filter(function(){return $(this).siblings('.temporal_drop_zone').length;}).remove();
         }
       );
 
