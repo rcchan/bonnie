@@ -83,8 +83,8 @@ class MeasuresController < ApplicationController
       "standard_category" => params[:standard_category],
       "code_list_id" => params[:code_list_id],
       "property" => params[:property],
-      "type" => params[:type],
-      "status" => params[:status]
+      "status" => params[:status],
+      "children_criteria" => params[:children_criteria]
     }
     @measure.add_data_criteria(criteria)
     render :json => criteria if @measure.save
@@ -93,19 +93,8 @@ class MeasuresController < ApplicationController
   def update_criteria
     @measure = Measure.find(params[:id])
     criteria = {"id" => params[:criteria_id]}
-    ["status", "type", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
-    criteria['temporal_references'] = @measure.data_criteria[criteria['id']]['temporal_references'] || [{}]
-    criteria['temporal_references'][0].merge!({
-      "type" => params[:temporal_type],
-      "offset" => (criteria['temporal_references'][0]['offset'] || {}).merge({
-        "inclusive?" => ['gte', 'lte'].include?(params[:temporal_relation]),
-        "type" => 'PQ',
-        "unit" => params[:temporal_unit],
-        "value" => params[:temporal_value]
-      }),
-      "reference" => params[:temporal_reference],
-      "type" => params[:temporal_type]
-    })
+    ["status", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
+    criteria['temporal_references'] = JSON.parse(params['temporal_references'])
     @measure.update_data_criteria(criteria)
     render :json => criteria if @measure.save
   end
@@ -172,5 +161,5 @@ class MeasuresController < ApplicationController
     @patient_names = Record.all.limit(225).entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
   end
 
-  
+
 end

@@ -5,24 +5,57 @@
     var bonnie = bonnie || {};
 
     var flushDrop = function(e){
-      $(e).find('input[name=temporal_reference]').val('');
-      $(e).find('#temporal_drop_label').text('Drop Reference Here');
+      e = e || $('.dragged').parents('.temporal_drop_zone');
+      $(e).find('.temporal_reference_value').val('');
+      $(e).find('.temporal_drop_label').text('Drop Reference Here');
       $(e).find('.close').hide();
       $(e).removeClass('fullDrop');
+      if ($(e).siblings('.temporal_drop_zone').length) $(e).remove();
     }
 
-    var fillDrop = function(id){
-      if (id == 'temporal_drop_zone_element') return;
-      $('#temporal_drop_zone input[name=temporal_reference]').val(id);
-      $('#temporal_drop_zone #temporal_drop_label').empty().append($('#' + id).clone().attr('id', 'temporal_drop_zone_element'));
-      $('#temporal_drop_zone .close').show();
-      $('#temporal_drop_zone').addClass('fullDrop');
+    var fillDrop = function(obj, id){
+      // Populate id from possible sources in order [provided argument, hidden value in form, dragged element]
+      id = id || $(obj).find('.temporal_reference_value').val() || $('.dragged').attr('id');
+
+      // Set target based on event object or given drop zone
+      obj = (obj.target && ($(obj.target).hasClass('temporal_drop_zone') ? obj.target : $(obj.target).parents('.temporal_drop_zone'))) || obj;
+
+      // Disallow dropping a reference on a reference
+      if ($('#' + id).hasClass('temporal_drop_zone_element')) return;
+
+      // Expand children criteria of temporal references
+      if (bonnie.builder.data_criteria[id] && bonnie.builder.data_criteria[id].type == 'derived' && bonnie.builder.data_criteria[id].children_criteria.length){
+        $.each(bonnie.builder.data_criteria[id].children_criteria,
+          function(i, e){
+            fillDrop($('#bonnie_tmpl_data_criteria_temporal_drop_zone').tmpl().insertBefore(obj), e);
+          }
+        );
+        $(obj).remove();
+        return;
+      }
+
+      //Populate hidden form field
+      $(obj).find('.temporal_reference_value').val(id);
+
+      // Populate drop zone with element (or text if none available)
+      var $e
+      $(obj).find('.temporal_drop_label').empty().append(
+        id ? (
+          $(obj).find('.close').show() &&
+          $(obj).addClass('fullDrop') &&
+          ($e = $('#' + id)).length ? $e.clone().attr('id', null) : $(document.createElement('div')).attr('draggable', 'true').text(id)
+        ).addClass('temporal_drop_zone_element') : 'Drop Reference Here'
+      );
     }
 
     var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
     $(document).ready(function() {
       page.initialize();
+
+      // Set location hash to track selected population
       $.getJSON($.bbq.getState('population') || "<%= url_for :action => 'definition' %>", bonnie.builder.renderMeasureJSON);
+
+      // Animate the open/close of the control panel
       $("#measureDetailBorder").click(function() {
         var md = $("#measureDetailInformation");
         md.css('left') == '0px' ?
@@ -30,12 +63,14 @@
           md.animate({left: 0}) | md.find('.inner').animate({right: 0}) | $("#tabs").animate({"margin-left": 300});
         $("#measureDetailBorder i").toggleClass("icon-backward").toggleClass("icon-forward");
       });
+
       var measureDetail = $("#measureDetailInformation");
       var matchTitleHeight = function() {
         var h = $("h1.measure-title").height();
         measureDetail.css("padding-top",h+20);
         measureDetail.find("#measureDetailBorder i").css("margin-top",h+30);
       };
+
       $(window).on("resize",matchTitleHeight);
       matchTitleHeight();
       $('#selector > select').change(
@@ -46,28 +81,71 @@
         }
       )
 
-      $(document.body).on('dragstart', '.logicLeaf, #MeasurePeriod',
+      $(document.body).on('dragstart', '.logicLeaf, #MeasurePeriod, .temporal_drop_zone_element',
         function(e){
-          e.originalEvent.dataTransfer.setData('text', $(e.target).attr('id'));
+          e.originalEvent.dataTransfer.setData('text', 'arbitrary data');
+          if (!$(e.target).hasClass('temporal_drop_zone_element')){
+            $('#bonnie_tmpl_data_criteria_temporal_drop_zone').tmpl().insertAfter($('.temporal_reference .temporal_drop_zone.fullDrop:last-child'));
+          }
+          $(e.target).addClass('dragged');
         }
       );
       $(document.body).on('dragover',
-        function(e){console.log(e.originalEvent.dataTransfer.getData('text'))
-          e.preventDefault();
-          //if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element' || $.inArray(e.target, $('#temporal_drop_zone, #temporal_drop_zone *')) > -1) e.preventDefault();
+        function(e){
+          //e.preventDefault();
+          if (!$('.dragged').hasClass('temporal_drop_zone_element') ^ !($.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1)) e.preventDefault();
         }
       );
 
       $(document.body).on('drop',
         function(e){
-          if ($.inArray(e.target, $('#temporal_drop_zone, #temporal_drop_zone *')) > -1) fillDrop(e.originalEvent.dataTransfer.getData('text'));
-          else if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element') flushDrop('#temporal_drop_zone');
+
+          // Fill the drop zone if element is dropped there
+          if ($.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1) fillDrop(e);
+
+          // Else if element was dragged off of the drop zone, flush that zone
+          else if ($('.dragged').hasClass('temporal_drop_zone_element')) flushDrop();
+
+          // Clear any extra empty drop zones and remove drag class
+          $('.temporal_reference .temporal_drop_zone:not(.fullDrop)').filter(function(){return $(this).siblings('.temporal_drop_zone').length;}).remove();
+          $('.dragged').removeClass('dragged');
         }
       );
 
-      $(document.body).on('click', '#temporal_drop_zone .close',
+      $(document.body).on('dragend',
+        function(){
+          $('.temporal_reference .temporal_drop_zone:not(.fullDrop)').filter(function(){return $(this).siblings('.temporal_drop_zone').length;}).remove();
+        }
+      );
+
+      $(document.body).on('click', '.temporal_reference > .close, .subset_operator > .close',
+        function(e){
+          $(e.target).parent().parent().remove();
+        }
+      );
+
+      $(document.body).on('click', '.temporal_drop_zone .close',
         function(e){
           flushDrop($(e.target).parent());
+        }
+      );
+
+      $('#workspace').on('click', '#temporal_new',
+        function(){
+          $('#bonnie_tmpl_data_criteria_temporal_reference').tmpl().insertBefore('#temporal_new_position');
+        }
+      );
+
+      $('#workspace').on('click', '#subset_new',
+        function(){
+          $('#bonnie_tmpl_data_criteria_subset_operator').tmpl().insertBefore('#subset_new_position');
+        }
+      );
+
+      $('.subset_operator input[type=radio]').change(
+        function(){
+          $(this).parent().siblings().children('input[type=radio]').attr('checked', null);
+          //$(this).attr('checked', true);
         }
       );
 
@@ -89,10 +167,105 @@
     </div>
   </script>
 
+  <script type="text/html" id="bonnie_tmpl_data_criteria_temporal_drop_zone">
+    <div draggable="true" class="temporal_drop_zone paramItem">
+      <input class="temporal_reference_value" type="hidden"{{if reference}} value="${reference}"{{/if}} />
+      <div class="temporal_drop_label">Drop Reference Here</div>
+      <div class="close">&times;</div>
+    </div>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_temporal_reference">
+    <tr>
+      <td>Temporal:</td>
+      <td class="temporal_reference">
+        <div style="text-align: right;" class="close">&times;</div>
+        <div>
+          <select class="temporal_type">
+            <option value="">--</option>
+            <option value="CONCURRENT">Concurrent with</option>
+            <option value="DURING">During</option>
+            <option value="EAE">Ends After End of</option>
+            <option value="EAS">Ends After Start of</option>
+            <option value="EBE">Ends Before End of</option>
+            <option value="EBS">Ends Before Start of</option>
+            <option value="ECW">Ends Concurrent with</option>
+            <option value="EDU">Ends During</option>
+            <option value="SAE">Starts After End of</option>
+            <option value="SAS">Starts After Start of</option>
+            <option value="SBE">Starts Before End of</option>
+            <option value="SBS">Starts Before Start of</option>
+            <option value="SCW">Starts Concurrent with</option>
+            <option value="SDU">Starts During</option>
+          </select>
+        </div>
+        <div>
+          <select class="temporal_relation" style="width: 60px;">
+            <option value="">--</option>
+            <option value="gt">&gt;</option>
+            <option value="gte">&gt;=</option>
+            <option value="lte">&lt;=</option>
+            <option value="lt">&lt;</option>
+          </select>
+          <input class="temporal_value" type="text" style="width: 60px;" value=""/>
+          <select class="temporal_unit" style="width: 80px;">
+            <option value="">--</option>
+            <option value="a">yrs</option>
+            <option value="d">days</option>
+            <option value="h">hrs</option>
+            <option value="min">mins</option>
+            <option value="mo">mo.</option>
+            <option value="s">secs</option>
+            <option value="wk">wks</option>
+          </select>
+        </div>
+        {{tmpl '#bonnie_tmpl_data_criteria_temporal_drop_zone'}}
+      </td>
+    </tr>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_subset_operator">
+    <tr>
+      <td>Subset:</td>
+      <td class="subset_operator">
+        <div style="text-align: right;" class="close">&times;</div>
+        <div>
+          <input class="subset_type" type="text" value="{{if type}}${type || ''}{{/if}}"/>
+        </div>
+        <div>
+          <label><input type="radio" value="value" />Value</label>
+          <label><input type="radio" value="range" />Range</label>
+        </div>
+        <div class="subset_range">
+          <div>
+            <div>Low</div>
+            <select class="subset_relation" style="width: 60px;">
+              <option value="">--</option>
+              <option value="gt">&gt;</option>
+              <option value="gte">&gt;=</option>
+            </select>
+            <input class="subset_value" type="text" style="width: 60px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
+            <input class="subset_unit" style="width: 60px;" value="{{if range}}${range.low && range.low.unit || ''}{{/if}}" />
+          </div>
+          <div>
+            <div>High</div>
+            <select class="subset_relation" style="width: 60px;">
+              <option value="">--</option>
+              <option value="lte">&lt;=</option>
+              <option value="lt">&lt;</option>
+            </select>
+            <input class="subset_value" type="text" style="width: 60px;" value="{{if range}}${range.high && range.high.value || ''}{{/if}}"/>
+            <input class="subset_unit" style="width: 60px;" value="{{if range}}${range.high && range.high.unit || ''}{{/if}}" />
+          </div>
+        </div>
+      </td>
+    </tr>
+  </script>
+
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
     <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
-      <form method="GET" action="<%= url_for :action => 'update_criteria' %>" onsubmit="return !$(this).ajaxSubmit(bonnie.builder.editDataCriteria_callback);">
+      <%= form_tag({:action => 'update_criteria'}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
         <input type="hidden" name="criteria_id" value="${id}">
         <div>${title}</div>
@@ -109,87 +282,35 @@
             </td>
           </tr>
           <tr>
-            <td>Type:</td>
-            <td>
-              <select name="type">
-                <option value="">--</option>
-                <option value="encounterOutpatient">encounter outpatient</option>
-                <option value="activeDiagnoses">active diagnoses</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
             <td>Standard Category:</td>
             <td>
-              <input name="standard_category" type="text" value=""/>
+              <input name="standard_category" type="text" value="${standard_category || ''}"/>
             </td>
           </tr>
-          <tr>
-            <td>QDS Data Type:</td>
-            <td>
-              <input name="qds_data_type" type="text" value=""/>
-            </td>
+          {{each temporal_references}}
+            {{tmpl($value) '#bonnie_tmpl_data_criteria_temporal_reference'}}
+          {{/each}}
+          <tr id="temporal_new_position">
+            <td></td>
+            <td><input type="button" id="temporal_new" value="New Temporal Reference" /></td>
           </tr>
-          <tr>
-            <td>Temporal:</td>
-            <td>
-              <select name="temporal_type">
-                <option value="">--</option>
-                <option value="CONCURRENT">Concurrent with</option>
-                <option value="DURING">During</option>
-                <option value="EAE">Ends After End of</option>
-                <option value="EAS">Ends After Start of</option>
-                <option value="EBE">Ends Before End of</option>
-                <option value="EBS">Ends Before Start of</option>
-                <option value="ECW">Ends Concurrent with</option>
-                <option value="EDU">Ends During</option>
-                <option value="SAE">Starts After End of</option>
-                <option value="SAS">Starts After Start of</option>
-                <option value="SBE">Starts Before End of</option>
-                <option value="SBS">Starts Before Start of</option>
-                <option value="SCW">Starts Concurrent with</option>
-                <option value="SDU">Starts During</option>
-              </select>
-            </td>
+          {{each subset_operators}}
+            {{tmpl($value) '#bonnie_tmpl_data_criteria_subset_operator'}}
+          {{/each}}
+          <tr id="subset_new_position">
+            <td></td>
+            <td><input type="button" id="subset_new" value="New Subset Operator" /></td>
           </tr>
           <tr>
             <td></td>
             <td>
-              <select name="temporal_relation" style="width: 60px;">
-                <option value="">--</option>
-                <option value="gt">&gt;</option>
-                <option value="gte">&gt;=</option>
-                <option value="lte">&lt;=</option>
-                <option value="lt">&lt;</option>
-              </select>
-              <input name="temporal_value" type="text" style="width: 60px;" value=""/>
-              <select name="temporal_unit" style="width: 80px;">
-                <option value="">--</option>
-                <option value="a">yrs</option>
-                <option value="d">days</option>
-                <option value="h">hrs</option>
-                <option value="min">mins</option>
-                <option value="mo">mo.</option>
-                <option value="s">secs</option>
-                <option value="wk">wks</option>
-              </select>
+              <input type="submit" value="save">
+              <span id="edit_save_message"></span>
             </td>
-          </tr>
-          <tr>
-            <td></td>
-            <td id="temporal_drop_zone" class="paramItem{{if temporal_references[0] && temporal_references[0].reference}} fullDrop{{/if}}">
-              <input name="temporal_reference" type="hidden"{{if temporal_references[0] && temporal_references[0].reference}} value="${temporal_references[0].reference}"{{/if}} />
-              <div id="temporal_drop_label"></div>
-              <div class="close">&times;</div>
-            </td>
-          <tr>
-          </tr>
-            <td></td>
-            <td><input type="submit" value="save"><span id="edit_save_message"></span></td>
           </tr>
           </tr>
         </table>
-      </form>
+      <% end %>
     </div>
   </script>
 
@@ -260,7 +381,7 @@
     </ul>
 
     <div class="tab-content" id="measureEditContainer">
-      <div id="workspace" style="padding:10px;border-radius:12px;margin:10px;border:1px solid #aaa;background-color:#f5f5f5;float:right;width:340px;height:700px">
+      <div id="workspace" style="padding:10px;border-radius:12px;margin:10px;border:1px solid #aaa;background-color:#f5f5f5;float:right;width:340px;min-height:700px">
         <p>Workspace edit controls go here</p>
       </div>
 
