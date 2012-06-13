@@ -83,6 +83,7 @@ class @bonnie.Builder
   editDataCriteria_submit: (form) =>
     temporal_references = [];
     fields = ['temporal_type', 'temporal_relation', 'temporal_value', 'temporal_unit', 'temporal_reference_value']
+    nextId = bonnie.builder.getNextChildCriteriaId()
     $(form).find('.temporal_reference').each((i, e) ->
       temporal_references.push({
         type: $(e).find('.temporal_type').val(),
@@ -95,7 +96,7 @@ class @bonnie.Builder
         reference: (
           if $(e).find('.temporal_reference_value').length > 1
             $.post('/measures/' + $(form).find('input[type=hidden][name=id]').val() + '/add_criteria', {
-              criteria_id: (id = $(form).find('input[type=hidden][name=criteria_id]').val() + '_CHILDREN_' + bonnie.builder.getNextChildCriteriaId())
+              criteria_id: (id = $(form).find('input[type=hidden][name=criteria_id]').val() + '_CHILDREN_' + nextId++)
               children_criteria: $.map($(e).find('.temporal_reference_value'), ((e) -> $(e).val()))
               standard_category: 'temporal'
               type: 'derived'

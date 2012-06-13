@@ -11,6 +11,7 @@
       $(e).find('.close').hide();
       $(e).removeClass('fullDrop');
       //$(e).not($(e).parent().find('.temporal_drop_zone:first')).remove();
+      if ($(e).siblings('.temporal_drop_zone').length) $(e).remove();
     }
 
     var fillDrop = function(obj, id){
@@ -20,6 +21,16 @@
 
       // Disallow dropping a reference on a reference
       if ($('#' + id).hasClass('temporal_drop_zone_element')) return;
+
+      if (bonnie.builder.data_criteria[id] && bonnie.builder.data_criteria[id].type == 'derived' && bonnie.builder.data_criteria[id].children_criteria.length){
+        $.each(bonnie.builder.data_criteria[id].children_criteria,
+          function(i, e){
+            fillDrop($('#bonnie_tmpl_data_criteria_temporal_drop_zone').tmpl().insertBefore(obj), e);
+          }
+        );
+        $(obj).remove();
+        return;
+      }
 
       $(obj).find('.temporal_reference_value').val(id);
 
