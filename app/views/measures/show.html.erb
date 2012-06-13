@@ -10,18 +10,20 @@
       $(e).find('.temporal_drop_label').text('Drop Reference Here');
       $(e).find('.close').hide();
       $(e).removeClass('fullDrop');
-      //$(e).not($(e).parent().find('.temporal_drop_zone:first')).remove();
       if ($(e).siblings('.temporal_drop_zone').length) $(e).remove();
     }
 
     var fillDrop = function(obj, id){
+      // Populate id from possible sources in order [provided argument, hidden value in form, dragged element]
       id = id || $(obj).find('.temporal_reference_value').val() || $('.dragged').attr('id');
-      //(obj.originalEvent && obj.originalEvent.dataTransfer && obj.originalEvent.dataTransfer.getData('text'));
+
+      // Set target based on event object or given drop zone
       obj = (obj.target && ($(obj.target).hasClass('temporal_drop_zone') ? obj.target : $(obj.target).parents('.temporal_drop_zone'))) || obj;
 
       // Disallow dropping a reference on a reference
       if ($('#' + id).hasClass('temporal_drop_zone_element')) return;
 
+      // Expand children criteria of temporal references
       if (bonnie.builder.data_criteria[id] && bonnie.builder.data_criteria[id].type == 'derived' && bonnie.builder.data_criteria[id].children_criteria.length){
         $.each(bonnie.builder.data_criteria[id].children_criteria,
           function(i, e){
@@ -32,8 +34,10 @@
         return;
       }
 
+      //Populate hidden form field
       $(obj).find('.temporal_reference_value').val(id);
 
+      // Populate drop zone with element (or text if none available)
       var $e
       $(obj).find('.temporal_drop_label').empty().append(
         id ? (
@@ -47,7 +51,11 @@
     var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
     $(document).ready(function() {
       page.initialize();
+
+      // Set location hash to track selected population
       $.getJSON($.bbq.getState('population') || "<%= url_for :action => 'definition' %>", bonnie.builder.renderMeasureJSON);
+
+      // Animate the open/close of the control panel
       $("#measureDetailBorder").click(function() {
         var md = $("#measureDetailInformation");
         md.css('left') == '0px' ?
@@ -55,12 +63,14 @@
           md.animate({left: 0}) | md.find('.inner').animate({right: 0}) | $("#tabs").animate({"margin-left": 300});
         $("#measureDetailBorder i").toggleClass("icon-backward").toggleClass("icon-forward");
       });
+
       var measureDetail = $("#measureDetailInformation");
       var matchTitleHeight = function() {
         var h = $("h1.measure-title").height();
         measureDetail.css("padding-top",h+20);
         measureDetail.find("#measureDetailBorder i").css("margin-top",h+30);
       };
+
       $(window).on("resize",matchTitleHeight);
       matchTitleHeight();
       $('#selector > select').change(
@@ -73,8 +83,7 @@
 
       $(document.body).on('dragstart', '.logicLeaf, #MeasurePeriod, .temporal_drop_zone_element',
         function(e){
-          //e.originalEvent.dataTransfer.setData('text', !$(e.target).hasClass('temporal_drop_zone_element') ? $(e.target).attr('id') : JSON.stringify(e.target));
-          e.originalEvent.dataTransfer.setData('text', 'TODO');
+          e.originalEvent.dataTransfer.setData('text', 'arbitrary data');
           if (!$(e.target).hasClass('temporal_drop_zone_element')){
             $('#bonnie_tmpl_data_criteria_temporal_drop_zone').tmpl().insertAfter($('.temporal_reference .temporal_drop_zone.fullDrop:last-child'));
           }
@@ -85,15 +94,19 @@
         function(e){
           e.preventDefault();
           //if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element' || $.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1) e.preventDefault();
-          //if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element' || $.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1) e.preventDefault();
         }
       );
 
       $(document.body).on('drop',
         function(e){
+
+          // Fill the drop zone if element is dropped there
           if ($.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1) fillDrop(e);
+
+          // Else if element was dragged off of the drop zone, flush that zone
           else if ($('.dragged').hasClass('temporal_drop_zone_element')) flushDrop();
-          //if (e.originalEvent.dataTransfer.getData('text') == 'temporal_drop_zone_element') flushDrop('#temporal_drop_zone');
+
+          // Clear any extra empty drop zones and remove drag class
           $('.temporal_reference .temporal_drop_zone:not(.fullDrop)').filter(function(){return $(this).siblings('.temporal_drop_zone').length;}).remove();
           $('.dragged').removeClass('dragged');
         }
@@ -104,6 +117,7 @@
           $(e.target).parent().parent().remove();
         }
       );
+
       $(document.body).on('click', '.temporal_drop_zone .close',
         function(e){
           flushDrop($(e.target).parent());
