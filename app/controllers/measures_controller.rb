@@ -93,7 +93,7 @@ class MeasuresController < ApplicationController
   def update_criteria
     @measure = Measure.find(params[:id])
     criteria = {"id" => params[:criteria_id]}
-    ["status", "type", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
+    ["status", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
     criteria['temporal_references'] = JSON.parse(params['temporal_references'])
     @measure.update_data_criteria(criteria)
     render :json => criteria if @measure.save

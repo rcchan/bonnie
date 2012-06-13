@@ -92,7 +92,7 @@ class @bonnie.Builder
           type: 'PQ',
           unit: $(e).find('.temporal_unit').val(),
           value: $(e).find('.temporal_value').val() * if $(e).find('.temporal_relation').val().indexOf('lt') > -1 then -1 else 1
-        },
+        } if $(e).find('.temporal_value').val(),
         reference: (
           if $(e).find('.temporal_reference_value').length > 1
             $.post('/measures/' + $(form).find('input[type=hidden][name=id]').val() + '/add_criteria', {
