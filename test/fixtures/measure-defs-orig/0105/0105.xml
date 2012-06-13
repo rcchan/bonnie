@@ -109,14 +109,6 @@ Reference: American Psychiatric Association practice guideline for the treatment
    </subjectOf>
    <subjectOf>
       <measureAttribute>
-         <code nullFlavor="OTH">
-            <originalText>NQF ID Number</originalText>
-         </code>
-         <value xsi:type="II" root="2.16.840.1.113883.3.560.1" extension="0105"/>
-      </measureAttribute>
-   </subjectOf>
-   <subjectOf>
-      <measureAttribute>
          <templateId root="2.16.840.1.113883.3.560.1.74"/>
          <id root="31A36E76-2F04-447E-B78A-4E642EC94669"/>
          <code code="MSRTP" displayName="Measurement period" codeSystem="2.16.840.1.113883.3.560"/>
