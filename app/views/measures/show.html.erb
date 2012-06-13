@@ -73,6 +73,8 @@
 
       $(window).on("resize",matchTitleHeight);
       matchTitleHeight();
+      $(".paramChildren label").draggable({helper:"clone",containment:'document',revert:true,zIndex:3000,distance:3,opacity:"1", start:function(){$(this).data("item",new queryStructure.AND(null, [],false))}});
+
       $('#selector > select').change(
         function(){
           $.bbq.pushState({population: $(this).val()});
