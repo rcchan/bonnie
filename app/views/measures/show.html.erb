@@ -279,7 +279,7 @@
 
   <div class="pull-right" id="pageButtons">
     <a href="#" class="btn" >Save</a>
-    <%= link_to 'Test', debug_measure_url(@measure), :class => 'btn' %>
+    <%= link_to 'Test', test_measure_url(@measure), :class => 'btn' %>
     <a class="btn" data-toggle="modal" data-show="false" href="#publishConfirm">Publish</a>
   </div>
 	<h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
