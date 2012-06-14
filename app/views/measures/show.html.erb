@@ -145,10 +145,16 @@
         }
       );
 
-      $('.subset_operator input[type=radio]').change(
+      $('#workspace').on('change', '.subset_operator .subset_range_type',
         function(){
-          $(this).parent().siblings().children('input[type=radio]').attr('checked', null);
-          //$(this).attr('checked', true);
+          $(this).parent().siblings().children('.subset_range_type').attr('checked', null);
+          if ($(this).val() == 'value'){
+            $(this).parents('.subset_operator').find('.subset_value').show();
+            $(this).parents('.subset_operator').find('.subset_range').hide();
+          } else {
+            $(this).parents('.subset_operator').find('.subset_value').hide();
+            $(this).parents('.subset_operator').find('.subset_range').show();
+          }
         }
       );
 
@@ -185,7 +191,6 @@
         <div style="text-align: right;" class="close">&times;</div>
         <div>
           <select class="temporal_type">
-            <option value="">--</option>
             <option value="CONCURRENT">Concurrent with</option>
             <option value="DURING">During</option>
             <option value="EAE">Ends After End of</option>
@@ -204,7 +209,6 @@
         </div>
         <div>
           <select class="temporal_relation" style="width: 60px;">
-            <option value="">--</option>
             <option value="gt">&gt;</option>
             <option value="gte">&gt;=</option>
             <option value="lte">&lt;=</option>
@@ -212,7 +216,6 @@
           </select>
           <input class="temporal_value" type="text" style="width: 60px;" value=""/>
           <select class="temporal_unit" style="width: 80px;">
-            <option value="">--</option>
             <option value="a">yrs</option>
             <option value="d">days</option>
             <option value="h">hrs</option>
@@ -236,29 +239,34 @@
           <input class="subset_type" type="text" value="{{if type}}${type || ''}{{/if}}"/>
         </div>
         <div>
-          <label><input type="radio" value="value" />Value</label>
-          <label><input type="radio" value="range" />Range</label>
+          <label><input type="radio" class="subset_range_type" value="value" />Value</label>
+          <label><input type="radio" class="subset_range_type" value="range" />Range</label>
+        </div>
+        <div class="subset_value">
+          <div>
+            <input class="subset_relation" type="hidden" value="eq">
+            <input class="subset_value_value" type="text" style="width: 120px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
+            <input class="subset_value_unit" style="width: 60px;" value="{{if range}}${range.low && range.low.unit || ''}{{/if}}" />
+          </div>
         </div>
         <div class="subset_range">
           <div>
             <div>Low</div>
-            <select class="subset_relation" style="width: 60px;">
-              <option value="">--</option>
+            <select class="subset_range_low_relation" style="width: 60px;">
               <option value="gt">&gt;</option>
               <option value="gte">&gt;=</option>
             </select>
-            <input class="subset_value" type="text" style="width: 60px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
-            <input class="subset_unit" style="width: 60px;" value="{{if range}}${range.low && range.low.unit || ''}{{/if}}" />
+            <input class="subset_range_low_value" type="text" style="width: 60px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
+            <input class="subset_range_low_unit" style="width: 60px;" value="{{if range}}${range.low && range.low.unit || ''}{{/if}}" />
           </div>
           <div>
             <div>High</div>
-            <select class="subset_relation" style="width: 60px;">
-              <option value="">--</option>
+            <select class="subset_range_high_relation" style="width: 60px;">
               <option value="lte">&lt;=</option>
               <option value="lt">&lt;</option>
             </select>
-            <input class="subset_value" type="text" style="width: 60px;" value="{{if range}}${range.high && range.high.value || ''}{{/if}}"/>
-            <input class="subset_unit" style="width: 60px;" value="{{if range}}${range.high && range.high.unit || ''}{{/if}}" />
+            <input class="subset_range_high_value" type="text" style="width: 60px;" value="{{if range}}${range.high && range.high.value || ''}{{/if}}"/>
+            <input class="subset_range_high_unit" style="width: 60px;" value="{{if range}}${range.high && range.high.unit || ''}{{/if}}" />
           </div>
         </div>
       </td>
