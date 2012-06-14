@@ -126,6 +126,9 @@ GEM
     jquery-rails (2.0.2)
       railties (>= 3.2.0, < 5.0)
       thor (~> 0.14)
+    jquery-ui-rails (1.0.0)
+      jquery-rails
+      railties (>= 3.1.0)
     json (1.7.1)
     libv8 (3.3.10.4)
     log4r (1.1.10)
@@ -260,6 +263,7 @@ DEPENDENCIES
   hqmf2js!
   hquery-patient-api!
   jquery-rails
+  jquery-ui-rails
   minitest
   mocha
   mongo
