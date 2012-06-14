@@ -109,6 +109,9 @@
           // Clear any extra empty drop zones and remove drag class
           $('.temporal_reference .temporal_drop_zone:not(.fullDrop)').filter(function(){return $(this).siblings('.temporal_drop_zone').length;}).remove();
           $('.dragged').removeClass('dragged');
+
+          // Fixes FF redirect bug
+          e.preventDefault();
         }
       );
 
