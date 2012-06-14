@@ -48,7 +48,8 @@
       );
     }
 
-    var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
+    var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>);
+    
     $(document).ready(function() {
       page.initialize();
 

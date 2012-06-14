@@ -104,7 +104,7 @@
       background-color:#fec;
       @include transition(background-color .2s linear);
     }
-    .editing {
+    &.editing {
       background-color:#ddf0ff;
       @include transition(background-color .2s linear);
     }      
@@ -231,22 +231,22 @@
   }
   .paramItem .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
-      background:white url(/assets/treatment_green_dark.png) 0 2px no-repeat;
+      background:transparent url(/assets/treatment_green_dark.png) 0 2px no-repeat;
     }
     &.diagnosis, &.symptom  {
-      background:white url(/assets/condition_green_dark.png) 0 2px no-repeat;
+      background:transparent url(/assets/condition_green_dark.png) 0 2px no-repeat;
     }
     &.encounter, &.physical {
-      background:white url(/assets/encounter_green_dark.png) 0 2px no-repeat;
+      background:transparent url(/assets/encounter_green_dark.png) 0 2px no-repeat;
     }
     &.laboratory, &.diagnostic, &.diagnostic_study, &.substance {
-      background:white url(/assets/observation_green_dark.png) 0 2px no-repeat;
+      background:transparent url(/assets/observation_green_dark.png) 0 2px no-repeat;
     }
     &.medication {
-      background:white url(/assets/medication_green_dark.png) 0 2px no-repeat;
+      background:transparent url(/assets/medication_green_dark.png) 0 2px no-repeat;
     }
     &.patient, &.risk {
-      background:white url(/assets/demographic_green_dark.png) 0 2px no-repeat;
+      background:transparent url(/assets/demographic_green_dark.png) 0 2px no-repeat;
     }
   }
 }
@@ -266,22 +266,22 @@
   }
   .paramItem .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
-        background:white url(/assets/treatment_gray.png) 0 2px no-repeat;
+        background:transparent url(/assets/treatment_gray.png) 0 2px no-repeat;
       }
       &.diagnosis, &.symptom  {
-        background:white url(/assets/condition_gray.png) 0 2px no-repeat;
+        background:transparent url(/assets/condition_gray.png) 0 2px no-repeat;
       }
       &.encounter, &.physical {
-        background:white url(/assets/encounter_gray.png) 0 2px no-repeat;
+        background:transparent url(/assets/encounter_gray.png) 0 2px no-repeat;
       }
       &.laboratory, &.diagnostic, &.diagnostic_study, &.substance {
-        background:white url(/assets/observation_gray.png) 0 2px no-repeat;
+        background:transparent url(/assets/observation_gray.png) 0 2px no-repeat;
       }
       &.medication {
-        background:white url(/assets/medication_gray.png) 0 2px no-repeat;
+        background:transparent url(/assets/medication_gray.png) 0 2px no-repeat;
       }
       &.patient, &.risk {
-        background:white url(/assets/demographic_gray.png) 0 2px no-repeat;
+        background:transparent url(/assets/demographic_gray.png) 0 2px no-repeat;
       }
     }
 }
@@ -521,22 +521,22 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
   }
   .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
-      background:white url(/assets/treatment_gray.png) 0 2px no-repeat;
+      background:red url(/assets/treatment_gray.png) 0 2px no-repeat;
     }
     &.diagnosis, &.symptom  {
-      background:white url(/assets/condition_gray.png) 0 2px no-repeat;
+      background:red url(/assets/condition_gray.png) 0 2px no-repeat;
     }
     &.encounter, &.physical {
-      background:white url(/assets/encounter_gray.png) 0 2px no-repeat;
+      background:red url(/assets/encounter_gray.png) 0 2px no-repeat;
     }
     &.laboratory, &.diagnostic, &.diagnostic_study, &.substance {
-      background:white url(/assets/observation_gray.png) 0 2px no-repeat;
+      background:red url(/assets/observation_gray.png) 0 2px no-repeat;
     }
     &.medication {
-      background:white url(/assets/medication_gray.png) 0 2px no-repeat;
+      background:red url(/assets/medication_gray.png) 0 2px no-repeat;
     }
     &.patient, &.risk {
-      background:white url(/assets/demographic_gray.png) 0 2px no-repeat;
+      background:red url(/assets/demographic_gray.png) 0 2px no-repeat;
     }
   }
 

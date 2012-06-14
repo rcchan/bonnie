@@ -31,6 +31,9 @@ class @bonnie.Builder
       @addParamItems(data.exclusions,$("#exclusionMeasureItems"))
 
     $('.logicLeaf').click((event) =>
+      $('.paramItem').removeClass('editing')
+      console.log(event.currentTarget)
+      $(event.currentTarget).closest('.paramItem').addClass('editing')
       @editDataCriteria(event.currentTarget))
 
   editDataCriteria: (element) =>
@@ -126,7 +129,7 @@ class @bonnie.Builder
     if (data_criteria?)
       if (data_criteria.subset_operators?)
         for subset_operator in data_criteria.subset_operators
-          $(elemParent).append("<span class='#{subset_operator.type}'>#{subset_operator.title()}</span>")
+          $(elemParent).append("<span class='#{subset_operator.type} subset-operator'>#{subset_operator.title()}</span>")
 
       if (data_criteria.children_criteria?)
         items = data_criteria.childrenCriteriaItems()
@@ -141,6 +144,13 @@ class @bonnie.Builder
       conjunction = obj['conjunction']
       builder.renderParamItems(conjunction, items, elemParent, container)
 
+  _over: ->
+    $(@).parents('.paramItem').removeClass('droppable')
+    $(@).addClass('droppable')
+
+  _out: ->
+    $(@).removeClass('droppable')
+    
   renderParamItems: (conjunction, items, elemParent, container) =>
     builder = bonnie.builder
 
@@ -165,6 +175,7 @@ class @bonnie.Builder
 
 
   toggleDataCriteriaTree: (element) =>
+    $(element.currentTarget).closest(".paramGroup").find("i").toggleClass("icon-chevron-right").toggleClass("icon-chevron-down")
     category = $(element.currentTarget).data('category');
     children = $(".#{category}_children")
     if (children.is(':visible'))
