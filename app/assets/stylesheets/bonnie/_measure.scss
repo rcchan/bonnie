@@ -76,6 +76,30 @@
     margin-bottom:0;
     margin-left:10px;
   }
+  span.temporal-operator {
+    display:block;
+    text-align:left;
+    border-left:2px solid #ccc;
+    border-right:2px solid #ccc;
+    border-bottom:2px solid #ccc;
+    @include border-radius(0);
+    font-style:italic;
+    margin:5px 0 0 10px;
+  }
+  span.block-down-arrow {
+    display:block;
+    width:0;
+    border-right:20px;
+    border-left:20px;
+    border-color:transparent;
+    height:0;
+    width:0;
+    @include border-radius(0);
+    border-style:solid;
+    border-top:10px solid #ccc;
+    padding:0;
+    margin:0 0 0 25px;
+  }
 
   .subset-operator+.paramGroup {margin-top:0;border-top-left-radius:0}
   .paramGroup {
@@ -98,6 +122,7 @@
     display: table;
     margin-left: 10px;
     color: black;
+    cursor:pointer;
     text-transform: lowercase;
     @include transition(background-color .2s linear);
     &.droppable {
@@ -110,28 +135,6 @@
     }      
     .paramText {
       padding:2px 0 0 45px;
-    }
-    .paramBar {
-      margin-left: 5px;
-      background-color: $barValueBkg;
-      width: 100px;
-      display: inline-block;
-    }
-    .paramBarVal {
-      background-color: $barValueColor;
-      color: $barValueText;
-      height: 100%;
-      padding-left: 0px;
-      font-size: 0.95em;
-      position: relative;
-      span {
-        margin-left: 5px;
-      }
-      span.short {
-        position: relative;
-        right: -100%;
-        color: black;
-      }
     }
     label {
       color: black;
@@ -166,13 +169,22 @@
     background-color: $eligibilityParamGroup;
     .paramGroup {
       margin-left: 10px;
-      background-color: #51b2bc;
+      background-color: darken($eligibilityParamGroup,8);
       width: auto;
       .paramGroup {
         margin-left: 10px;
-        background-color: #37696e;
+        background-color: darken($eligibilityParamGroup,20);
+        .paramGroup {
+          background-color: darken($eligibilityParamGroup,35);
+        }
       }
     }
+  }
+  span.temporal-operator {
+    border-color:$eligibilityParamGroup;
+  }
+  span.block-down-arrow {
+    border-top-color:$eligibilityParamGroup;
   }
   .paramItem .paramText {
 
@@ -228,6 +240,12 @@
         background-color: #6c8631;
       }
     }
+  }
+  span.temporal-operator {
+    border-color:$outcomeParamGroup;
+  }
+  span.block-down-arrow {
+    border-top-color:$outcomeParamGroup;
   }
   .paramItem .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
@@ -288,15 +306,18 @@
 
 #exclusionMeasures {
   .paramGroup {
-    background-color: $exclusions;
+    background-color: $exclusionsGroup;
     .paramGroup {
-      background-color: $exclusions;
+      background-color: darken($exclusionsGroup,5);
       .paramGroup {
-        background-color: $exclusions;
+        background-color: darken($exclusionsGroup,10);
+        .paramGroup {
+          background-color: darken($exclusionsGroup,15);
+        }
       }
     }
     .and {
-      background-color: $exclusions;
+      background-color: $exclusionsGroup;
     }
   }
   .paramItem .paramText {

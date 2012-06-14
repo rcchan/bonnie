@@ -158,7 +158,7 @@ class @bonnie.Builder
 
     $.each(items, (i,node) ->
       if (node.temporal)
-        $(elemParent).append("<span class='#{node.conjunction}'>#{node.title}</span>")
+        $(elemParent).append("<span class='#{node.conjunction} temporal-operator'>#{node.title}</span><span class='block-down-arrow'></span>")
 
       # if (!container and i == 0)
       #   if (!node.temporal && !node.items?)
