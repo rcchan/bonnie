@@ -1,4 +1,4 @@
-@bonnie = @bonnie || {}
+bonnie = @bonnie || {}
 
 class @bonnie.Builder
   constructor: (data_criteria, measure_period) ->
