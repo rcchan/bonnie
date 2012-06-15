@@ -88,7 +88,7 @@ class MeasuresController < ApplicationController
     @measure = Measure.find(params[:id])
     criteria = {"id" => params[:criteria_id], "type" => TYPE_MAP[params[:standard_category]]}
     ["status", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
-    ["title", "code_list_id", "property", "children_criteria"].each { |f| criteria[f] = params[f] if params[f]}
+    ["title", "code_list_id", "property", "children_criteria", "description"].each { |f| criteria[f] = params[f] if params[f]}
     criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
     criteria['subset_operators'] = JSON.parse(params['subset_operators']) if params['subset_operators']
     @measure.upsert_data_criteria(criteria)

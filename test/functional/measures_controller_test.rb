@@ -114,19 +114,54 @@ class MeasuresControllerTest < ActionController::TestCase
 
   end
 
-  test "add data criteria" do
+  test "upsert data criteria" do
+
+    temporal_references = [
+      {'type' => 'during', 'reference' => 'measurePeriod'},
+      {'type' => 'SBS', 'reference' => 'criteria_a'}
+    ]
+
+    subset_operators = [
+      {
+        'type' => 'MAX',
+        'range' => {
+          'type' => 'IVL_PQ',
+          'high' => {
+            'type' => 'PQ',
+            'value' => 23,
+            'unit' => 'units',
+            'inclusive' => true
+          },
+          'low' => {
+            'type' => 'PQ',
+            'value' => 23,
+            'unit' => 'units',
+            'inclusive' => true
+          }
+        }
+      }
+    ]
 
     data_criteria = {
-      "title" => 'title',
-      "description" => 'description',
-      "standard_category" => 'problem',
-      "code_list_id" => 'code_list_id',
-      "property" => 'property',
-      "status" => 'active',
-      "children_criteria" => ['a', 'b', 'c']
+      'title' => 'title',
+      'description' => 'description',
+      'standard_category' => 'problem',
+      'qds_data_type' => 'qds',
+      'code_list_id' => 'code_list_id',
+      'property' => 'property',
+      'status' => 'active',
+      'title' => 'title',
+      'value' => 'value',
+      'code_list_id' => 'clid',
+      'children_criteria' => ['a', 'b', 'c'],
     }
 
-    post :add_criteria, data_criteria.merge({'id' => @measure._id, 'criteria_id' => 'id'})
+    post :upsert_criteria, data_criteria.merge({
+      'id' => @measure._id,
+      'criteria_id' => 'id',
+      'temporal_references' => JSON.generate(temporal_references),
+      'subset_operators' => JSON.generate(subset_operators)
+    })
 
     assert_response :success
     m = Measure.find(@measure._id)
@@ -135,6 +170,8 @@ class MeasuresControllerTest < ActionController::TestCase
 
     assert_equal m.data_criteria['id']['id'], 'id'
     assert_equal m.data_criteria['id']['type'], 'conditions'
+    assert_equal m.data_criteria['id']['temporal_references'], temporal_references
+    assert_equal m.data_criteria['id']['subset_operators'], subset_operators
 
     data_criteria.each {|k,v|
       assert_equal m.data_criteria['id'][k], v
