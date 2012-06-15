@@ -135,6 +135,7 @@ class Measure
   end
 
   def add_data_criteria(criteria)
+    self.data_criteria ||= {}
     self.data_criteria[criteria['id']] = criteria
   end
 
