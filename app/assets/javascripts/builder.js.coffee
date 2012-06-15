@@ -30,6 +30,9 @@ class @bonnie.Builder
     if (!$.isEmptyObject(data.exclusions))
       @addParamItems(data.exclusions,$("#exclusionMeasureItems"))
 
+    if (!$.isEmptyObject(data.exceptions))
+      @addParamItems(data.exceptions,$("#exceptionMeasureItems"))
+
     $('.logicLeaf').click((event) =>
       @editDataCriteria(event.currentTarget))
 

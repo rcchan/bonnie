@@ -278,6 +278,41 @@
     }
 }
 
+#exceptionMeasures {
+  .paramGroup {
+    background-color: #dcdcdc;
+    .paramGroup {
+      background-color: #dcdcdc;
+      .paramGroup {
+        background-color: #dcdcdc;
+      }
+    }
+    .and {
+      background-color: #dddddd;
+    }
+  }
+  .paramItem .paramText {
+    &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
+        background:white url(/assets/treatment_gray.png) 0 2px no-repeat;
+      }
+      &.diagnosis, &.symptom  {
+        background:white url(/assets/condition_gray.png) 0 2px no-repeat;
+      }
+      &.encounter, &.physical {
+        background:white url(/assets/encounter_gray.png) 0 2px no-repeat;
+      }
+      &.laboratory, &.diagnostic, &.diagnostic_study, &.substance {
+        background:white url(/assets/observation_gray.png) 0 2px no-repeat;
+      }
+      &.medication {
+        background:white url(/assets/medication_gray.png) 0 2px no-repeat;
+      }
+      &.patient, &.risk {
+        background:white url(/assets/demographic_gray.png) 0 2px no-repeat;
+      }
+    }
+}
+
 /* udpate: needs review by MN */
 #dataCriteria {
 

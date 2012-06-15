@@ -50,7 +50,11 @@
       background-color:$exclusions;
       color:black;
     }
-
+    &.active.exceptions a {
+      border:1px solid $borderColor;
+      background-color:$borderColor;
+      color:black;
+    }
   }
   .nav-tabs > #selector {
     position: absolute;

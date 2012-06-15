@@ -62,7 +62,13 @@ class Measure
   def parameter_json(population=0)
     parameter_json = {}
     population = population.to_i || 0
-    title_mapping = { "IPP#{population > 0 ? '_' + population.to_s : ''}" => "population", "DENOM#{population > 0 ? '_' + population.to_s : ''}" => "denominator", "NUMER#{population > 0 ? '_' + population.to_s : ''}" => "numerator", "EXCL#{population > 0 ? '_' + population.to_s : ''}" => "exclusions"}
+    title_mapping = {
+      "IPP#{population > 0 ? '_' + population.to_s : ''}" => "population",
+      "DENOM#{population > 0 ? '_' + population.to_s : ''}" => "denominator",
+      "NUMER#{population > 0 ? '_' + population.to_s : ''}" => "numerator",
+      "EXCL#{population > 0 ? '_' + population.to_s : ''}" => "exclusions",
+      "DENEXCEP#{population > 0 ? '_' + population.to_s : ''}" => "exceptions"
+    }
     self.population_criteria.each do |population, criteria|
       parameter_json[title_mapping[population]] = {
           conjunction: "and",
