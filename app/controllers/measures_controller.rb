@@ -158,7 +158,7 @@ class MeasuresController < ApplicationController
 
   def test
     @measure = Measure.find(params[:id])
-    @patient_names = Record.all.limit(225).entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
+    @patient_names = Record.all.entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
   end
 
 

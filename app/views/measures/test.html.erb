@@ -1,7 +1,7 @@
 <% content_for :head do %>
   <script type="text/javascript">
     $(document).ready(function() {
-      // FIXME: remove this ready function if not needed after this feature is done
+      $('#mainTabs a:first').tab('show');
     });
   </script>
 <% end %>
@@ -15,21 +15,54 @@
 
   <br>
   
-  <div id="left-pane" class="pull-left">
-  <%= simple_form_for(:patients, :url => test_measure_path, :method => :post, :html => { :class => 'form-horizontal' }) do |f| %>
-    <!-- checkboxes are checked by default for all patients -->
+  <ul class="nav nav-tabs" id="mainTabs">
+    <li class="active"><a href="#all-patients">All Patients</a></li>
+  </ul>
+  
+  <div class="tab-content">
+    <div class="tab-pane active" id="all-patients">
+      <%= simple_form_for(:patients, :url => test_measure_path, :method => :post, :html => { :class => 'form-horizontal' }) do |f| %>
+        <%= f.submit 'Test Measure' %><br>
+        
+        <div class="row total">
+          <div class="span2">Totals:</div>
+          <div class="span2">0</div>
+          <div class="span2">0</div>
+          <div class="span2">0</div>
+          <div class="span2">0</div>
+        </div>
 
-    <%= f.submit 'Test Measure',:class => 'btn-primary' %><br>
-    
-    <a href="#">Select All</a> | <a href="#">Deselect All</a><br>
-    <%= f.input(:patient_names, :label => false, :collection => @patient_names, 
-      :as => :check_boxes, :required => false, :input_html => {:checked => true}) %>
-
-  <% end %>
+        <div class="row header">
+          <div class="span2"><b>Patient Name</b></div>
+          <div class="span2"><b>Population</b></div>
+          <div class="span2"><b>Denominator</b></div>
+          <div class="span2"><b>Numerator</b></div>
+          <div class="span2"><b>Exclusions</b></div>
+        </div>
+        
+        <% @patient_names[0...25].each do |p| %>
+        <div class="row">
+          <div class="span2 name">
+            <%= f.check_box(p[1], :label => p.first, :checked => true) -%>
+            <%= p.first %>
+          </div>
+          <!-- &nbsp; entity needed to keep the columns from smashing left -->
+          <div class="span2 pop">&nbsp;</div>
+          <div class="span2 denom">&nbsp;</div>
+          <div class="span2 num"> &nbsp;</div>
+          <div class="span2 excl">&nbsp;</div>
+        </div>
+        <% end %>
+      <% end %>
+    </div>
   </div>
   
   <% if params[:patients] %>
-    <% @js = include_js_debug(@measure.measure_id, params[:patients]["patient_names"].reject {|p| p.empty?} ) %>
+    <%# @js = include_js_debug(@measure.measure_id, params[:patients]["patient_names"].reject {|p| p.empty?} ) %>
+    <% params[:patients].reject {|p| p[1].empty?} %>
+    <% patients_posted = params[:patients].collect {|p| p[0] } %>
+    
+    <% @js = include_js_debug(@measure.measure_id, patients_posted) %>
     <%= javascript_tag do %>
       <%= raw(@js) %>
       <%= raw(include_js_libs(['map_reduce_utils'])) %>
@@ -38,25 +71,17 @@
     <div id="right-pane" class="pull-right" style="margin-right:5%; border: 1px lightgray solid; width: 50%;">
       <h3>Test Summary</h3>
       <div id="log">
-        <%# debug params %>
+        <%= debug params %>
       </div>
+      <table id="test-summary">
+        <th></th>
+      </table>
     </div>
     
     <!-- TODO: coffeescript here instead? -->
     <%= javascript_tag do %>
       $().ready(function() {
-        for (p in patient) {
-          var name = patient[p].first + " " + patient[p].last;
-          emitted = [];
-          execute_measure(patient[p]);
-          
-          $('#log').append("<a href='/measures/<%= @measure._id -%>/debug/" + patient[p]._id + "'>" + name + "</a><br>");
-          $('#log').append("numerator: " + emitted[0].numerator + "<br>");
-          $('#log').append("denominator: " + emitted[0].denominator + "<br>");
-          $('#log').append("population: " + emitted[0].population + "<br>");
-          $('#log').append("exclusions: " + emitted[0].exclusions + "<br>");
-          $('#log').append("<br>");
-        }        
+        populate_test_table();
       });
     <% end %>
 
