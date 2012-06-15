@@ -1,13 +1,3 @@
-class ErbContext < OpenStruct
-  def initialize(vars)
-    super(vars)
-  end
-  def get_binding
-    binding
-  end
-end
-
-
 class MeasuresController < ApplicationController
 
   layout :select_layout
