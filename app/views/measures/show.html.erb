@@ -304,7 +304,17 @@
           <tr>
             <td>Standard Category:</td>
             <td>
-              <input name="standard_category" type="text" value="${standard_category || ''}"/>
+              <select name="standard_category">
+                <option>--</option>
+                <option value="problem">Problem</option>
+                <option value="encounter">Encounter</option>
+                <option value="labresults">LabResults</option>
+                <option value="procedure">Procedure</option>
+                <option value="medication">Medication</option>
+                <option value="rx">RX</option>
+                <option value="demographics">Demographics</option>
+                <option value="derived">Derived</option>
+              </select>
             </td>
           </tr>
           {{each temporal_references}}

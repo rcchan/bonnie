@@ -14,6 +14,16 @@ class MeasuresController < ApplicationController
   before_filter :authenticate_user!
   before_filter :validate_authorization!
 
+  TYPE_MAP = {
+    'problem' => 'conditions',
+    'encounter' => 'encounters',
+    'labresults' => 'results',
+    'procedure' => 'procedures',
+    'medication' => 'medications',
+    'rx' => 'medications',
+    'demographics' => 'characteristic',
+    'derived' => 'derived'
+  }
   add_breadcrumb 'measures', ""
 
   rescue_from Mongoid::Errors::Validations do
@@ -81,6 +91,7 @@ class MeasuresController < ApplicationController
       "title" => params[:title],
       "description" => params[:description],
       "standard_category" => params[:standard_category],
+      "type" => TYPE_MAP[params[:standard_category]],
       "code_list_id" => params[:code_list_id],
       "property" => params[:property],
       "status" => params[:status],

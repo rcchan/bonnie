@@ -64,6 +64,7 @@ class @bonnie.Builder
     element.animate({top: offset})
 
     element.find('select[name=status]').val(data_criteria.status)
+    element.find('select[name=standard_category]').val(data_criteria.standard_category)
 
     temporal_element = $(element).find('.temporal_reference')
     $.each(data_criteria.temporal_references, (i, e) ->
@@ -100,7 +101,7 @@ class @bonnie.Builder
   editDataCriteria_submit: (form) =>
     temporal_references = []
     subset_operators = []
-    fields = ['temporal_type', 'temporal_relation', 'temporal_value', 'temporal_unit', 'temporal_reference_value']
+
     nextId = bonnie.builder.getNextChildCriteriaId()
     $(form).find('.temporal_reference').each((i, e) ->
       temporal_references.push({
