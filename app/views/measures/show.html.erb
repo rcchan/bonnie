@@ -234,7 +234,18 @@
       <td class="subset_operator">
         <div style="text-align: right;" class="close">&times;</div>
         <div>
-          <input class="subset_type" type="text" value="{{if type}}${type || ''}{{/if}}"/>
+          <select class="subset_type">
+            <option value="COUNT">COUNT</option>
+            <option value="FIRST">FIRST</option>
+            <option value="SECOND">SECOND</option>
+            <option value="THIRD">THIRD</option>
+            <option value="FOURTH">FOURTH</option>
+            <option value="FIFTH">FIFTH</option>
+            <option value="RECENT">RECENT</option>
+            <option value="LAST">LAST</option>
+            <option value="MIN">MIN</option>
+            <option value="MAX">MAX</option>
+          </select>
         </div>
         <div>
           <label><input type="radio" class="subset_range_type" value="value" />Value</label>
