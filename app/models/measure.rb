@@ -134,12 +134,9 @@ class Measure
     HQMF::Document.from_json(json)
   end
 
-  def add_data_criteria(criteria)
+  def upsert_data_criteria(criteria)
     self.data_criteria ||= {}
-    self.data_criteria[criteria['id']] = criteria
-  end
-
-  def update_data_criteria(criteria)
+    self.data_criteria[criteria['id']] ||= {}
     self.data_criteria[criteria['id']].merge!(criteria)
   end
 

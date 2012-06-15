@@ -35,7 +35,7 @@
 <div class="paramChildren newDataCriteria_children" style="background-color: #F5F5F5;">
   <div class="paramItem">
     <div class="paramText">
-      <form method="GET" action="<%= url_for :action => 'add_criteria' %>" onsubmit="return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);">
+      <form method="GET" action="<%= url_for :action => 'upsert_criteria' %>" onsubmit="return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);">
         <label>criteria_id <input name="criteria_id" /></label>
         <label>title <input name="title" /></label>
         <label>standard_category <input name="standard_category" /></label>

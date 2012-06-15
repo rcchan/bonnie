@@ -114,7 +114,7 @@ class @bonnie.Builder
         } if $(e).find('.temporal_value').val()
         reference: (
           if $(e).find('.temporal_reference_value').length > 1
-            $.post('/measures/' + $(form).find('input[type=hidden][name=id]').val() + '/add_criteria', {
+            $.post('/measures/' + $(form).find('input[type=hidden][name=id]').val() + '/upsert_criteria', {
               criteria_id: (id = $(form).find('input[type=hidden][name=criteria_id]').val() + '_CHILDREN_' + nextId++)
               children_criteria: $.map($(e).find('.temporal_reference_value'), ((e) -> $(e).val()))
               standard_category: 'temporal'
