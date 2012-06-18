@@ -368,7 +368,7 @@ class @bonnie.Range
       if (@high.value == @low.value and @high.inclusive and @low.inclusive)
         "=#{@low.value}"
       else
-        ">#{@low.inclusive_text()} #{@low.value} and <#{@high.inclusive_text()} #{@high.value}}"
+        ">#{@low.inclusive_text()} #{@low.value} and <#{@high.inclusive_text()} #{@high.value}"
     else if (@high?)
       "<#{@high.inclusive_text()} #{@high.value}"
     else if (@low?)
