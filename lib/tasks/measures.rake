@@ -20,7 +20,7 @@ namespace :measures do
     zip = Measures::Exporter.export(file, measure)
     puts "wrote measure #{args.id} definition to: #{out_file}"
   end
-  
+
   desc 'Export definitions for all measures'
   task :export_all do |t, args|
     measure_path = File.join(".", "tmp", "measures")
@@ -32,7 +32,7 @@ namespace :measures do
     zip = Measures::Exporter.export(file, measures)
     puts "wrote #{measures.count} measure definitions to: #{out_file}"
   end
-  
+
   desc 'Remove the measures and bundles collection'
   task :drop_measures do
     loader = Measures::Loader.new()
@@ -46,29 +46,40 @@ namespace :measures do
     importer = Measures::Importer.new(args.db_name, args.db_host, args.db_port)
     importer.drop_measures() unless args.keep_existing
     zip = File.open(args.measures_zip)
-    
+
     count = importer.import(zip)
     puts "Successfully loaded #{count} measures from #{args.measures_zip} to #{args.db_name}"
   end
 
   desc 'Load a measure defintion into the DB'
   task :load, [:hqmf_path, :codes_path, :username, :delete_existing] do |t, args|
-    raise "The path the the HQMF file must be specified" unless args.hqmf_path
-    raise "The path the the Codes file must be specified" unless args.codes_path
-    raise "The username to load the measures for must be specified" unless args.username
+    hqmf_path = args.hqmf_path
+    codes_path = args.codes_path
+    username = args.username
+    delete_existing = args.delete_existing
+    if delete_existing.nil? && username.in?(['true', 'false', nil])
+      delete_existing = args.username
+      username = args.codes_path
+      codes_path = './test/fixtures/measure-defs/' + args.hqmf_path + '/' + args.hqmf_path + '.xls'
+      hqmf_path = './test/fixtures/measure-defs/' + args.hqmf_path + '/' + args.hqmf_path + '.xml'
+    end
 
-    user = User.by_username args.username
-    raise "The user #{args.username} could not be found." unless user
+    raise "The path the the HQMF file must be specified" unless hqmf_path
+    raise "The path the the Codes file must be specified" unless codes_path
+    raise "The username to load the measures for must be specified" unless username
 
-    if args.delete_existing != 'false'
-      count = user.measures.delete_all 
+    user = User.by_username username
+    raise "The user #{username} could not be found." unless user
+
+    if delete_existing == 'true'
+      count = user.measures.delete_all
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
 
-    Measures::Loader.load(args.hqmf_path, args.codes_path, user)
-    
+    Measures::Loader.load(hqmf_path, codes_path, user)
+
   end
-  
+
   desc 'Load a measure defintion into the DB'
   task :load_all, [:measures_dir, :username, :delete_existing] do |t, args|
     raise "The path the the measure definitions must be specified" unless args.measures_dir
@@ -78,10 +89,10 @@ namespace :measures do
     raise "The user #{args.username} could not be found." unless user
 
     if args.delete_existing
-      count = user.measures.delete_all 
+      count = user.measures.delete_all
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
-    
+
     Dir.foreach(args.measures_dir) do |entry|
       next if entry.starts_with? '.'
       hqmf_path = File.join(args.measures_dir,entry,"#{entry}.xml")
@@ -94,9 +105,9 @@ namespace :measures do
       end
 
     end
-    
+
   end
-  
+
   desc 'Drop all measure defintions from the DB'
   task :drop_all, [:username] do |t, args|
     raise "The username to load the measures for must be specified" unless args.username
@@ -107,7 +118,7 @@ namespace :measures do
     count = user.measures.delete_all
     puts "Deleted #{count} measures assigned to #{user.username}"
   end
-  
+
   desc 'Convert a measure defintion to a format that can be loaded into popHealth'
   task :build, [:hqmf, :codes, :include_library, :patient] do |t, args|
 
@@ -115,17 +126,17 @@ namespace :measures do
     hqmf_path = File.expand_path(args.hqmf)
     codes_path = File.expand_path(args.codes)
     filename = Pathname.new(hqmf_path).basename
-    
+
     measure = Measures::Loader.load(hqmf_path, codes_path, nil, nil, false)
     measure_js = Measures::Exporter.execution_logic(measure)
-        
+
     if args.patient
       patient_file = File.expand_path(args.patient)
       patient_json = File.read(patient_file)
     end
 
     out_file = File.join(".","tmp",'measures',"#{filename}.js")
-    File.open(out_file, 'w') do |f| 
+    File.open(out_file, 'w') do |f|
 
       if args.include_library
         library_functions = Measures::Exporter.library_functions
@@ -133,7 +144,7 @@ namespace :measures do
           f.write("#{function}_js = function () { #{library_functions[function]} }\n")
           f.write("#{function}_js();\n")
         end
-        f.write(library_functions['hqmf_utils'] + "\n") 
+        f.write(library_functions['hqmf_utils'] + "\n")
       end
 
       f.write("execute_measure = function(patient) {\n #{measure_js} \n}\n")
@@ -168,13 +179,13 @@ namespace :measures do
     result = template.result(context.get_binding)
 
     out_file = File.join(".","tmp",'measures',"#{filename}.html")
-    File.open(out_file, 'w') do |f| 
+    File.open(out_file, 'w') do |f|
       f.write(result)
     end
 
     puts "wrote test html to: #{out_file}"
 
   end
-  
-  
+
+
 end
