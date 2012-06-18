@@ -44,6 +44,7 @@ class Measure
     data_criteria.each do |key, criteria|
       identifying_fields = ["title","description","standard_category","qds_data_type","code_list_id","type","status"]
       unique = unique_criteria.select {|current| identifying_fields.reduce(true) { |all_match, field| all_match &&= current[field] == criteria[field]} }.count == 0
+      criteria['criteria_id'] = key # Need to pass in the key for use in the UI
       unique_criteria << criteria if unique
     end if data_criteria
     unique_criteria
@@ -62,7 +63,13 @@ class Measure
   def parameter_json(population=0)
     parameter_json = {}
     population = population.to_i || 0
-    title_mapping = { "IPP#{population > 0 ? '_' + population.to_s : ''}" => "population", "DENOM#{population > 0 ? '_' + population.to_s : ''}" => "denominator", "NUMER#{population > 0 ? '_' + population.to_s : ''}" => "numerator", "EXCL#{population > 0 ? '_' + population.to_s : ''}" => "exclusions"}
+    title_mapping = {
+      "IPP#{population > 0 ? '_' + population.to_s : ''}" => "population",
+      "DENOM#{population > 0 ? '_' + population.to_s : ''}" => "denominator",
+      "NUMER#{population > 0 ? '_' + population.to_s : ''}" => "numerator",
+      "EXCL#{population > 0 ? '_' + population.to_s : ''}" => "exclusions",
+      "DENEXCEP#{population > 0 ? '_' + population.to_s : ''}" => "exceptions"
+    }
     self.population_criteria.each do |population, criteria|
       parameter_json[title_mapping[population]] = {
           conjunction: "and",
@@ -128,11 +135,9 @@ class Measure
     HQMF::Document.from_json(json)
   end
 
-  def add_data_criteria(criteria)
-    self.data_criteria[criteria['id']] = criteria
-  end
-
-  def update_data_criteria(criteria)
+  def upsert_data_criteria(criteria)
+    self.data_criteria ||= {}
+    self.data_criteria[criteria['id']] ||= {}
     self.data_criteria[criteria['id']].merge!(criteria)
   end
 

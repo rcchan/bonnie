@@ -1,19 +1,19 @@
-class ErbContext < OpenStruct
-  def initialize(vars)
-    super(vars)
-  end
-  def get_binding
-    binding
-  end
-end
-
-
 class MeasuresController < ApplicationController
 
   layout :select_layout
   before_filter :authenticate_user!
   before_filter :validate_authorization!
 
+  TYPE_MAP = {
+    'problem' => 'conditions',
+    'encounter' => 'encounters',
+    'labresults' => 'results',
+    'procedure' => 'procedures',
+    'medication' => 'medications',
+    'rx' => 'medications',
+    'demographics' => 'characteristic',
+    'derived' => 'derived'
+  }
   add_breadcrumb 'measures', ""
 
   rescue_from Mongoid::Errors::Validations do
@@ -74,28 +74,14 @@ class MeasuresController < ApplicationController
     redirect_to edit_measure_url(measure)
   end
 
-  def add_criteria
+  def upsert_criteria
     @measure = Measure.find(params[:id])
-    criteria = {
-      "id" => params[:criteria_id],
-      "title" => params[:title],
-      "description" => params[:description],
-      "standard_category" => params[:standard_category],
-      "code_list_id" => params[:code_list_id],
-      "property" => params[:property],
-      "status" => params[:status],
-      "children_criteria" => params[:children_criteria]
-    }
-    @measure.add_data_criteria(criteria)
-    render :json => criteria if @measure.save
-  end
-
-  def update_criteria
-    @measure = Measure.find(params[:id])
-    criteria = {"id" => params[:criteria_id]}
+    criteria = {"id" => params[:criteria_id], "type" => TYPE_MAP[params[:standard_category]]}
     ["status", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
-    criteria['temporal_references'] = JSON.parse(params['temporal_references'])
-    @measure.update_data_criteria(criteria)
+    ["title", "code_list_id", "property", "children_criteria", "description"].each { |f| criteria[f] = params[f] if params[f]}
+    criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
+    criteria['subset_operators'] = JSON.parse(params['subset_operators']) if params['subset_operators']
+    @measure.upsert_data_criteria(criteria)
     render :json => criteria if @measure.save
   end
 

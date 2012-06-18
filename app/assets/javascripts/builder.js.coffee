@@ -1,9 +1,14 @@
-@bonnie = @bonnie || {}
+bonnie = @bonnie || {}
 
 class @bonnie.Builder
   constructor: (data_criteria, measure_period) ->
     @measure_period = new bonnie.MeasurePeriod(measure_period)
     @data_criteria = {}
+    @populationQuery = new queryStructure.Query()
+    @denominatorQuery = new queryStructure.Query()
+    @numeratorQuery = new queryStructure.Query()
+    @exclusionsQuery = new queryStructure.Query()
+    @exceptionsQuery = new queryStructure.Query()
     for key in _.keys(data_criteria)
       @data_criteria[key] = new bonnie.DataCriteria(key, data_criteria[key], @measure_period)
 
@@ -18,17 +23,25 @@ class @bonnie.Builder
 
   renderMeasureJSON: (data) =>
     if (!$.isEmptyObject(data.population))
-      @addParamItems(data.population,$("#initialPopulationItems"))
+      @populationQuery.rebuildFromJson(data.population)
+      @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems"))
       $("#initialPopulationItems .paramGroup").addClass("population")
-
+      
     if (!$.isEmptyObject(data.denominator))
+      @denominatorQuery.rebuildFromJson(data.denominator)
       @addParamItems(data.denominator,$("#eligibilityMeasureItems"))
 
     if (!$.isEmptyObject(data.numerator))
+      @numeratorQuery.rebuildFromJson(data.numerator)
       @addParamItems(data.numerator,$("#outcomeMeasureItems"))
 
     if (!$.isEmptyObject(data.exclusions))
+      @exclusionsQuery.rebuildFromJson(data.exclusions)
       @addParamItems(data.exclusions,$("#exclusionMeasureItems"))
+
+    if (!$.isEmptyObject(data.exceptions))
+      @exceptionsQuery.rebuildFromJson(data.exceptions)
+      @addParamItems(data.exceptions,$("#exceptionMeasureItems"))
 
     $('.logicLeaf').click((event) =>
       $('.paramItem').removeClass('editing')
@@ -64,19 +77,34 @@ class @bonnie.Builder
     element.animate({top: offset})
 
     element.find('select[name=status]').val(data_criteria.status)
+    element.find('select[name=standard_category]').val(data_criteria.standard_category)
+
+    temporal_element = $(element).find('.temporal_reference')
     $.each(data_criteria.temporal_references, (i, e) ->
-      temporal_element = $(element).find('.temporal_reference').filter((j) -> i == j)
-      temporal_element.find('.temporal_type').val(e.type)
-      temporal_element.find('.temporal_relation').val(
+      $(temporal_element[i]).find('.temporal_type').val(e.type)
+      $(temporal_element[i]).find('.temporal_relation').val(
         (if e.offset && e.offset.value < 0 then 'lt' else 'gt') +
         if e.offset && e.offset.inclusive then 'e' else ''
       )
-      temporal_element.find('.temporal_value').val(Math.abs(e.offset && e.offset.value) || '')
-      temporal_element.find('.temporal_unit').val(e.offset && e.offset.unit)
-      temporal_element.find('.temporal_drop_zone').each((i, e) ->
+      $(temporal_element[i]).find('.temporal_value').val(Math.abs(e.offset && e.offset.value) || '')
+      $(temporal_element[i]).find('.temporal_unit').val(e.offset && e.offset.unit)
+      $(temporal_element[i]).find('.temporal_drop_zone').each((i, e) ->
         fillDrop(e);
       );
     );
+
+    subset_element = $(element).find('.subset_operator')
+    $.each(data_criteria.subset_operators, (i, e) ->
+      $(subset_element[i]).find('.subset_type').val(e.type)
+      if e.range && e.range.low && e.range.low.equals(e.range.high) && e.range.low.inclusive
+        $(subset_element[i]).find('.subset_range_type[value=value]').attr('checked', true)
+        $(subset_element[i]).find('.subset_range').hide()
+      else
+        $(subset_element[i]).find('.subset_range_type[value=range]').attr('checked', true)
+        $(subset_element[i]).find('.subset_value').hide()
+        $(subset_element[i]).find('.subset_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
+        $(subset_element[i]).find('.subset_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
+    )
 
   getNextChildCriteriaId: =>
     id = 1
@@ -84,21 +112,22 @@ class @bonnie.Builder
     id
 
   editDataCriteria_submit: (form) =>
-    temporal_references = [];
-    fields = ['temporal_type', 'temporal_relation', 'temporal_value', 'temporal_unit', 'temporal_reference_value']
+    temporal_references = []
+    subset_operators = []
+
     nextId = bonnie.builder.getNextChildCriteriaId()
     $(form).find('.temporal_reference').each((i, e) ->
       temporal_references.push({
-        type: $(e).find('.temporal_type').val(),
+        type: $(e).find('.temporal_type').val()
         offset: {
           'inclusive?': $(e).find('.temporal_relation').val().indexOf('e') > -1,
           type: 'PQ',
           unit: $(e).find('.temporal_unit').val(),
           value: $(e).find('.temporal_value').val() * if $(e).find('.temporal_relation').val().indexOf('lt') > -1 then -1 else 1
-        } if $(e).find('.temporal_value').val(),
+        } if $(e).find('.temporal_value').val()
         reference: (
           if $(e).find('.temporal_reference_value').length > 1
-            $.post('/measures/' + $(form).find('input[type=hidden][name=id]').val() + '/add_criteria', {
+            $.post('/measures/' + $(form).find('input[type=hidden][name=id]').val() + '/upsert_criteria', {
               criteria_id: (id = $(form).find('input[type=hidden][name=criteria_id]').val() + '_CHILDREN_' + nextId++)
               children_criteria: $.map($(e).find('.temporal_reference_value'), ((e) -> $(e).val()))
               standard_category: 'temporal'
@@ -108,8 +137,41 @@ class @bonnie.Builder
         )
       })
     )
+    $(form).find('.subset_operator').each((i, e) ->
+      subset_operators.push({
+        type: $(e).find('.subset_type').val()
+        value: {
+          type: 'IVL_PQ'
+          high: if $(e).find('.subset_range_type:checked').val() == 'value' then {
+            type: 'PQ'
+            value: $(e).find('.subset_value_value').val()
+            unit: $(e).find('.subset_value_unit').val()
+            'inclusive?': true
+          } else {
+            type: 'PQ'
+            value: $(e).find('.subset_range_high_value').val()
+            unit: $(e).find('.subset_range_high_unit').val()
+            'inclusive?': $(e).find('.subset_range_high_relation').val().indexOf('e') > -1
+          } if $(e).find('.subset_range_high_value').val()
+          low: if $(e).find('.subset_range_type:checked').val() == 'value' then {
+            type: 'PQ'
+            value: $(e).find('.subset_value_value').val()
+            unit: $(e).find('.subset_value_unit').val()
+            'inclusive?': true
+          } else {
+            type: 'PQ'
+            value: $(e).find('.subset_range_low_value').val()
+            unit: $(e).find('.subset_range_low_unit').val()
+            'inclusive?': $(e).find('.subset_range_low_relation').val().indexOf('e') > -1
+          } if $(e).find('.subset_range_low_value').val()
+        }
+      })
+    )
     !$(form).ajaxSubmit({
-      data: {temporal_references: JSON.stringify(temporal_references)}
+      data: {
+        temporal_references: JSON.stringify(temporal_references)
+        subset_operators: JSON.stringify(subset_operators)
+      }
       success: (changes) =>
         criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
         $element = $('#' + changes.id)
@@ -125,7 +187,28 @@ class @bonnie.Builder
     builder = bonnie.builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
+    if elemParent isnt container
+      elemParent.droppable(
+          over:  @._over
+          tolerance:'pointer'
+          greedy:true
+          accept:'label.ui-draggable'
+          out:  @._out
+          drop: (event) ->
+            # console.log("inside droppable drop fn")
+            console.log(event.target)
+            target = event.currentTarget
+            drop_Y = event.pageY
+            child_items = $(@).children(".paramGroup")
+            for item in child_items
+              item_top = $(item).offset().top;
+              item_height = $(item).height();
+              item_mid = item_top + Math.round(item_height/2)
+              # console.log("drop_Y is #{drop_Y} and item_mid is #{item_mid}")
+              # if drop_Y > item_mid then console.log("after") else console.log("before")
+            $(@).removeClass('droppable')
 
+      )   
     if (data_criteria?)
       if (data_criteria.subset_operators?)
         for subset_operator in data_criteria.subset_operators
@@ -142,6 +225,7 @@ class @bonnie.Builder
 
     if ($.isArray(items))
       conjunction = obj['conjunction']
+      console.log(container) if container?
       builder.renderParamItems(conjunction, items, elemParent, container)
 
   _over: ->
@@ -356,6 +440,8 @@ class @bonnie.Value
       '='
     else
       ''
+  equals: (other) ->
+    return @type == other.type && @value == other.value && @unit == other.unit && @inclusive == other.inclusive
 
 @bonnie.template = (id, object={}) =>
   $("#bonnie_tmpl_#{id}").tmpl(object)

@@ -10,7 +10,7 @@ debug_js_load = () ->
   log_element = $('#log')
   
   code_element.hide()
-  execute_measure(patient)
+  execute_measure(patient[0])
   
   for e in emitted[0].logger
     do (e) ->

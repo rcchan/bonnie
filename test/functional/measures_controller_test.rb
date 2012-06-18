@@ -4,7 +4,7 @@ include Devise::TestHelpers
 class MeasuresControllerTest < ActionController::TestCase
   setup do
     dump_database
-    
+
     @user = FactoryGirl.create(:user)
     @measure = FactoryGirl.create(:measure)
     @measure.user = @user
@@ -16,7 +16,7 @@ class MeasuresControllerTest < ActionController::TestCase
   test "measure index" do
     get :index
     returned_measures = assigns[:measures]
-    
+
     assert_response :success
     assert_equal returned_measures.size, 1
     assert_equal @measure, returned_measures.first
@@ -28,7 +28,7 @@ class MeasuresControllerTest < ActionController::TestCase
     @measure2 = FactoryGirl.create(:measure)
     @measure2.user = @user
     @measure2.save
-    
+
     get :index
     assert_response :success
     assert_equal assigns[:measures].size, 2
@@ -37,15 +37,15 @@ class MeasuresControllerTest < ActionController::TestCase
   test "show measure" do
     get :show, id: @measure.id
     shown_measure = assigns[:measure]
-    
+
     assert_response :success
     assert_equal shown_measure, @measure
   end
-  
+
   test "publish measure" do
     get :publish, id: @measure.id
     shown_measure = assigns[:measure]
-    
+
     assert_response :success
     assert shown_measure.published
     refute_nil shown_measure.publish_date
@@ -55,51 +55,51 @@ class MeasuresControllerTest < ActionController::TestCase
   test "get all published measures" do
     get :published
     assert_empty assigns[:measures]
-    
+
     get :publish, id: @measure.id
     get :published
-    
+
     assert_response :success
     assert_equal assigns[:measures].size, 1
   end
 
   test "new measure" do
     get :new
-    
+
     assert_response :success
     refute_nil assigns[:measure]
   end
-  
+
   test "edit measure" do
     get :edit, id: @measure.id
-    
+
     assert_response :success
     assert_equal assigns[:measure], @measure
   end
 
   test "create measure with uploaded hqmf 2" do
     Measure.delete_all
-    
+
     hqmf_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.xml", "text/xml"))
     value_set_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.xls", "application/vnd.ms-excel"))
     post :create, { measure: { hqmf: hqmf_file, value_sets: value_set_file} }
     created_measure = Measure.all.first
-    
+
     assert_equal Measure.all.size, 1
     refute_nil created_measure.population_criteria
     refute_nil created_measure.data_criteria
     refute_nil created_measure.measure_period
-    
+
     assert_redirected_to edit_measure_url(created_measure)
   end
 
   test "update measure" do
     updated_title = "A different title"
     updates = { id: @measure.id, measure: { title: "A different title" } }
-    
+
     post :update, updates
     updated_measure = assigns[:measure]
-    
+
     assert_redirected_to measure_url(updated_measure)
     assert_equal updated_measure.title, updated_title
   end
@@ -109,8 +109,73 @@ class MeasuresControllerTest < ActionController::TestCase
     post :destroy, id: @measure.id
     assert_equal Measure.all.size, 0
   end
-  
+
   test "definition returns stage one JSON" do
-    
+
+  end
+
+  test "upsert data criteria" do
+
+    temporal_references = [
+      {'type' => 'during', 'reference' => 'measurePeriod'},
+      {'type' => 'SBS', 'reference' => 'criteria_a'}
+    ]
+
+    subset_operators = [
+      {
+        'type' => 'MAX',
+        'range' => {
+          'type' => 'IVL_PQ',
+          'high' => {
+            'type' => 'PQ',
+            'value' => 23,
+            'unit' => 'units',
+            'inclusive' => true
+          },
+          'low' => {
+            'type' => 'PQ',
+            'value' => 23,
+            'unit' => 'units',
+            'inclusive' => true
+          }
+        }
+      }
+    ]
+
+    data_criteria = {
+      'title' => 'title',
+      'description' => 'description',
+      'standard_category' => 'problem',
+      'qds_data_type' => 'qds',
+      'code_list_id' => 'code_list_id',
+      'property' => 'property',
+      'status' => 'active',
+      'title' => 'title',
+      'value' => 'value',
+      'code_list_id' => 'clid',
+      'children_criteria' => ['a', 'b', 'c'],
+    }
+
+    post :upsert_criteria, data_criteria.merge({
+      'id' => @measure._id,
+      'criteria_id' => 'id',
+      'temporal_references' => JSON.generate(temporal_references),
+      'subset_operators' => JSON.generate(subset_operators)
+    })
+
+    assert_response :success
+    m = Measure.find(@measure._id)
+
+    refute_nil m.data_criteria
+
+    assert_equal m.data_criteria['id']['id'], 'id'
+    assert_equal m.data_criteria['id']['type'], 'conditions'
+    assert_equal m.data_criteria['id']['temporal_references'], temporal_references
+    assert_equal m.data_criteria['id']['subset_operators'], subset_operators
+
+    data_criteria.each {|k,v|
+      assert_equal m.data_criteria['id'][k], v
+    }
+
   end
 end

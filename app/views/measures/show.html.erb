@@ -1,6 +1,4 @@
 <% content_for :head do %>
-  <script type="text/javascript" src="/assets/jquery-ui-1.8.21.min.js"></script>
-  <script type="text/javascript" src="/assets/jquery.bbq.min.js"></script>
   <script type="text/javascript">
     var bonnie = bonnie || {};
 
@@ -102,7 +100,7 @@
 
       $(document.body).on('drop',
         function(e){
-
+          console.log("inside on(drop) fn");
           // Fill the drop zone if element is dropped there
           if ($.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1) fillDrop(e);
 
@@ -148,10 +146,16 @@
         }
       );
 
-      $('.subset_operator input[type=radio]').change(
+      $('#workspace').on('change', '.subset_operator .subset_range_type',
         function(){
-          $(this).parent().siblings().children('input[type=radio]').attr('checked', null);
-          //$(this).attr('checked', true);
+          $(this).parent().siblings().children('.subset_range_type').attr('checked', null);
+          if ($(this).val() == 'value'){
+            $(this).parents('.subset_operator').find('.subset_value').show();
+            $(this).parents('.subset_operator').find('.subset_range').hide();
+          } else {
+            $(this).parents('.subset_operator').find('.subset_value').hide();
+            $(this).parents('.subset_operator').find('.subset_range').show();
+          }
         }
       );
 
@@ -188,7 +192,6 @@
         <div style="text-align: right;" class="close">&times;</div>
         <div>
           <select class="temporal_type">
-            <option value="">--</option>
             <option value="CONCURRENT">Concurrent with</option>
             <option value="DURING">During</option>
             <option value="EAE">Ends After End of</option>
@@ -207,7 +210,6 @@
         </div>
         <div>
           <select class="temporal_relation" style="width: 60px;">
-            <option value="">--</option>
             <option value="gt">&gt;</option>
             <option value="gte">&gt;=</option>
             <option value="lte">&lt;=</option>
@@ -215,7 +217,6 @@
           </select>
           <input class="temporal_value" type="text" style="width: 60px;" value=""/>
           <select class="temporal_unit" style="width: 80px;">
-            <option value="">--</option>
             <option value="a">yrs</option>
             <option value="d">days</option>
             <option value="h">hrs</option>
@@ -236,32 +237,48 @@
       <td class="subset_operator">
         <div style="text-align: right;" class="close">&times;</div>
         <div>
-          <input class="subset_type" type="text" value="{{if type}}${type || ''}{{/if}}"/>
+          <select class="subset_type">
+            <option value="COUNT">COUNT</option>
+            <option value="FIRST">FIRST</option>
+            <option value="SECOND">SECOND</option>
+            <option value="THIRD">THIRD</option>
+            <option value="FOURTH">FOURTH</option>
+            <option value="FIFTH">FIFTH</option>
+            <option value="RECENT">RECENT</option>
+            <option value="LAST">LAST</option>
+            <option value="MIN">MIN</option>
+            <option value="MAX">MAX</option>
+          </select>
         </div>
         <div>
-          <label><input type="radio" value="value" />Value</label>
-          <label><input type="radio" value="range" />Range</label>
+          <label><input type="radio" class="subset_range_type" value="value" />Value</label>
+          <label><input type="radio" class="subset_range_type" value="range" />Range</label>
+        </div>
+        <div class="subset_value">
+          <div>
+            <input class="subset_relation" type="hidden" value="eq">
+            <input class="subset_value_value" type="text" style="width: 120px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
+            <input class="subset_value_unit" style="width: 60px;" value="{{if range}}${range.low && range.low.unit || ''}{{/if}}" />
+          </div>
         </div>
         <div class="subset_range">
           <div>
             <div>Low</div>
-            <select class="subset_relation" style="width: 60px;">
-              <option value="">--</option>
+            <select class="subset_range_low_relation" style="width: 60px;">
               <option value="gt">&gt;</option>
               <option value="gte">&gt;=</option>
             </select>
-            <input class="subset_value" type="text" style="width: 60px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
-            <input class="subset_unit" style="width: 60px;" value="{{if range}}${range.low && range.low.unit || ''}{{/if}}" />
+            <input class="subset_range_low_value" type="text" style="width: 60px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
+            <input class="subset_range_low_unit" style="width: 60px;" value="{{if range}}${range.low && range.low.unit || ''}{{/if}}" />
           </div>
           <div>
             <div>High</div>
-            <select class="subset_relation" style="width: 60px;">
-              <option value="">--</option>
+            <select class="subset_range_high_relation" style="width: 60px;">
               <option value="lte">&lt;=</option>
               <option value="lt">&lt;</option>
             </select>
-            <input class="subset_value" type="text" style="width: 60px;" value="{{if range}}${range.high && range.high.value || ''}{{/if}}"/>
-            <input class="subset_unit" style="width: 60px;" value="{{if range}}${range.high && range.high.unit || ''}{{/if}}" />
+            <input class="subset_range_high_value" type="text" style="width: 60px;" value="{{if range}}${range.high && range.high.value || ''}{{/if}}"/>
+            <input class="subset_range_high_unit" style="width: 60px;" value="{{if range}}${range.high && range.high.unit || ''}{{/if}}" />
           </div>
         </div>
       </td>
@@ -271,7 +288,7 @@
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
     <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
-      <%= form_tag({:action => 'update_criteria'}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
+      <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
         <input type="hidden" name="criteria_id" value="${id}">
         <div>${title}</div>
@@ -290,7 +307,17 @@
           <tr>
             <td>Standard Category:</td>
             <td>
-              <input name="standard_category" type="text" value="${standard_category || ''}"/>
+              <select name="standard_category">
+                <option>--</option>
+                <option value="problem">Problem</option>
+                <option value="encounter">Encounter</option>
+                <option value="labresults">LabResults</option>
+                <option value="procedure">Procedure</option>
+                <option value="medication">Medication</option>
+                <option value="rx">RX</option>
+                <option value="demographics">Demographics</option>
+                <option value="derived">Derived</option>
+              </select>
             </td>
           </tr>
           {{each temporal_references}}
@@ -375,6 +402,7 @@
       <li class="active denominator"><a href="#eligibilityMeasures" data-toggle="tab">denominator</a></li>
       <li class="numerator"><a href="#outcomeMeasures" data-toggle="tab">numerator</a></li>
       <li class="exclusions"><a href="#exclusionMeasures" data-toggle="tab">exclusions</a></li>
+      <li class="exceptions"><a href="#exceptionMeasures" data-toggle="tab">exceptions</a></li>
       <li id="selector">
         <select>
           <option value="<%= url_for :population => nil, :action => 'definition' %>">Population Criteria 1</option>
@@ -412,6 +440,12 @@
       <div id="exclusionMeasures" class="tab-pane">
         <div class="measureBox">
           <div id="exclusionMeasureItems"></div>
+        </div>
+      </div>
+
+      <div id="exceptionMeasures" class="tab-pane">
+        <div class="measureBox">
+          <div id="exceptionMeasureItems"></div>
         </div>
       </div>
     </div>
