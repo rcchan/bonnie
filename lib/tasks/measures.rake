@@ -82,7 +82,8 @@ namespace :measures do
 
   desc 'Load a measure defintion into the DB'
   task :load_all, [:measures_dir, :username, :delete_existing] do |t, args|
-    raise "The path the the measure definitions must be specified" unless args.measures_dir
+    measures_dir = args.measures_dir.empty? ? './test/fixtures/measure-defs' : args.measures_dir
+    raise "The path the the measure definitions must be specified" unless measures_dir
     raise "The username to load the measures for must be specified" unless args.username
 
     user = User.by_username args.username
@@ -93,10 +94,10 @@ namespace :measures do
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
 
-    Dir.foreach(args.measures_dir) do |entry|
+    Dir.foreach(measures_dir) do |entry|
       next if entry.starts_with? '.'
-      hqmf_path = File.join(args.measures_dir,entry,"#{entry}.xml")
-      codes_path = File.join(args.measures_dir,entry,"#{entry}.xls")
+      hqmf_path = File.join(measures_dir,entry,"#{entry}.xml")
+      codes_path = File.join(measures_dir,entry,"#{entry}.xls")
       begin
         Measures::Loader.load(hqmf_path, codes_path, user)
         puts "Measure #{entry} successfully loaded.\n"
