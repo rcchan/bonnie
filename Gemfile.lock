@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: e8218b1ff035cfe3fa5c379656953c79a5fe78d2
+  revision: 0b8a7a5bb9def3122fc3c7fba07763f31e20ea1b
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -198,7 +198,7 @@ GEM
       spreadsheet (> 0.6.4)
       todonotes (>= 0.1.0)
     ruby-ole (1.2.11.3)
-    rubyzip (0.9.8)
+    rubyzip (0.9.9)
     sass (3.1.17)
     sass-rails (3.2.5)
       railties (~> 3.2.0)

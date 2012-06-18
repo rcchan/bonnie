@@ -191,12 +191,14 @@ class @bonnie.Builder
 
     if ($.isArray(items))
       conjunction = obj['conjunction']
-      builder.renderParamItems(conjunction, items, elemParent, container)
+      builder.renderParamItems(conjunction, items, elemParent, container, obj.negation || false)
 
-  renderParamItems: (conjunction, items, elemParent, container) =>
+  renderParamItems: (conjunction, items, elemParent, container, neg) =>
     builder = bonnie.builder
 
     elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last") if items.length > 1 and !container?
+
+    $(elemParent).append("<span class='not'>not</span>") if neg
 
     $.each(items, (i,node) ->
       if (node.temporal)
@@ -205,15 +207,12 @@ class @bonnie.Builder
       # if (!container and i == 0)
       #   if (!node.temporal && !node.items?)
       #     elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last")
-
       builder.addParamItems(node,elemParent)
-
       if (i < items.length-1 and !node.temporal)
         next = items[i+1]
-        negation = ''
-        negation = ' not' if (next['negation'])
         conjunction = node.conjunction if !conjunction
-        $(elemParent).append("<span class='"+conjunction+negation+"'>"+conjunction+negation+"</span>"))
+        $(elemParent).append("<span class='"+conjunction+"'>"+conjunction+"</span>")
+    )
 
 
   toggleDataCriteriaTree: (element) =>
