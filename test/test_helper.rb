@@ -14,6 +14,7 @@ Spork.prefork do
 
   require 'factory_girl'
   require 'mocha'
+  require 'rake'
 
   # you will have to restart guard when you modify factories
   # if you don't like this, put this line under #each_run()

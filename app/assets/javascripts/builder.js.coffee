@@ -295,6 +295,7 @@ class @bonnie.DataCriteria
     @type = criteria.type
     @category = this.buildCategory()
     @children_criteria = criteria.children_criteria
+    @derivation_operator = criteria.derivation_operator
     @temporal_references = []
     if criteria.temporal_references
       for temporal in criteria.temporal_references
@@ -331,8 +332,10 @@ class @bonnie.DataCriteria
   childrenCriteriaItems: =>
     items = []
     if @children_criteria.length > 0
+      conjunction = 'or'
+      conjunction = 'and' if @derivation_operator == 'XPRODUCT'
       for child in @children_criteria
-        items.push({'conjunction':'or', 'items': [{'id':child}], 'negation':null})
+        items.push({'conjunction':conjunction, 'items': [{'id':child}], 'negation':null})
     if (items.length > 0)
       items
     else

@@ -145,6 +145,14 @@ In assessing for clinically significant growth reduction, it is recommended that
    </subjectOf>
    <subjectOf>
       <measureAttribute>
+         <code nullFlavor="OTH">
+            <originalText>NQF ID Number</originalText>
+         </code>
+         <value xsi:type="II" root="2.16.840.1.113883.3.560.1" extension="0108"/>
+      </measureAttribute>
+   </subjectOf>
+   <subjectOf>
+      <measureAttribute>
          <templateId root="2.16.840.1.113883.3.560.1.74"/>
          <id root="BFDC2DCB-6A8A-4495-8698-445351AE93EB"/>
          <code code="MSRTP" displayName="Measurement period" codeSystem="2.16.840.1.113883.3.560"/>
