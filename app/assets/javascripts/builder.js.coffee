@@ -187,6 +187,30 @@ class @bonnie.Builder
     builder = bonnie.builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
+
+    makeDropFn = ->
+      queryObj = obj.parent
+      return ->
+        # console.log("inside droppable drop fn")
+        console.log(event.target)
+        target = event.currentTarget
+        drop_Y = event.pageY
+        child_items = $(@).children(".paramGroup")
+        console.log(queryObj)
+        for item in child_items
+          item_top = $(item).offset().top;
+          item_height = $(item).height();
+          item_mid = item_top + Math.round(item_height/2)
+          # console.log("drop_Y is #{drop_Y} and item_mid is #{item_mid}")
+          # if drop_Y > item_mid then console.log("after") else console.log("before")
+        queryObj.add({
+          id: $(event.target).data('criteria-id')
+        })
+        $(@).removeClass('droppable')
+        $("#initialPopulationItems").empty()
+        bonnie.builder.addParamItems(bonnie.builder.populationQuery.toJson(),$("#initialPopulationItems"))
+
+      
     if elemParent isnt container
       elemParent.droppable(
           over:  @._over
@@ -194,19 +218,7 @@ class @bonnie.Builder
           greedy:true
           accept:'label.ui-draggable'
           out:  @._out
-          drop: (event) ->
-            # console.log("inside droppable drop fn")
-            console.log(event.target)
-            target = event.currentTarget
-            drop_Y = event.pageY
-            child_items = $(@).children(".paramGroup")
-            for item in child_items
-              item_top = $(item).offset().top;
-              item_height = $(item).height();
-              item_mid = item_top + Math.round(item_height/2)
-              # console.log("drop_Y is #{drop_Y} and item_mid is #{item_mid}")
-              # if drop_Y > item_mid then console.log("after") else console.log("before")
-            $(@).removeClass('droppable')
+          drop: makeDropFn()
 
       )   
     if (data_criteria?)
