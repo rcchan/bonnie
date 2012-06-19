@@ -93,16 +93,15 @@ class @bonnie.Builder
         $(subset_element[i]).find('.subset_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
     )
 
-  getNextChildCriteriaId: =>
-    id = 1
-    id++  while @data_criteria["EncounterEncounterAmbulatoryIncludingPediatrics_precondition_60_CHILDREN_" + id]
-    id
+  getNextChildCriteriaId: (base, start)=>
+    id = start || 1
+    id++  while @data_criteria[base + id]
+    base+id
 
   editDataCriteria_submit: (form) =>
     temporal_references = []
     subset_operators = []
 
-    nextId = bonnie.builder.getNextChildCriteriaId()
     $(form).find('.temporal_reference').each((i, e) ->
       temporal_references.push({
         type: $(e).find('.temporal_type').val()
@@ -115,7 +114,7 @@ class @bonnie.Builder
         reference: (
           if $(e).find('.temporal_reference_value').length > 1
             $.post('/measures/' + $(form).find('input[type=hidden][name=id]').val() + '/upsert_criteria', {
-              criteria_id: (id = $(form).find('input[type=hidden][name=criteria_id]').val() + '_CHILDREN_' + nextId++)
+              criteria_id: (id = bonnie.builder.getNextChildCriteriaId($(form).find('input[type=hidden][name=criteria_id]').val() + '_CHILDREN_', id))
               children_criteria: $.map($(e).find('.temporal_reference_value'), ((e) -> $(e).val()))
               standard_category: 'temporal'
               type: 'derived'
