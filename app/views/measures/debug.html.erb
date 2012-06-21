@@ -10,7 +10,6 @@
 
   <!-- TODO: break out into a content_for block? or .js? -->
   <% @js = include_js_debug(@measure.measure_id, [@patient._id]) %>
-  <%# @js = include_js_debug(@measure.measure_id, [Record.first._id]) %>
   <%= javascript_tag do %>
     <%= raw(@js) %>
     <%= raw(include_js_libs(['map_reduce_utils'])) %>
