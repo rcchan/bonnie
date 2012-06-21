@@ -87,7 +87,7 @@ populate_test_table = () ->
         cell.html('&#x2713;')
   
   # set total columns
-  total_row = $('#all-patients').find('.total').find('.span2')
+  total_row = $('#patients').find('.total').find('.span2')
   total_row.eq(1).html(population_total)
   total_row.eq(2).html(denominator_total)
   total_row.eq(3).html(numerator_total)

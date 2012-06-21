@@ -16,28 +16,30 @@
   <br>
   
   <ul class="nav nav-tabs" id="mainTabs">
-    <li class="active"><a href="#all-patients">All Patients</a></li>
+    <li class="active"><a href="#patients">All Patients</a></li>
   </ul>
   
   <div class="tab-content">
-    <div class="tab-pane active" id="all-patients">
+    <div class="tab-pane active" id="patients">
       <%= simple_form_for(:patients, :url => test_measure_path, :method => :post, :html => { :class => 'form-horizontal' }) do |f| %>
         <%= f.submit 'Test Measure' %><br>
         
         <div class="row total">
-          <div class="span2">Totals:</div>
-          <div class="span2">0</div>
-          <div class="span2">0</div>
-          <div class="span2">0</div>
-          <div class="span2">0</div>
+          <div class="span2 name">Totals:</div>
+          <div id="population-total" class="span2 pop">&nbsp;</div>
+          <div id="denominator-total" class="span2 denom">&nbsp;</div>
+          <div id="numerator-total" class="span2 num">&nbsp;</div>
+          <div id="exclusions-total" class="span2 excl">&nbsp;</div>
+          <div id="inspect-links" class="span2 inspect">&nbsp;</div>
         </div>
 
         <div class="row header">
-          <div class="span2"><b>Patient Name</b></div>
-          <div class="span2"><b>Population</b></div>
-          <div class="span2"><b>Denominator</b></div>
-          <div class="span2"><b>Numerator</b></div>
-          <div class="span2"><b>Exclusions</b></div>
+          <div class="span2 name"><b>Patient Name</b></div>
+          <div class="span2 pop"><b>Population</b></div>
+          <div class="span2 denom"><b>Denominator</b></div>
+          <div class="span2 num"><b>Numerator</b></div>
+          <div class="span2 excl"><b>Exclusions</b></div>
+          <div class="span2 inspect">&nbsp;</div>
         </div>
         
         <% @patient_names[0...25].each do |p| %>
@@ -51,6 +53,9 @@
           <div class="span2 denom">&nbsp;</div>
           <div class="span2 num"> &nbsp;</div>
           <div class="span2 excl">&nbsp;</div>
+          <div class="span2 inspect">
+            <a href='/measures/<%= "#{@measure._id}/debug/#{p[1]}" %>'>inspect</a>
+          </div>
         </div>
         <% end %>
       <% end %>
@@ -68,6 +73,7 @@
       <%= raw(include_js_libs(['map_reduce_utils'])) %>
     <% end %>
     
+    <!--
     <div id="right-pane" class="pull-right" style="margin-right:5%; border: 1px lightgray solid; width: 50%;">
       <h3>Test Summary</h3>
       <div id="log">
@@ -77,6 +83,7 @@
         <th></th>
       </table>
     </div>
+    -->
     
     <!-- TODO: coffeescript here instead? -->
     <%= javascript_tag do %>
