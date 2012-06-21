@@ -45,40 +45,51 @@ debug_js_load = () ->
       log_element.hide()
 
 populate_test_table = () ->
+  # column totals
+  population_total = 0
+  denominator_total = 0
+  numerator_total = 0
+  exclusions_total = 0
+  
   for p in patient
     do (p) ->      
-      # name = p.first + " " + p.last
       execute_measure(p)
-      # console.log(emitted)
 
   for e in emitted
     do (e) ->
       # select the row with the patient id
       row = $('#patients_' + e.patient_id).parent().parent()
     
-      # example of selecting row elements
-      # $(row).find(':input[type=checkbox]').attr("checked", false)
-    
       # TODO: this is not DRY
+      # colorize and checkmark table cells based on results
       if e.population == true
+        population_total += 1
         cell = $(row).children(":nth-child(2)")
         cell.css('background-color', '#EEE')      #light gray
         cell.html('&#x2713;')
       
       if e.denominator == true
+        denominator_total += 1
         cell = $(row).children(":nth-child(3)")
         cell.css('background-color', '#99CCFF')   #light blue
         cell.html('&#x2713;')
       
       if e.numerator == true
+        numerator_total += 1
         cell = $(row).children(":nth-child(4)")
         cell.css('background-color', '#CCFFCC')   #light green
         cell.html('&#x2713;')
 
       if e.exclusions == true
+        exclusions_total += 1
         cell = $(row).children(":nth-child(5)")
         cell.css('background-color', '#FFCC99')   #light orange
         cell.html('&#x2713;')
   
-  # tally up totals
+  # set total columns
+  total_row = $('#all-patients').find('.total').find('.span2')
+  total_row.eq(1).html(population_total)
+  total_row.eq(2).html(denominator_total)
+  total_row.eq(3).html(numerator_total)
+  total_row.eq(4).html(exclusions_total)
   
