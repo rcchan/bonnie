@@ -92,4 +92,11 @@ populate_test_table = () ->
   total_row.eq(2).html(denominator_total)
   total_row.eq(3).html(numerator_total)
   total_row.eq(4).html(exclusions_total)
-  
+
+# add row highlighting when rolling over inspect link
+bind_inspect_highlight = () ->
+  # select all rows with the inspect link only
+  $('#patients .inspect:contains("inspect")').hover(
+    -> $(this).parent().css('background-color', '#f5f5f5'),
+    -> $(this).parent().css('background-color', 'white')
+  )

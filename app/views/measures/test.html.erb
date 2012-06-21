@@ -2,16 +2,17 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $('#mainTabs a:first').tab('show');
+      bind_inspect_highlight();
     });
   </script>
 <% end %>
 
 <% content_for :page_content do %>
 
-  <h3>Testing Measure</h3>
-  <p>
-    <em><%= @measure.title %></em>
-  </p>
+  <h3 class="measure-title">
+    <span class="label">Testing:</span>
+    <span class="title"><%= @measure.title %></span>
+  </h3>
 
   <br>
   
@@ -22,7 +23,7 @@
   <div class="tab-content">
     <div class="tab-pane active" id="patients">
       <%= simple_form_for(:patients, :url => test_measure_path, :method => :post, :html => { :class => 'form-horizontal' }) do |f| %>
-        <%= f.submit 'Test Measure' %><br>
+        <%= f.submit 'Test Measure', :id => 'test-submit-button', :class => 'btn-primary' %><br>
         
         <div class="row total">
           <div class="span2 name">Totals:</div>
@@ -42,7 +43,7 @@
           <div class="span2 inspect">&nbsp;</div>
         </div>
         
-        <% @patient_names[0...25].each do |p| %>
+        <% @patient_names[0...5].each do |p| %>
         <div class="row">
           <div class="span2 name">
             <%= f.check_box(p[1], :label => p.first, :checked => true) -%>
