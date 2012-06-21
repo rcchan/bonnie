@@ -29,11 +29,11 @@ class @bonnie.Builder
       
     if (!$.isEmptyObject(data.denominator))
       @denominatorQuery.rebuildFromJson(data.denominator)
-      @addParamItems(data.denominator,$("#eligibilityMeasureItems"))
+      @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
 
     if (!$.isEmptyObject(data.numerator))
       @numeratorQuery.rebuildFromJson(data.numerator)
-      @addParamItems(data.numerator,$("#outcomeMeasureItems"))
+      @addParamItems(@numeratorQuery.toJson(),$("#outcomeMeasureItems"))
 
     if (!$.isEmptyObject(data.exclusions))
       @exclusionsQuery.rebuildFromJson(data.exclusions)
@@ -184,15 +184,17 @@ class @bonnie.Builder
     });
 
   addParamItems: (obj,elemParent,container) =>
+    #  console.log("called addParamItems with obj=",obj)
     builder = bonnie.builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
-
+    parent = obj.parent
     makeDropFn = ->
-      queryObj = obj.parent
-      return ->
+      queryObj = parent ? obj
+      return  ->
         # console.log("inside droppable drop fn")
-        console.log(event.target)
+        console.log(event.srcElement)
+        console.log(event)
         target = event.currentTarget
         drop_Y = event.pageY
         child_items = $(@).children(".paramGroup")
@@ -203,15 +205,28 @@ class @bonnie.Builder
           item_mid = item_top + Math.round(item_height/2)
           # console.log("drop_Y is #{drop_Y} and item_mid is #{item_mid}")
           # if drop_Y > item_mid then console.log("after") else console.log("before")
-        queryObj.add({
+        tgt = queryObj.parent ? queryObj
+        if queryObj instanceof queryStructure.Container then tgt = queryObj else tgt = queryObj.parent
+        console.log("queryObj=",queryObj)
+        console.log("queryObj instance of Container=",queryObj instanceof queryStructure.Container)
+        if queryObj.parent?
+          console.log("queryObj.parent=",queryObj.parent)
+        else 
+          console.log("queryObj has no parent")
+        console.log(tgt)
+        console.log($(event.target))
+        console.log($(event.target).data('criteria-id'))
+        tgt.add(
           id: $(event.target).data('criteria-id')
-        })
+        )
         $(@).removeClass('droppable')
-        $("#initialPopulationItems").empty()
+        $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems").empty()
         bonnie.builder.addParamItems(bonnie.builder.populationQuery.toJson(),$("#initialPopulationItems"))
+        bonnie.builder.addParamItems(bonnie.builder.denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
+        bonnie.builder.addParamItems(bonnie.builder.numeratorQuery.toJson(),$("#outcomeMeasureItems"))
 
-      
-    if elemParent isnt container
+    if !$(elemParent).hasClass("droppable")
+      # console.log("elemParent=",elemParent)
       elemParent.droppable(
           over:  @._over
           tolerance:'pointer'
@@ -219,7 +234,7 @@ class @bonnie.Builder
           accept:'label.ui-draggable'
           out:  @._out
           drop: makeDropFn()
-
+  
       )   
     if (data_criteria?)
       if (data_criteria.subset_operators?)
@@ -465,3 +480,84 @@ class Page
   initialize: () =>
     $(document).on('click', '#dataCriteria .paramGroup', bonnie.builder.toggleDataCriteriaTree)
     $('.nav-tabs li').click((element) -> $('#workspace').empty() if !$(element.currentTarget).hasClass('active') )
+    
+    
+$.widget 'ui.ContainerUI',
+  options: {}
+  _create: ->
+    @container = @options.container
+    @parent = @options.parent
+    @builder = @options.builder
+    console.log("ui.ContainerUI this=",@)
+    @element.append(@_createContainer())
+  _createContainer: ->
+    $dc = @template('param_group')
+    console.log($dc)
+    console.log("structure  instanceof queryStructure.AND ",@container.structure instanceof queryStructure.AND)
+    $dc.addClass(if @container.structure instanceof queryStructure.AND then "and" else "or")
+    $dc.find(".paramItem").droppable(
+      over: @._over
+      out: @._out
+      drop: @._drop
+    )
+    @element.append($dc)
+    # $dc.css("width",300).css("height",100).find(".paramItem").css("width",280).css("height",80)
+    @_createItemUI child for child in @container.structure?.children
+  _createItemUI: (item) ->
+    console.log("in createItemUI", item)
+    if item.children
+      console.log "item has children",item.children
+      if item instanceof queryStructure.AND
+        # if we have no children array for this item, then we must be a leaf node (an individual data_criteria)
+        $(@element).AndContainerUI(
+          parent: @
+          container: item
+        )
+      if item instanceof queryStructure.OR
+        # if we have no children array for this item, then we must be a leaf node (an individual data_criteria)
+        $(@element).OrContainerUI(
+          parent: @
+          container: item
+        )
+      if !item instanceof queryStructure.AND $$ !item instanceof queryStructure.OR
+        console.log("Error! - item is neither AND nor OR")
+    else 
+      console.log("item has no children")
+      $(@element).ItemUI(
+        parent: @
+        container: item
+      )
+  template: (id,object={}) ->
+      $("#bonnie_tmpl_#{id}").tmpl(object)
+  _over: ->
+    $(@).parents('.paramItem').removeClass('droppable')
+    $(@).addClass('droppable')
+
+  _out: ->
+    $(@).removeClass('droppable')
+  _drop: ->
+    $(@).removeClass('droppable')
+
+
+
+  
+$.widget 'ui.ItemUI',
+  options: {}
+  _init: ->
+    @container = @options.container
+    @parent = @parent = @options.parent
+    @dataCriteria = @options.dataCriteria
+  _createItem: ->
+    bonnie.template("data_criteria_logic",@dataCriteria)
+    @_registerHandlers
+  _registerHandlers: ->
+
+$.widget "ui.AndContainerUI", $.ui.ContainerUI,
+  options: {}
+  collectionType: ->
+    "AND"
+
+$.widget "ui.OrContainerUI", $.ui.ContainerUI,
+  options: {}
+  collectionType: ->
+    "OR"
