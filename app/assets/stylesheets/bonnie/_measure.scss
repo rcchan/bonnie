@@ -579,22 +579,22 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
   }
   .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
-      background:red url(/assets/treatment_gray.png) 0 2px no-repeat;
+      background:white url(/assets/treatment_gray.png) 0 2px no-repeat;
     }
     &.diagnosis, &.symptom  {
-      background:red url(/assets/condition_gray.png) 0 2px no-repeat;
+      background:white url(/assets/condition_gray.png) 0 2px no-repeat;
     }
     &.encounter, &.physical {
-      background:red url(/assets/encounter_gray.png) 0 2px no-repeat;
+      background:white url(/assets/encounter_gray.png) 0 2px no-repeat;
     }
     &.laboratory, &.diagnostic, &.diagnostic_study, &.substance {
-      background:red url(/assets/observation_gray.png) 0 2px no-repeat;
+      background:white url(/assets/observation_gray.png) 0 2px no-repeat;
     }
     &.medication {
-      background:red url(/assets/medication_gray.png) 0 2px no-repeat;
+      background:white url(/assets/medication_gray.png) 0 2px no-repeat;
     }
     &.patient, &.risk {
-      background:red url(/assets/demographic_gray.png) 0 2px no-repeat;
+      background:white url(/assets/demographic_gray.png) 0 2px no-repeat;
     }
   }
 
