@@ -468,9 +468,11 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
 
 /* there is probably a better way to accomplish this */
 .arrow-w {
+  margin:5px 0 10px;
+  padding:1px 2px;
   border-style: dashed;
   border-color: transparent;
-  border-width: 1.2em;
+  border-width: 36px;
   display: -moz-inline-box;
   display: inline-block;
   font-size: 30px;
@@ -479,10 +481,9 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
   position: relative;
   vertical-align: middle;
   width: 0;
-  border-right-width: 1em;
+  border-right-width: 36px;
   border-right-style: solid;
   border-right-color: #aaa;
-  right: 0.25em;
 }
 
 
@@ -565,6 +566,7 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
 }
 
 #workspace {
+  h4 {margin-bottom:5px}
   td {
     vertical-align: top;
   }
