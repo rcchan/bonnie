@@ -193,7 +193,7 @@ class @bonnie.Builder
     parent = obj.parent
     makeDropFn = (self) ->
       queryObj = parent ? obj
-      return  ->
+      dropFunction = (event,ui) ->
         # console.log("inside droppable drop fn")
         console.log(event.srcElement)
         console.log(event)
@@ -219,18 +219,21 @@ class @bonnie.Builder
         console.log($(event.target))
         console.log($(event.target).data('criteria-id'))
         tgt.add(
-          id: $(event.target).data('criteria-id')
+          id: $(event.srcElement).data('criteria-id')
         )
         $(@).removeClass('droppable')
+        $('#workspace').empty()
         $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems").empty()
         bonnie.builder.addParamItems(bonnie.builder.populationQuery.toJson(),$("#initialPopulationItems"))
         bonnie.builder.addParamItems(bonnie.builder.denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
         bonnie.builder.addParamItems(bonnie.builder.numeratorQuery.toJson(),$("#outcomeMeasureItems"))
         self._bindClickHandler()
+      return dropFunction
 
 
     if !$(elemParent).hasClass("droppable")
       # console.log("elemParent=",elemParent)
+      $(elemParent).data("query-struct",parent)
       elemParent.droppable(
           over:  @._over
           tolerance:'pointer'
