@@ -43,7 +43,7 @@
           <div class="span2 inspect">&nbsp;</div>
         </div>
         
-        <% @patient_names[0...5].each do |p| %>
+        <% @patient_names.each do |p| %>
         <div class="row">
           <div class="span2 name">
             <%= f.check_box(p[1], :label => p.first, :checked => true) -%>
