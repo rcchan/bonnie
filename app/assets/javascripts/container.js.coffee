@@ -111,7 +111,7 @@ class queryStructure.Container
 class queryStructure.OR extends queryStructure.Container
   toJson: ->
     childJson = @childrenToJson()
-    return { "conjunction" : "or", "items" : childJson, "negation" : @negation }
+    return { "conjunction" : "or", "items" : childJson, "negation" : @negation, "parent" : @parent }
   
   test: (patient) -> 
     if (@children.length == 0)
@@ -127,7 +127,7 @@ class queryStructure.OR extends queryStructure.Container
 class queryStructure.AND extends queryStructure.Container
   toJson: ->
     childJson = @childrenToJson()
-    return { "conjunction" : "and", "items" : childJson, "negation" : @negation }
+    return { "conjunction" : "and", "items" : childJson, "negation" : @negation, "parent" : @parent }
 
   test: (patient) ->
     if (@children.length == 0)
