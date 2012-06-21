@@ -100,7 +100,6 @@
 
       $(document.body).on('drop',
         function(e){
-          console.log("inside on(drop) fn");
           // Fill the drop zone if element is dropped there
           if ($.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1) fillDrop(e);
 
