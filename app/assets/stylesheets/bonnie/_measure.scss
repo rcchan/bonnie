@@ -604,3 +604,56 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
     }
   }
 }
+
+#patients .row {
+  margin: 0em;
+  padding: 0em;
+  border-bottom: 1px #DDD solid;
+}
+
+#patients .row .span2 {
+  border-left: 1px #DDD solid;
+  text-align: center;
+  margin: 0em;
+  width: 15%;
+  padding: 0em;
+}
+
+#patients .row .name {
+  border-left: 1px #FFF solid;
+  text-align: left;
+  width: 20%;
+}
+
+#patients #population-total {
+  background: #EEE;
+}
+
+#patients #denominator-total {
+  background: #99CCFF;
+}
+
+#patients #numerator-total {
+  background: #CCFFCC;
+}
+
+#patients #exclusions-total {
+  background: #FFCC99;
+}
+
+#test-submit-button {
+  position:absolute;
+  top: 6em;
+  right: 40px;
+  background: white;
+  color: black;
+}
+
+h3.measure-title .label {
+  font-size: 14px;
+  background: white;
+  color: orange;
+}
+h3.measure-title .title { 
+  font-size: 14px;
+}
