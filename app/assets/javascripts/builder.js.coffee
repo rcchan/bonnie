@@ -205,7 +205,7 @@ class @bonnie.Builder
         else
           tgt = queryObj.parent
         tgt?.add(
-          id: $(event.srcElement).data('criteria-id')
+          id: $(ui.draggable).data('criteria-id')
         )
         $(@).removeClass('droppable')
         $('#workspace').empty()
