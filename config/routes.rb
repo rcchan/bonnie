@@ -1,18 +1,16 @@
 Bonnie::Application.routes.draw do
-
-  # one-off debug url with measure and patient ids FIXME: too nested - cdillon
-
-
+  
   resources :measures do
     member do
       get :export
       get :import_resource
       post :publish
       get :show_nqf
-      match :upsert_criteria
+      match :add_criteria
+      match :update_criteria
       get :debug  # measure debug page
       get :test   # select patients form
-      get 'debug/:record_id' => 'Measures#debug', :as => :debug_measure
+      get 'debug/:record_id' => 'Measures#debug', :as => :debug_measure   # FIXME: too nested - cdillon
       post :test  # handle select patients form
     end
     collection do
