@@ -1,17 +1,225 @@
+<% content_for :head do %>
+  <script type="text/javascript">
+    var bonnie = bonnie || {};
+
+    var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
+    $(document).ready(function() {
+      page.initialize()
+      bonnie.init_populations()
+      $('#add_population_button').click(bonnie.add_population);
+      $('.details').click(function(target) {
+        key = $(target.currentTarget).data('key')
+        $('#details_modal_body').empty();
+        $.getJSON('<%= population_criteria_definition_path(@measure.id) %>', {key: key} , function(data) {
+          $('#measure_details_popup h3').html('Population: '+key)
+          bonnie.builder.renderCriteriaJSON(data, $("#details_modal_body"))
+        });
+      })
+    });
+    
+    bonnie.init_populations = function() {
+      $('.delete').click(bonnie.delete_population);
+      $('.population_title').click(bonnie.edit_population_title)
+      $('.save_title').click(bonnie.save_population_title)
+      $(".population_title_edit").keyup(function(event){
+          if(event.keyCode == 13){
+              bonnie.save_population_title(event)
+          }
+      });
+    }
+    
+    bonnie.add_population = function() {
+      title = $('input[name=title]', '#add_population_form').val()
+      ipp = $('input[name=IPP]:checked', '#add_population_form').val()
+      num = $('input[name=NUMER]:checked', '#add_population_form').val()
+      if (title.length > 0 && ipp.length > 0 && num.length>0)
+        $.post('<%= add_population_measure_url %>', $('#add_population_form').serialize(), function(data) {
+          $('#populations').html(data);
+          $('#add_population_form').clearForm()
+          $('.none_radio').attr('checked', true);
+          bonnie.init_populations();
+        }, 'html' );
+      else
+        alert('A Title, Numerator and Initial Population must be selected for a population.')
+      
+    }
+    bonnie.delete_population = function(target) {
+      index = $(target.currentTarget).data('index')
+      $.post('<%= delete_population_measure_url %>', { index: index }, function(data) {
+        $('#populations').html(data);
+        bonnie.init_populations();
+      }, 'html' );
+    }
+    bonnie.edit_population_title = function(target) {
+      index = $(target.currentTarget).data('index');
+      $(target.currentTarget).hide();
+      $('#population_delete_'+index).hide()
+      $('#population_title_edit_'+index).show()
+    }
+    bonnie.save_population_title = function(target) {
+      index = $(target.currentTarget).data('index');
+      title = $('#population_title_edit_'+index+' input').val()
+      $.post('<%= update_population_measure_url %>', { index: index, title: title }, function(data) {
+        $('#populations').html(data);
+        bonnie.init_populations();
+      }, 'html' );
+    }
+  </script>
+<% end %>
+
+
 <% content_for :page_content do %>
   
   <p id="notice"><%= notice %></p>
 	
+	<script type="text/html" id="bonnie_tmpl_param_group">
+    <div class='paramGroup'>
+      <div class='paramItem'></div>
+    </div>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_logic">
+    <div draggable="true" class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}id='${id}'{{/if}}>
+      {{if operator}}<label>${operator}</label>{{/if}}
+      {{if category}}<label>${category}</label>{{/if}}
+      ${title} {{if value}}${valueText}{{/if}}${temporalText}
+    </div>
+  </script>
+  
 
 <h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
-<div id="measureDetailInformation" style="margin-left:15px;">
+<div style="margin-left:15px;">
 
 	<h2>Editing measure details</h2>
 
 	<%= render partial: 'form', locals: { submit_method: 'put', submit_text: 'Save' } %>
 
+
+  <div class="populations">
+    <h2>Populations</h2>
+
+    <div class="row header">
+      <div class="span2">
+        Sub Measures
+      </div>
+      <div class="span3">
+        Initial Population
+      </div>
+      <div class="span3">
+        Denominator
+      </div>
+      <div class="span3">
+        Numerator
+      </div>
+      <div class="span3">
+        Exclusions
+      </div>
+      <div class="span3">
+        Exceptions
+      </div>
+    </div>
+    <span id="populations">
+      <%= render partial: 'populations', locals: {measure: @measure} %>
+    </span>
+
+    <br><br>
+    <h2>New Population</h2>
+    <%= link_to 'NQF Definition', show_nqf_measure_path(@measure), :target => "_blank" %>
+    
+    <form id="add_population_form">
+
+    <div class="row header">
+      <div class="span2">
+        Population Definitions
+      </div>
+      <div class="span3">
+        Initial Population
+      </div>
+      <div class="span3">
+        Denominator
+      </div>
+      <div class="span3">
+        Numerator
+      </div>
+      <div class="span3">
+        Exclusions
+      </div>
+      <div class="span3">
+        Exceptions
+      </div>
+    </div>
+    <div class="row">
+      <div class="span2">
+        <input type="text" value="" id="new_population" name="title" style="width: 130px;">
+      </div>
+      <% ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type| %>
+        <div class="span3">
+          <input type="radio" name="<%=type%>" value="" id="<%=type%>_none_radio" style="float:left;" checked="checked" class="none_radio"/>
+          <label for="<%=type%>_none_radio" style="float:left;">&nbsp;None</label>
+        </div>
+      <% end %>
+    </div>
+    <% 
+      if @measure.population_criteria
+        population_criteria_by_type = {}
+        ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type| 
+          population_criteria_by_type[type] = @measure.population_criteria.keys.select {|key| key.start_with? type }
+          population_criteria_by_type[type].reverse!
+        end
+      
+        count = @measure.population_criteria.keys.count
+        while count > 0
+      %>
+        <div class="row">
+          <div class="span2">
+            &nbsp;
+          </div>
+          <% ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type| 
+            value = population_criteria_by_type[type].pop
+            if (value)
+              count -= 1
+              population_criteria = @measure.population_criteria[value]
+            end %>
+            <div class="span3">
+              <% if (value) %>
+              <input type="radio" name="<%=type%>" value="<%=value%>" id="<%=value%>_radio" style="float:left;"/>
+              <label for="<%=value%>_radio" style="float:left;">&nbsp;<%= population_criteria['title'] %> (<%= value %>)</label>
+              <a href="#measure_details_popup" data-toggle="modal" data-backdrop="static"><i class="icon-info-sign details" data-key="<%= value %>"></i></a>
+              <% else %>
+              &nbsp;
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+  </form>
+  <input type="button" class="btn" id="add_population_button" value="Add Population">
+  
+      
+      <div data-behavior="BS.Popup" class="modal fade" id="measure_details_popup">
+      <div class="modal-header" >
+      <a href="#measure_details_popup" class="close" data-toggle="modal">×</a>
+      <h3>Population</h3>
+      </div>
+      <div class="modal-body" style="overflow-y: auto; height: 350px;" id="details_modal_body">
+      
+      
+      
+      </div>
+      <div class="modal-footer">
+      <a href="#measure_details_popup" class="btn dismiss" data-toggle="modal">Close</a>
+      </div>
+      </div>
+
+  <br><br>
+
 	<%= link_to 'Show parameter view', @measure %> <span class="sep">|</span>
 	<%= link_to 'Back to all measures', measures_path %>
+	
 </div>
+
+
 <% end -%>
 

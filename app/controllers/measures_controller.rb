@@ -115,9 +115,17 @@ class MeasuresController < ApplicationController
 
   def definition
     measure = Measure.find(params[:id])
-    render :json => measure.parameter_json(params[:population])
+    population_index = params[:population].to_i if params[:population]
+    population = measure.parameter_json(population_index)
+    render :json => population 
   end
 
+  def population_criteria_definition
+    measure = Measure.find(params[:id])
+    population = measure.population_criteria_json(measure.population_criteria[params[:key]])
+    render :json => population 
+  end
+  
   def export
     measure = Measure.find(params[:id])
 
@@ -147,5 +155,43 @@ class MeasuresController < ApplicationController
     @patient_names = Record.all.entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
   end
 
+  ####
+  ## POPULATIONS
+  ####
+  def update_population
+    @measure = Measure.find(params[:id])
+    index = params['index'].to_i
+    title = params['title']
+    @measure.populations[index]['title'] = title
+    @measure.save!
+    render partial: 'populations', locals: {measure: @measure}
+  end
+  
+  def delete_population
+    @measure = Measure.find(params[:id])
+    index = params['index'].to_i
+    @measure.populations.delete_at(index)
+    @measure.save!
+    render partial: 'populations', locals: {measure: @measure}
+  end
+  def add_population
+    @measure = Measure.find(params[:id])
+    population = {}
+    population['title']= params['title']
+    
+    ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |key|
+      population[key]= params[key] unless params[key].empty?
+    end
+    
+    if (population['NUMER'] and population['IPP'])
+      @measure.populations << population
+      @measure.save!
+    else
+      raise "numerator and initial population must be provided"
+    end
+
+    
+    render partial: 'populations', locals: {measure: @measure}
+  end
 
 end

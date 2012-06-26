@@ -16,6 +16,7 @@ class Measure
   field :data_criteria, type: Hash
   field :measure_period, type: Hash
   field :measure_attributes, type: Hash
+  field :populations, type: Array
 
   belongs_to :user
   embeds_many :publishings
@@ -59,24 +60,31 @@ class Measure
 
   # Reshapes the measure into the JSON necessary to build the popHealth parameter view for stage one measures.
   # Returns a hash with population, numerator, denominator, and exclusions
-  def parameter_json(population=0)
+  def parameter_json(population_index=0)
     parameter_json = {}
-    population = population.to_i || 0
+    population_index ||= 0
+    
+    population = populations[population_index]
+    
     title_mapping = {
-      "IPP#{population > 0 ? '_' + population.to_s : ''}" => "population",
-      "DENOM#{population > 0 ? '_' + population.to_s : ''}" => "denominator",
-      "NUMER#{population > 0 ? '_' + population.to_s : ''}" => "numerator",
-      "EXCL#{population > 0 ? '_' + population.to_s : ''}" => "exclusions",
-      "DENEXCEP#{population > 0 ? '_' + population.to_s : ''}" => "exceptions"
+      population["IPP"] => "population",
+      population["DENOM"] => "denominator",
+      population["NUMER"] => "numerator",
+      population["EXCL"] => "exclusions",
+      population["DENEXCEP"] => "exceptions"
     }
-    self.population_criteria.each do |population, criteria|
-      parameter_json[title_mapping[population]] = {
-          conjunction: "and",
-          items: parse_hqmf_preconditions(criteria)
-        }
+    self.population_criteria.each do |key, criteria|
+      parameter_json[title_mapping[key]] = population_criteria_json(criteria) if title_mapping[key]
     end
 
     parameter_json
+  end
+  
+  def population_criteria_json(criteria)
+    {
+        conjunction: "and",
+        items: parse_hqmf_preconditions(criteria)
+    }
   end
 
   def self.pophealth_parameter_json(parameter_json, data_criteria)
@@ -128,7 +136,8 @@ class Measure
       "population_criteria" => self.population_criteria,
       "data_criteria" => self.data_criteria,
       "measure_period" => self.measure_period,
-      "attributes" => self.measure_attributes
+      "attributes" => self.measure_attributes,
+      "populations" => self.populations
     }
 
     HQMF::Document.from_json(json)
@@ -155,7 +164,7 @@ class Measure
       fragment = []
       criteria["preconditions"].each do |precondition|
         fragment << parse_hqmf_preconditions(precondition)
-      end
+      end if criteria['preconditions']
       return fragment
     else # We're somewhere in the middle
       element = {

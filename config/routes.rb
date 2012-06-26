@@ -6,12 +6,14 @@ Bonnie::Application.routes.draw do
       get :import_resource
       post :publish
       get :show_nqf
-      match :add_criteria
-      match :update_criteria
+      match :upsert_criteria
       get :debug  # measure debug page
       get :test   # select patients form
       get 'debug/:record_id' => 'Measures#debug', :as => :debug_measure   # FIXME: too nested - cdillon
       post :test  # handle select patients form
+      post :delete_population
+      post :add_population
+      post :update_population
     end
     collection do
       get :published
@@ -19,6 +21,7 @@ Bonnie::Application.routes.draw do
     end
   end
 
+  get 'measures/:id/population_criteria/definition' => 'measures#population_criteria_definition', :as => :population_criteria_definition
   get 'measures/:id/:population' => 'measures#show', :constraints => {:population => /\d+/}
   get 'measures/:id/definition' => 'measures#definition'
   get 'measures/:id/:population/definition' => 'measures#definition'

@@ -35,6 +35,10 @@ class @bonnie.Builder
 
     $('.logicLeaf').click((event) =>
       @editDataCriteria(event.currentTarget))
+      
+  renderCriteriaJSON: (data, target) =>
+    @addParamItems(data,target)
+    
 
   editDataCriteria: (element) =>
     leaf = $(element)
@@ -198,9 +202,9 @@ class @bonnie.Builder
 
     elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last") if items.length > 1 and !container?
 
-    $(elemParent).append("<span class='not'>not</span>") if neg
-
     $.each(items, (i,node) ->
+      $(elemParent).append("<span class='not'>not</span>") if neg
+        
       if (node.temporal)
         $(elemParent).append("<span class='#{node.conjunction}'>#{node.title}</span>")
 
@@ -262,7 +266,7 @@ class @bonnie.TemporalReference
   offset_text: =>
     if(@offset)
       value = @offset.value
-      unit =  @offset.unit_text()
+      unit =  @offset.temporal_unit_text()
       inclusive = @offset.inclusive_text()
       if value > 0
         ">#{inclusive} #{value} #{unit}"
@@ -278,9 +282,11 @@ class @bonnie.SubsetOperator
   constructor: (subset_operator) ->
     @range = new bonnie.Range(subset_operator.value) if subset_operator.value
     @type = subset_operator.type
+    @type_decoder = {'COUNT':'count', 'FIRST':'first', 'SECOND':'second', 'THIRD':'third', 'FOURTH':'fourth', 'FIFTH':'fifth', 'RECENT':'most recent', 'LAST':'last', 'MIN':'min', 'MAX':'max'}
+
   title: =>
-    range = " #{@range.text()}" if @range
-    "#{@type}#{range || ''} of"
+    range = " #{@range.text(true)}" if @range
+    "#{@type_decoder[@type]}#{range || ''} of"
 
 class @bonnie.DataCriteria
   constructor: (id, criteria, measure_period) ->
@@ -292,6 +298,9 @@ class @bonnie.DataCriteria
     @title = criteria.title
     @status = criteria.status
     @type = criteria.type
+    if criteria.value
+      @value = new bonnie.Range(criteria.value) if criteria.value.type = 'IVL_PQ'
+      @value = new bonnie.Value(criteria.value) if criteria.value.type = 'PQ'
     @category = this.buildCategory()
     @children_criteria = criteria.children_criteria
     @derivation_operator = criteria.derivation_operator
@@ -316,6 +325,10 @@ class @bonnie.DataCriteria
         text += ' and ' if text.length > 0
         text += "#{temporal_reference.offset_text()}#{temporal_reference.type_text()} #{measure_period.name}"
     text
+  valueText: =>
+    text = ''
+    text += @value.text() if @value?
+    text 
 
   temporalReferenceItems: =>
     items = []
@@ -368,13 +381,13 @@ class @bonnie.Range
   text: =>
     if (@high? && @low?)
       if (@high.value == @low.value and @high.inclusive and @low.inclusive)
-        "=#{@low.value}"
+        "#{@low.text()}"
       else
-        ">#{@low.inclusive_text()} #{@low.value} and <#{@high.inclusive_text()} #{@high.value}"
+        ">#{@low.text()} and <#{@high.text()}"
     else if (@high?)
-      "<#{@high.inclusive_text()} #{@high.value}"
+      "<#{@high.text()}"
     else if (@low?)
-      ">#{@low.inclusive_text()} #{@low.value}"
+      ">#{@low.text()}"
     else
       ''
 
@@ -384,13 +397,17 @@ class @bonnie.Value
     @unit = value['unit']
     @value = value['value']
     @inclusive = value['inclusive?']
-    @unit_decoder = {'a':'year','mo':'month','wk':'week','d':'day','h':'hour','min':'minute','s':'second'}
-  unit_text: =>
-    if (@unit)
-      unit = @unit_decoder[@unit]
+    @temporal_unit_decoder = {'a':'year','mo':'month','wk':'week','d':'day','h':'hour','min':'minute','s':'second'}
+  temporal_unit_text: =>
+    if (@unit?)
+      unit = @temporal_unit_decoder[@unit]
       unit += "s " if @value != 1
     else
       ''
+  text:  =>
+    text = "#{@inclusive_text()} #{@value}"
+    text += @unit if @unit?
+    text
   inclusive_text: =>
     if (@inclusive? and @inclusive)
       '='

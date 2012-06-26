@@ -1,17 +1,29 @@
+
 <%= simple_form_for(@measure, :html => {:method => submit_method, :multipart => true, :class => 'form-stacked'}) do |f| %>
-  <% if @editing %>
-    <label><%= f.label :measure_id_label, "ID: " %></label>
-    <%= f.text_field :measure_id %>
+<div class="row">
+  <div class="span3">
     <label><%= f.label :endorser_label, "Endorser: " %></label>
     <%= f.text_field :endorser %>
-    <% ["title", "description", "category", "steward"].each do |field| %>
-      <label><%= f.label "#{field}_label", "#{field.capitalize}: " %></label>
-      <%= f.text_field "#{field}" %>
-    <% end %>
-  <% end %>
-  <label><%= f.label :value_sets_label, "Value Sets:" %></label>
-  <%= f.file_field :value_sets %>
-  <label><%= f.label :hqmf_label, "HQMF File:" %></label>
-  <%= f.file_field :hqmf %>
-  <br/><%= f.submit submit_text, class:"btn" %>
+  </div>
+  <div class="span3">
+    <label><%= f.label :measure_id_label, "ID: " %></label>
+    <%= f.text_field :measure_id %>
+  </div>
+  <div class="span3">
+    <label><%= f.label :category_label, "Category: " %></label>
+    <%= f.text_field :category %>
+  </div>
+  <div class="span3">
+    <label><%= f.label :stuward_label, "Steward: " %></label>
+    <%= f.text_field :steward %>
+  </div>
+</div>
+<div class="row">
+  <div class="span12">
+    <label><%= f.label :title_label, "Title: " %></label>
+    <%= f.text_field :title, :style => "width: 930px;" %>
+  </div>
+</div>
+<br/><%= f.submit submit_text, class:"btn" %>
 <% end %>
+
