@@ -45,6 +45,7 @@ class Measure
     data_criteria.each do |key, criteria|
       identifying_fields = ["title","description","standard_category","qds_data_type","code_list_id","type","status"]
       unique = unique_criteria.select {|current| identifying_fields.reduce(true) { |all_match, field| all_match &&= current[field] == criteria[field]} }.count == 0
+      criteria['criteria_id'] = key # Need to pass in the key for use in the UI
       unique_criteria << criteria if unique
     end if data_criteria
     unique_criteria

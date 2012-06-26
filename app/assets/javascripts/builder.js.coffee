@@ -4,6 +4,11 @@ class @bonnie.Builder
   constructor: (data_criteria, measure_period) ->
     @measure_period = new bonnie.MeasurePeriod(measure_period)
     @data_criteria = {}
+    @populationQuery = new queryStructure.Query()
+    @denominatorQuery = new queryStructure.Query()
+    @numeratorQuery = new queryStructure.Query()
+    @exclusionsQuery = new queryStructure.Query()
+    @exceptionsQuery = new queryStructure.Query()
     for key in _.keys(data_criteria)
       @data_criteria[key] = new bonnie.DataCriteria(key, data_criteria[key], @measure_period)
 
@@ -18,28 +23,36 @@ class @bonnie.Builder
 
   renderMeasureJSON: (data) =>
     if (!$.isEmptyObject(data.population))
-      @addParamItems(data.population,$("#initialPopulationItems"))
+      @populationQuery.rebuildFromJson(data.population)
+      @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems"))
       $("#initialPopulationItems .paramGroup").addClass("population")
-
+      
     if (!$.isEmptyObject(data.denominator))
-      @addParamItems(data.denominator,$("#eligibilityMeasureItems"))
+      @denominatorQuery.rebuildFromJson(data.denominator)
+      @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
 
     if (!$.isEmptyObject(data.numerator))
-      @addParamItems(data.numerator,$("#outcomeMeasureItems"))
+      @numeratorQuery.rebuildFromJson(data.numerator)
+      @addParamItems(@numeratorQuery.toJson(),$("#outcomeMeasureItems"))
 
     if (!$.isEmptyObject(data.exclusions))
-      @addParamItems(data.exclusions,$("#exclusionMeasureItems"))
+      @exclusionsQuery.rebuildFromJson(data.exclusions)
+      @addParamItems(@exclusionsQuery.toJson(),$("#exclusionMeasureItems"))
 
     if (!$.isEmptyObject(data.exceptions))
-      @addParamItems(data.exceptions,$("#exceptionMeasureItems"))
-
+      @exceptionsQuery.rebuildFromJson(data.exceptions)
+      @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems"))
+    @._bindClickHandler()
+    
+  _bindClickHandler: ->
     $('.logicLeaf').click((event) =>
+      $('.paramItem').removeClass('editing')
+      $(event.currentTarget).closest('.paramItem').addClass('editing')
       @editDataCriteria(event.currentTarget))
       
   renderCriteriaJSON: (data, target) =>
     @addParamItems(data,target)
     
-
   editDataCriteria: (element) =>
     leaf = $(element)
     data_criteria = @dataCriteria($(element).attr('id'))
@@ -178,11 +191,52 @@ class @bonnie.Builder
     builder = bonnie.builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
+    parent = obj.parent
+    makeDropFn = (self) ->
+      queryObj = parent ? obj
+      dropFunction = (event,ui) ->
+        target = event.currentTarget
+        drop_Y = event.pageY
+        child_items = $(@).children(".paramGroup")
+        for item in child_items
+          item_top = $(item).offset().top;
+          item_height = $(item).height();
+          item_mid = item_top + Math.round(item_height/2)
+        # tgt = queryObj.parent ? queryObj
+        if queryObj instanceof queryStructure.Container 
+          tgt = queryObj
+        else
+          tgt = queryObj.parent
+        tgt?.add(
+          id: $(ui.draggable).data('criteria-id')
+        )
+        $(@).removeClass('droppable')
+        $('#workspace').empty()
+        $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems").empty()
+        bonnie.builder.addParamItems(bonnie.builder.populationQuery.toJson(),$("#initialPopulationItems"))
+        bonnie.builder.addParamItems(bonnie.builder.denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
+        bonnie.builder.addParamItems(bonnie.builder.numeratorQuery.toJson(),$("#outcomeMeasureItems"))
+        bonnie.builder.addParamItems(bonnie.builder.exclusionsQuery.toJson(),$("#exclusionMeasureItems"))
+        bonnie.builder.addParamItems(bonnie.builder.exceptionsQuery.toJson(),$("#exceptionMeasureItems"))
+        self._bindClickHandler()
+      return dropFunction
 
+
+    if !$(elemParent).hasClass("droppable")
+      $(elemParent).data("query-struct",parent)
+      elemParent.droppable(
+          over:  @._over
+          tolerance:'pointer'
+          greedy:true
+          accept:'label.ui-draggable'
+          out:  @._out
+          drop: makeDropFn(@)
+  
+      )   
     if (data_criteria?)
       if (data_criteria.subset_operators?)
         for subset_operator in data_criteria.subset_operators
-          $(elemParent).append("<span class='#{subset_operator.type}'>#{subset_operator.title()}</span>")
+          $(elemParent).append("<span class='#{subset_operator.type} subset-operator'>#{subset_operator.title()}</span>")
 
       if (data_criteria.children_criteria?)
         items = data_criteria.childrenCriteriaItems()
@@ -197,6 +251,13 @@ class @bonnie.Builder
       conjunction = obj['conjunction']
       builder.renderParamItems(conjunction, items, elemParent, container, obj.negation || false)
 
+  _over: ->
+    $(@).parents('.paramItem').removeClass('droppable')
+    $(@).addClass('droppable')
+
+  _out: ->
+    $(@).removeClass('droppable')
+    
   renderParamItems: (conjunction, items, elemParent, container, neg) =>
     builder = bonnie.builder
 
@@ -206,7 +267,7 @@ class @bonnie.Builder
       $(elemParent).append("<span class='not'>not</span>") if neg
         
       if (node.temporal)
-        $(elemParent).append("<span class='#{node.conjunction}'>#{node.title}</span>")
+        $(elemParent).append("<span class='#{node.conjunction} temporal-operator'>#{node.title}</span><span class='block-down-arrow'></span>")
 
       # if (!container and i == 0)
       #   if (!node.temporal && !node.items?)
@@ -220,6 +281,7 @@ class @bonnie.Builder
 
 
   toggleDataCriteriaTree: (element) =>
+    $(element.currentTarget).closest(".paramGroup").find("i").toggleClass("icon-chevron-right").toggleClass("icon-chevron-down")
     category = $(element.currentTarget).data('category');
     children = $(".#{category}_children")
     if (children.is(':visible'))
@@ -426,3 +488,4 @@ class Page
   initialize: () =>
     $(document).on('click', '#dataCriteria .paramGroup', bonnie.builder.toggleDataCriteriaTree)
     $('.nav-tabs li').click((element) -> $('#workspace').empty() if !$(element.currentTarget).hasClass('active') )
+    

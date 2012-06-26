@@ -10,6 +10,7 @@ gem 'health-data-standards', :git => 'https://github.com/projectcypress/health-d
 
 gem 'rails', '3.2.2'
 gem 'jquery-rails'
+gem 'jquery-ui-rails'
 
 gem 'devise'
 gem 'foreman'
