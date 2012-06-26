@@ -59,7 +59,7 @@ class Measure
 
   # Reshapes the measure into the JSON necessary to build the popHealth parameter view for stage one measures.
   # Returns a hash with population, numerator, denominator, and exclusions
-  def parameter_json(population=0)
+  def parameter_json(population=0, inline=false)
     parameter_json = {}
     population = population.to_i || 0
     title_mapping = {
@@ -69,53 +69,15 @@ class Measure
       "EXCL#{population > 0 ? '_' + population.to_s : ''}" => "exclusions",
       "DENEXCEP#{population > 0 ? '_' + population.to_s : ''}" => "exceptions"
     }
+
     self.population_criteria.each do |population, criteria|
       parameter_json[title_mapping[population]] = {
-          conjunction: "and",
-          items: parse_hqmf_preconditions(criteria)
-        }
+        conjunction: "and",
+        items: parse_hqmf_preconditions(criteria, inline)
+      }
     end
 
     parameter_json
-  end
-
-  def self.pophealth_parameter_json(parameter_json, data_criteria)
-    json = {}
-    parameter_json.keys.each do |key|
-      json[key] = pophealth_element_json(parameter_json[key], data_criteria)
-    end
-    json
-  end
-
-  def self.pophealth_element_json(json, data_criteria)
-    if (json[:items])
-      section = {}
-      items = []
-      json[:items].each do |item|
-        items << pophealth_element_json(item, data_criteria)
-      end
-      section[json[:conjunction]] = items
-      section
-    else
-      pophealth_criteria_json(json[:id], data_criteria)
-    end
-  end
-  def self.pophealth_criteria_json(id, data_criteria)
-    criteria = data_criteria[id]
-    if criteria["children_criteria"].nil? or criteria["children_criteria"].empty?
-      {"category" => criteria['standard_category'].titleize + (criteria['status'] ? ": #{criteria['status']}" : ''), "title" => criteria['title']}
-    else
-      pophealth_parent_criteria_json(criteria, data_criteria)
-    end
-  end
-  def self.pophealth_parent_criteria_json(criteria, data_criteria)
-    section = {}
-    items = []
-    criteria["children_criteria"].each do |id|
-      items << pophealth_criteria_json(id, data_criteria)
-    end
-    section['OR'] = items
-    section
   end
 
   # Returns the hqmf-parser's ruby implementation of an HQMF document.
@@ -148,13 +110,13 @@ class Measure
 
   # This is a helper for parameter_json.
   # Return recursively generated JSON that can be imported into popHealth or shown as parameters in Bonnie.
-  def parse_hqmf_preconditions(criteria)
+  def parse_hqmf_preconditions(criteria, inline=false)
     conjunction_mapping = { "allTrue" => "and", "atLeastOneTrue" => "or" } # Used to convert to stage one, if requested in version param
 
     if criteria["conjunction?"] # We're at the top of the tree
       fragment = []
       criteria["preconditions"].each do |precondition|
-        fragment << parse_hqmf_preconditions(precondition)
+        fragment << parse_hqmf_preconditions(precondition, inline)
       end
       return fragment
     else # We're somewhere in the middle
@@ -165,11 +127,27 @@ class Measure
       }
       criteria["preconditions"].each do |precondition|
         if precondition["reference"] # We've hit a leaf node - This is a data criteria reference
-          element[:items] << {id: precondition["reference"]}
+          element[:items] << if inline
+            data_criteria[precondition["reference"]].merge(
+              if data_criteria[precondition["reference"]]['temporal_references']
+                {
+                  'temporal_references' => data_criteria[precondition["reference"]]['temporal_references'].map {|r|
+                    r.merge(
+                      if r['reference'] != 'MeasurePeriod'
+                        {'reference' => data_criteria[r['reference']]}
+                      else {title: 'MeasurePeriod'}
+                      end
+                    )
+                  }
+                }
+              else {}
+              end
+            ) else {id: precondition["reference"]}
+          end
         end
         if precondition['preconditions']
           precondition['conjunction_code'] = 'and' if precondition["reference"]
-          element[:items] << parse_hqmf_preconditions(precondition)
+          element[:items] << parse_hqmf_preconditions(precondition, inline)
         end
 
       end if criteria["preconditions"]
