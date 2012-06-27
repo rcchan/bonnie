@@ -1,4 +1,4 @@
-<div class="paramChildren newDataCriteria_children" style="background-color: #F5F5F5; display: block;">
+<div class="paramChildren data-criteria" style="display:block">
   <div class="paramItem">
     <div draggable="true" class="paramText" data-criteria-id="MeasurePeriod">
       <label>Measurement Period</label>
@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <div class="paramChildren <%= category.gsub(' ', '_') %>_children" style="background-color: #F5F5F5;">
+  <div class="paramChildren data-criteria <%= category.gsub(' ', '_') %>_children">
     <% criteria_by_category[category].each do |criteria| %>
     <div class="paramItem">
       <div class="paramText">
@@ -32,7 +32,7 @@
     </div>
   </div>
 </div>
-<div class="paramChildren newDataCriteria_children" style="background-color: #F5F5F5;">
+<div class="paramChildren newDataCriteria_children data-criteria">
   <div class="paramItem">
     <div class="paramText">
       <form method="GET" action="<%= url_for :action => 'upsert_criteria' %>" onsubmit="return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);">

@@ -1,0 +1,21 @@
+<% measure.populations.each_with_index do |population,i| %>
+  <div class="row">
+    <div class="span2">
+      <span data-index="<%= i %>" class="population_title" id="population_title_<%=i%>"><%=population['title']%></span>
+      <span data-index="<%= i %>" class="population_title_edit" id="population_title_edit_<%=i%>" style="display:none"><input type="text" value="<%=population['title']%>" id="population_<%=i%>" style="width: 110px;"><i class="icon-ok save_title" data-index="<%= i %>"></i></span>
+      <i class="icon-remove delete" id="population_delete_<%=i%>" data-index="<%= i %>"></i>
+    </div>
+    <% ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |key| %>
+      <div class="span3">
+        <% population_criteria = measure.population_criteria[population[key]]%>
+        <% if population_criteria %>
+        <%= population_criteria['title'] %> (<%= population[key] %>)
+        <% else %>
+          &nbsp;
+        <% end %>
+      </div>
+    
+    <% end %>
+  
+  </div>
+<% end if measure.populations %>

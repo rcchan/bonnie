@@ -46,8 +46,8 @@
       );
     }
 
-    var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>);
-
+    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>);
+    
     $(document).ready(function() {
       page.initialize();
 
@@ -189,7 +189,7 @@
     <div draggable="true" class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}data-criteria-id='${id}'{{/if}}>
       {{if operator}}<label>${operator}</label>{{/if}}
       {{if category}}<label>${category}</label>{{/if}}
-      ${title} ${temporalText}
+      ${title} {{if value}}${valueText}{{/if}}${temporalText}
     </div>
   </script>
 
@@ -428,7 +428,7 @@
       <%= link_to 'Back', measures_path %>
 
       <div id="dataCriteria">
-        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.unique_data_criteria)}%>
+        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria)}%>
       </div>
     </div>
   </div>
@@ -446,11 +446,9 @@
       <li class="exceptions"><a href="#exceptionMeasures" data-toggle="tab">exceptions</a></li>
       <li id="selector">
         <select>
-          <option value="<%= url_for :population => nil, :action => 'definition' %>">Population Criteria 1</option>
-          <% current = 1 %>
-          <% while (@measure.population_criteria["NUMER_#{current}"]) do %>
-            <option value="<%= url_for :population => current, :action => 'definition' %>"<%= ' selected="selected"' if current == params[:population].to_i%>>Population Criteria <%= current += 1 %></option>
-          <% end if @measure.population_criteria %>
+          <% @measure.populations.each_with_index do |population, index| %>
+            <option value="<%= url_for :population => index, :action => 'definition' %>"<%= ' selected="selected"' if index == params[:population].to_i%>><%= population['title'] %></option>
+          <% end if @measure.populations %>
         </select>
       </li>
     </ul>

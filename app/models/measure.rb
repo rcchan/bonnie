@@ -13,9 +13,11 @@ class Measure
   field :version, type: Integer
 
   field :population_criteria, type: Hash
-  field :data_criteria, type: Hash
+  field :data_criteria, type: Hash, default: {}
+  field :source_data_criteria, type: Hash, default: {}
   field :measure_period, type: Hash
   field :measure_attributes, type: Hash
+  field :populations, type: Array
 
   belongs_to :user
   embeds_many :publishings
@@ -39,17 +41,6 @@ class Measure
     publishings.by_version(self.version).first
   end
 
-  def unique_data_criteria
-    unique_criteria = []
-    data_criteria.each do |key, criteria|
-      identifying_fields = ["title","description","standard_category","qds_data_type","code_list_id","type","status"]
-      unique = unique_criteria.select {|current| identifying_fields.reduce(true) { |all_match, field| all_match &&= current[field] == criteria[field]} }.count == 0
-      criteria['criteria_id'] = key # Need to pass in the key for use in the UI
-      unique_criteria << criteria if unique
-    end if data_criteria
-    unique_criteria
-  end
-
   def data_criteria_by_oid
     by_oid = {}
     data_criteria.each do |key, criteria|
@@ -60,25 +51,31 @@ class Measure
 
   # Reshapes the measure into the JSON necessary to build the popHealth parameter view for stage one measures.
   # Returns a hash with population, numerator, denominator, and exclusions
-  def parameter_json(population=0, inline=false)
+  def parameter_json(population_index=0, inline=false)
     parameter_json = {}
-    population = population.to_i || 0
+    population_index ||= 0
+    
+    population = populations[population_index]
+    
     title_mapping = {
-      "IPP#{population > 0 ? '_' + population.to_s : ''}" => "population",
-      "DENOM#{population > 0 ? '_' + population.to_s : ''}" => "denominator",
-      "NUMER#{population > 0 ? '_' + population.to_s : ''}" => "numerator",
-      "EXCL#{population > 0 ? '_' + population.to_s : ''}" => "exclusions",
-      "DENEXCEP#{population > 0 ? '_' + population.to_s : ''}" => "exceptions"
+      population["IPP"] => "population",
+      population["DENOM"] => "denominator",
+      population["NUMER"] => "numerator",
+      population["EXCL"] => "exclusions",
+      population["DENEXCEP"] => "exceptions"
     }
-
-    self.population_criteria.each do |population, criteria|
-      parameter_json[title_mapping[population]] = {
-        conjunction: "and",
-        items: parse_hqmf_preconditions(criteria, inline)
-      }
+    self.population_criteria.each do |key, criteria|
+      parameter_json[title_mapping[key]] = population_criteria_json(criteria, inline) if title_mapping[key]
     end
 
     parameter_json
+  end
+  
+  def population_criteria_json(criteria, inline=false)
+    {
+        conjunction: "and",
+        items: parse_hqmf_preconditions(criteria, inline)
+    }
   end
 
   # Returns the hqmf-parser's ruby implementation of an HQMF document.
@@ -90,8 +87,10 @@ class Measure
       "description" => self.description,
       "population_criteria" => self.population_criteria,
       "data_criteria" => self.data_criteria,
+      "source_data_criteria" => self.source_data_criteria,
       "measure_period" => self.measure_period,
-      "attributes" => self.measure_attributes
+      "attributes" => self.measure_attributes,
+      "populations" => self.populations
     }
 
     HQMF::Document.from_json(json)
@@ -101,6 +100,10 @@ class Measure
     self.data_criteria ||= {}
     self.data_criteria[criteria['id']] ||= {}
     self.data_criteria[criteria['id']].merge!(criteria)
+  end
+  
+  def all_data_criteria
+    data_criteria.merge(source_data_criteria)
   end
 
   private
@@ -118,7 +121,7 @@ class Measure
       fragment = []
       criteria["preconditions"].each do |precondition|
         fragment << parse_hqmf_preconditions(precondition, inline)
-      end
+      end if criteria['preconditions']
       return fragment
     else # We're somewhere in the middle
       element = {
@@ -156,4 +159,5 @@ class Measure
     end
 
   end
+  
 end

@@ -69,8 +69,10 @@ module MeasuresHelper
   
   def data_criteria_by_category(data_criteria)
     by_category = {}
-    data_criteria.each do |criteria|
+    data_criteria.each do |key, criteria|
       by_category[criteria["standard_category"]] ||= []
+      # need to store the ID since we are putting the criteria into a list
+      criteria['criteria_id'] = key
       by_category[criteria["standard_category"]] << criteria
     end if data_criteria
     by_category

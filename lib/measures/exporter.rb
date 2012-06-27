@@ -21,14 +21,11 @@ module Measures
         zip << bundle_json
 
         measures.each do |measure|
-#          begin
-            measure_json = Measures::Exporter.measure_json(measure.measure_id).to_json
-            zip.put_next_entry(File.join(json_path, "#{measure.measure_id}.json"))
-            zip << measure_json
-#          rescue Exception => e
-#            binding.pry
-#            puts "Error exporting measure #{measure.measure_id}: #{e.message} \n"
-#          end
+          (0..measure.populations.count-1).each do |population_index|
+            measure_json = Measures::Exporter.measure_json(measure.measure_id, population_index)
+            zip.put_next_entry(File.join(json_path, "#{measure.measure_id}#{measure_json[:sub_id]}.json"))
+            zip << measure_json.to_json
+          end
         end
       end
     end
@@ -40,12 +37,15 @@ module Measures
       library_functions['hqmf_utils'] = HQMF2JS::Generator::JS.library_functions
       library_functions
     end
-
-    def self.measure_json(measure_id)
+    
+    def self.measure_json(measure_id, population_index=0)
+      
+      population_index ||= 0
+      
       measure = Measure.by_measure_id(measure_id).first
-      buckets = measure.parameter_json(nil, true) #Measure.pophealth_parameter_json(measure.parameter_json, measure.data_criteria)
-
-      {
+      buckets = measure.parameter_json(population_index, true)
+      
+      json = {
         id: measure.measure_id,
         endorser: measure.endorser,
         name: measure.title,
@@ -56,9 +56,19 @@ module Measures
         denominator: buckets["denominator"],
         numerator: buckets["numerator"],
         exclusions: buckets["exclusions"],
-        map_fn: measure_js(measure),
+        map_fn: measure_js(measure, population_index),
         measure: popHealth_denormalize_measure_attributes(measure)
       }
+      
+      if (measure.populations.count > 1)
+        sub_ids = ('a'..'az').to_a
+        json[:sub_id] = sub_ids[population_index]
+        population_title = measure.populations[population_index]['title']
+        json[:subtitle] = population_title
+        json[:short_subtitle] = population_title   
+      end
+      
+      json
     end
 
     def self.bundle_json(library_names)
@@ -103,7 +113,7 @@ module Measures
           end
           measure_attributes[value_set.key] = template
         else
-          Kernel.warn("Value set not used by a data criteria #{value_set.oid}")
+          #Kernel.warn("Value set not used by a data criteria #{value_set.oid}")
         end
 
       end
@@ -117,20 +127,20 @@ module Measures
 
     private
 
-    def self.measure_js(measure)
+    def self.measure_js(measure, population_index)
       "function() {
         var patient = this;
         var effective_date = <%= effective_date %>;
 
         hqmfjs = {}
         <%= init_js_frameworks %>
-
-        #{execution_logic(measure)}
+        
+        #{execution_logic(measure, population_index)}
       };
       "
     end
-
-    def self.execution_logic(measure)
+    
+    def self.execution_logic(measure, population_index=0)
       gen = HQMF2JS::Generator::JS.new(measure.as_hqmf_model)
       codes = measure_codes(measure)
       "
@@ -142,9 +152,9 @@ module Measures
       if (typeof Logger != 'undefined') Logger.logger = [];
       // turn on logging if it is enabled
       if (Logger.enabled) enableLogging();
-
-      #{gen.to_js(codes)}
-
+      
+      #{gen.to_js(codes, population_index)}
+      
       var population = function() {
         return hqmfjs.IPP(patient_api);
       }

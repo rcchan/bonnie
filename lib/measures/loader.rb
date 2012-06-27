@@ -40,6 +40,7 @@ module Measures
         measure.title = json["title"]
         measure.description = json["description"]
         measure.measure_attributes = json["attributes"]
+        measure.populations = json['populations']
         
         measure.category = 'Miscellaneous'
         #measure.endorser = params[:measure][:endorser]
@@ -47,6 +48,7 @@ module Measures
 
         measure.population_criteria = json["population_criteria"]
         measure.data_criteria = json["data_criteria"]
+        measure.source_data_criteria = json["source_data_criteria"]
         measure.measure_period = json["measure_period"]
       end
 
