@@ -26,7 +26,7 @@ class @bonnie.Builder
       @populationQuery.rebuildFromJson(data.population)
       @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems"))
       $("#initialPopulationItems .paramGroup").addClass("population")
-      
+
     if (!$.isEmptyObject(data.denominator))
       @denominatorQuery.rebuildFromJson(data.denominator)
       @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
@@ -43,16 +43,16 @@ class @bonnie.Builder
       @exceptionsQuery.rebuildFromJson(data.exceptions)
       @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems"))
     @._bindClickHandler()
-    
+
   _bindClickHandler: ->
     $('.logicLeaf').click((event) =>
       $('.paramItem').removeClass('editing')
       $(event.currentTarget).closest('.paramItem').addClass('editing')
       @editDataCriteria(event.currentTarget))
-  
+
   editDataCriteria: (element) =>
     leaf = $(element)
-    data_criteria = @dataCriteria($(element).attr('id'))
+    data_criteria = @dataCriteria($(element).data('criteria-id'))
     data_criteria.getProperty = (ns) ->
       obj = this
       y = ns.split(".")
@@ -254,7 +254,7 @@ class @bonnie.Builder
 
   _out: ->
     $(@).removeClass('droppable')
-    
+
   renderParamItems: (conjunction, items, elemParent, container, neg) =>
     builder = bonnie.builder
 

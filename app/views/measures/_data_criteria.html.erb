@@ -1,6 +1,6 @@
 <div class="paramChildren newDataCriteria_children" style="background-color: #F5F5F5; display: block;">
   <div class="paramItem">
-    <div draggable="true" class="paramText" id="MeasurePeriod">
+    <div draggable="true" class="paramText" data-criteria-id="MeasurePeriod">
       <label>Measurement Period</label>
     </div>
   </div>
@@ -18,7 +18,7 @@
     <% criteria_by_category[category].each do |criteria| %>
     <div class="paramItem">
       <div class="paramText">
-        <label data-criteria-id="<%= criteria['criteria_id'] %>"><%= criteria['title'] %><%= ": #{criteria['status']}" if !criteria['status'].blank? %></label>
+        <label draggable="true" data-criteria-id="<%= criteria['criteria_id'] %>"><%= criteria['title'] %><%= ": #{criteria['status']}" if !criteria['status'].blank? %></label>
       </div>
     </div>
     <% end %>
