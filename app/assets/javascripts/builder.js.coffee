@@ -318,21 +318,14 @@ class @bonnie.Builder
 
 class @bonnie.TemporalReference
   constructor: (temporal_reference) ->
-    @offset = new bonnie.Value(temporal_reference.offset) if temporal_reference.offset
+    @range = new bonnie.Range(temporal_reference.range) if temporal_reference.range
     @reference = temporal_reference.reference
     @type = temporal_reference.type
     @type_decoder = {'DURING':'During','SBS':'Starts Before Start of','SAS':'Starts After Start of','SBE':'Starts Before End of','SAE':'Starts After End of','EBS':'Ends Before Start of','EAS':'Ends After Start of'
                      ,'EBE':'Ends Before End of','EAE':'Ends After End of','SDU':'Starts During','EDU':'Ends During','ECW':'Ends Concurrent with','SCW':'Starts Concurrent with','CONCURRENT':'Concurrent with'}
   offset_text: =>
-    if(@offset)
-      value = @offset.value
-      unit =  @offset.temporal_unit_text()
-      inclusive = @offset.inclusive_text()
-      if value > 0
-        ">#{inclusive} #{value} #{unit}"
-      else if value < 0
-        "<#{inclusive} #{Math.abs(value)} #{unit}"
-      else ''
+    if(@range)
+      @range.text(true)
     else
       ''
   type_text: =>
@@ -438,16 +431,16 @@ class @bonnie.Range
     @high = new bonnie.Value(range['high']) if range['high']
     @low = new bonnie.Value(range['low']) if range['low']
     @width = new bonnie.Value(range['width']) if range['width']
-  text: =>
+  text: (temporal=false)=>
     if (@high? && @low?)
       if (@high.value == @low.value and @high.inclusive and @low.inclusive)
-        "#{@low.text()}"
+        "#{@low.text(temporal)}"
       else
-        ">#{@low.text()} and <#{@high.text()}"
+        ">#{@low.text(temporal)} and <#{@high.text(temporal)}"
     else if (@high?)
-      "<#{@high.text()}"
+      "<#{@high.text(temporal)}"
     else if (@low?)
-      ">#{@low.text()}"
+      ">#{@low.text(temporal)}"
     else
       ''
 
@@ -464,9 +457,12 @@ class @bonnie.Value
       unit += "s " if @value != 1
     else
       ''
-  text:  =>
+  text: (temporal=false) =>
     text = "#{@inclusive_text()} #{@value}"
-    text += @unit if @unit?
+    if (temporal)
+      text += " #{@temporal_unit_text()}"
+    else
+      text += @unit if @unit?
     text
   inclusive_text: =>
     if (@inclusive? and @inclusive)
