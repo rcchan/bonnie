@@ -46,7 +46,7 @@
       );
     }
 
-    var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>);
+    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>);
     
     $(document).ready(function() {
       page.initialize();
@@ -410,7 +410,7 @@
       <%= link_to 'Back', measures_path %>
 
       <div id="dataCriteria">
-        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.unique_data_criteria)}%>
+        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria)}%>
       </div>
     </div>
   </div>

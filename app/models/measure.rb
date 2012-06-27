@@ -13,7 +13,8 @@ class Measure
   field :version, type: Integer
 
   field :population_criteria, type: Hash
-  field :data_criteria, type: Hash
+  field :data_criteria, type: Hash, default: {}
+  field :source_data_criteria, type: Hash, default: {}
   field :measure_period, type: Hash
   field :measure_attributes, type: Hash
   field :populations, type: Array
@@ -38,17 +39,6 @@ class Measure
 
   def latest_version
     publishings.by_version(self.version).first
-  end
-
-  def unique_data_criteria
-    unique_criteria = []
-    data_criteria.each do |key, criteria|
-      identifying_fields = ["title","description","standard_category","qds_data_type","code_list_id","type","status"]
-      unique = unique_criteria.select {|current| identifying_fields.reduce(true) { |all_match, field| all_match &&= current[field] == criteria[field]} }.count == 0
-      criteria['criteria_id'] = key # Need to pass in the key for use in the UI
-      unique_criteria << criteria if unique
-    end if data_criteria
-    unique_criteria
   end
 
   def data_criteria_by_oid
@@ -136,6 +126,7 @@ class Measure
       "description" => self.description,
       "population_criteria" => self.population_criteria,
       "data_criteria" => self.data_criteria,
+      "source_data_criteria" => self.source_data_criteria,
       "measure_period" => self.measure_period,
       "attributes" => self.measure_attributes,
       "populations" => self.populations
@@ -148,6 +139,10 @@ class Measure
     self.data_criteria ||= {}
     self.data_criteria[criteria['id']] ||= {}
     self.data_criteria[criteria['id']].merge!(criteria)
+  end
+  
+  def all_data_criteria
+    data_criteria.merge(source_data_criteria)
   end
 
   private
@@ -187,4 +182,5 @@ class Measure
     end
 
   end
+  
 end

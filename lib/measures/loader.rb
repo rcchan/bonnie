@@ -48,6 +48,7 @@ module Measures
 
         measure.population_criteria = json["population_criteria"]
         measure.data_criteria = json["data_criteria"]
+        measure.source_data_criteria = json["source_data_criteria"]
         measure.measure_period = json["measure_period"]
       end
 
