@@ -1,10 +1,10 @@
 module Measures
-  
+
   # Exports measure defintions in a pophealth compatible format
   class Exporter
     def self.export(file, measures)
-      
-      Zip::ZipOutputStream.open(file.path) do |zip|      
+
+      Zip::ZipOutputStream.open(file.path) do |zip|
         measure_path = "measures"
         json_path = File.join(measure_path, "json")
         library_path = File.join(measure_path, "libraries")
@@ -29,7 +29,7 @@ module Measures
         end
       end
     end
-    
+
     def self.library_functions
       library_functions = {}
       library_functions['map_reduce_utils'] = File.read(File.join('.','lib','assets','javascripts','libraries','map_reduce_utils.js'))
@@ -43,7 +43,7 @@ module Measures
       population_index ||= 0
       
       measure = Measure.by_measure_id(measure_id).first
-      buckets = Measure.pophealth_parameter_json(measure.parameter_json(population_index), measure.data_criteria)
+      buckets = measure.parameter_json(population_index, true)
       
       json = {
         id: measure.measure_id,
@@ -70,7 +70,7 @@ module Measures
       
       json
     end
-    
+
     def self.bundle_json(library_names)
       {
         name: "Meaningful Use Stage 2 Clinical Quality Measures",
@@ -79,17 +79,17 @@ module Measures
         measures: []
       }
     end
-    
+
     def self.popHealth_denormalize_measure_attributes(measure)
       measure_attributes = {}
-      
+
       return measure_attributes unless (APP_CONFIG['generate_denormalization'])
-      
+
       attribute_template = {"type"=> "array","items"=> {"type"=> "number","format"=> "utc-sec"}}
-      
+
       data_criteria = measure.data_criteria_by_oid
       value_sets = measure.value_sets
-      
+
       value_sets.each do |value_set|
         criteria = data_criteria[value_set.oid]
         if (criteria)
@@ -115,9 +115,9 @@ module Measures
         else
           #Kernel.warn("Value set not used by a data criteria #{value_set.oid}")
         end
-        
+
       end
-      
+
       return measure_attributes
     end
 
@@ -126,7 +126,7 @@ module Measures
     end
 
     private
-    
+
     def self.measure_js(measure, population_index)
       "function() {
         var patient = this;
@@ -147,7 +147,7 @@ module Measures
       var patient_api = new hQuery.Patient(patient);
 
       #{Measures::Exporter.check_disable_logger}
-      
+
       // clear out logger
       if (typeof Logger != 'undefined') Logger.logger = [];
       // turn on logging if it is enabled
@@ -167,13 +167,13 @@ module Measures
       var exclusion = function() {
         return false;
       }
-      
+
       if (Logger.enabled) enableMeasureLogging(hqmfjs);
-      
+
       map(patient, population, denominator, numerator, exclusion);
       "
     end
-    
+
     def self.check_disable_logger
       if (APP_CONFIG['disable_logging'])
         "      // turn off the logger \n"+
@@ -182,6 +182,6 @@ module Measures
         ""
       end
     end
-    
+
   end
 end

@@ -26,7 +26,7 @@ class @bonnie.Builder
       @populationQuery.rebuildFromJson(data.population)
       @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems"))
       $("#initialPopulationItems .paramGroup").addClass("population")
-      
+
     if (!$.isEmptyObject(data.denominator))
       @denominatorQuery.rebuildFromJson(data.denominator)
       @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
@@ -43,7 +43,7 @@ class @bonnie.Builder
       @exceptionsQuery.rebuildFromJson(data.exceptions)
       @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems"))
     @._bindClickHandler()
-    
+
   _bindClickHandler: ->
     $('.logicLeaf').click((event) =>
       $('.paramItem').removeClass('editing')
@@ -55,7 +55,7 @@ class @bonnie.Builder
     
   editDataCriteria: (element) =>
     leaf = $(element)
-    data_criteria = @dataCriteria($(element).attr('id'))
+    data_criteria = @dataCriteria($(element).data('criteria-id'))
     data_criteria.getProperty = (ns) ->
       obj = this
       y = ns.split(".")
@@ -110,16 +110,15 @@ class @bonnie.Builder
         $(subset_element[i]).find('.subset_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
     )
 
-  getNextChildCriteriaId: =>
-    id = 1
-    id++  while @data_criteria["EncounterEncounterAmbulatoryIncludingPediatrics_precondition_60_CHILDREN_" + id]
-    id
+  getNextChildCriteriaId: (base, start)=>
+    id = start || 1
+    id++  while @data_criteria[base + id]
+    base+id
 
   editDataCriteria_submit: (form) =>
     temporal_references = []
     subset_operators = []
 
-    nextId = bonnie.builder.getNextChildCriteriaId()
     $(form).find('.temporal_reference').each((i, e) ->
       temporal_references.push({
         type: $(e).find('.temporal_type').val()
@@ -132,7 +131,7 @@ class @bonnie.Builder
         reference: (
           if $(e).find('.temporal_reference_value').length > 1
             $.post('/measures/' + $(form).find('input[type=hidden][name=id]').val() + '/upsert_criteria', {
-              criteria_id: (id = $(form).find('input[type=hidden][name=criteria_id]').val() + '_CHILDREN_' + nextId++)
+              criteria_id: (id = bonnie.builder.getNextChildCriteriaId($(form).find('input[type=hidden][name=criteria_id]').val() + '_CHILDREN_', id))
               children_criteria: $.map($(e).find('.temporal_reference_value'), ((e) -> $(e).val()))
               standard_category: 'temporal'
               type: 'derived'
@@ -257,7 +256,7 @@ class @bonnie.Builder
 
   _out: ->
     $(@).removeClass('droppable')
-    
+
   renderParamItems: (conjunction, items, elemParent, container, neg) =>
     builder = bonnie.builder
 
@@ -488,4 +487,3 @@ class Page
   initialize: () =>
     $(document).on('click', '#dataCriteria .paramGroup', bonnie.builder.toggleDataCriteriaTree)
     $('.nav-tabs li').click((element) -> $('#workspace').empty() if !$(element.currentTarget).hasClass('active') )
-    
