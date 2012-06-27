@@ -18,8 +18,8 @@
       // Set target based on event object or given drop zone
       obj = (obj.target && ($(obj.target).hasClass('temporal_drop_zone') ? obj.target : $(obj.target).parents('.temporal_drop_zone'))) || obj;
 
-      // Disallow dropping a reference on a reference
-      if ($('[data-criteria-id=' + id + ']').hasClass('temporal_drop_zone_element')) return;
+      // Disallow dropping a reference on same reference
+      if ($.inArray(id, $(obj).parents('.temporal_reference').find('.fullDrop .temporal_reference_value').map(function(i, e){return $(e).val()})) > -1) return;
 
       // Expand children criteria of temporal references
       if (bonnie.builder.data_criteria[id] && bonnie.builder.data_criteria[id].type == 'derived' && bonnie.builder.data_criteria[id].children_criteria.length){
@@ -32,7 +32,7 @@
         return;
       }
 
-      //Populate hidden form field
+      // Populate hidden form field
       $(obj).find('.temporal_reference_value').val(id);
 
       // Populate drop zone with element (or text if none available)
@@ -72,7 +72,21 @@
 
       $(window).on("resize",matchTitleHeight);
       matchTitleHeight();
-      $(".paramChildren label").draggable({helper:"clone",containment:'document',revert:true,zIndex:3000,distance:3,opacity:"1", start:function(){$(this).data("item",new queryStructure.AND(null, [],false))}});
+      $(".paramChildren label").draggable({
+        helper: "clone",
+        containment: 'document',
+        revert: true,
+        zIndex: 3000,
+        distance: 3,
+        opacity: "1",
+        start: function(){
+          $(this).data("item",new queryStructure.AND(null, [],false))
+        },
+        stop: function(){
+          $('.temporal_reference .temporal_drop_zone:not(.fullDrop)').filter(function(){return $(this).siblings('.temporal_drop_zone').length;}).remove();
+          $('.dragged').removeClass('dragged');
+        }
+      });
 
       $('#selector > select').change(
         function(){
@@ -86,7 +100,7 @@
         function(e){
           if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.setData('text', 'arbitrary data');
           if (!$(e.target).hasClass('temporal_drop_zone_element')){
-            $('#bonnie_tmpl_data_criteria_temporal_drop_zone').tmpl().insertAfter($('.temporal_reference .temporal_drop_zone.fullDrop:last-child'));
+            $('#bonnie_tmpl_data_criteria_temporal_drop_zone').tmpl().insertAfter($('.temporal_reference .temporal_drop_zone.fullDrop:last-child')).droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: function(e){ fillDrop(e); } });
           }
           $(e.target).addClass('dragged');
         }
@@ -132,7 +146,7 @@
 
       $('#workspace').on('click', '#temporal_new',
         function(){
-          $('#bonnie_tmpl_data_criteria_temporal_reference').tmpl().insertBefore('#temporal_new_position');
+          $('#bonnie_tmpl_data_criteria_temporal_reference').tmpl().insertBefore('#temporal_new_position').find('.temporal_drop_zone').droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: function(e){ fillDrop(e); } });;
         }
       );
 

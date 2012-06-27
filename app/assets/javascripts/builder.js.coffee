@@ -64,8 +64,7 @@ class @bonnie.Builder
       obj
     top = $('#workspace > div').css('top')
     $('#workspace').empty();
-    element = data_criteria.asHtml('data_criteria_edit')
-    element.appendTo($('#workspace'))
+    element = data_criteria.asHtml('data_criteria_edit').appendTo('#workspace')
     offset = leaf.offset().top + leaf.height()/2 - $('#workspace').offset().top - element.height()/2
     offset = 0 if offset < 0
     maxoffset = $('#measureEditContainer').height() - element.outerHeight(true) - $('#workspace').position().top - $('#workspace').outerHeight(true) + $('#workspace').height()
@@ -91,7 +90,7 @@ class @bonnie.Builder
       $(temporal_element[i]).find('.temporal_unit').val(e.offset && e.offset.unit)
       $(temporal_element[i]).find('.temporal_drop_zone').each((i, e) ->
         fillDrop(e);
-      );
+      ).droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: ((e,ui) -> fillDrop(e)) });
     );
 
     subset_element = $(element).find('.subset_operator')
@@ -199,7 +198,7 @@ class @bonnie.Builder
           item_height = $(item).height();
           item_mid = item_top + Math.round(item_height/2)
         # tgt = queryObj.parent ? queryObj
-        if queryObj instanceof queryStructure.Container 
+        if queryObj instanceof queryStructure.Container
           tgt = queryObj
         else
           tgt = queryObj.parent
@@ -218,17 +217,17 @@ class @bonnie.Builder
       return dropFunction
 
 
-    if !$(elemParent).hasClass("droppable")
+    if $(elemParent).not(".droppable").hasClass('paramItem')
       $(elemParent).data("query-struct",parent)
       elemParent.droppable(
           over:  @._over
           tolerance:'pointer'
-          greedy:true
+          greedy: true
           accept:'label.ui-draggable'
           out:  @._out
           drop: makeDropFn(@)
-  
-      )   
+
+      )
     if (data_criteria?)
       if (data_criteria.subset_operators?)
         for subset_operator in data_criteria.subset_operators
