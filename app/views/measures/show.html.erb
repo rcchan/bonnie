@@ -208,6 +208,7 @@
         <div style="text-align: right;" class="close">&times;</div>
         <div>
           <select class="temporal_type">
+            <option value="">Select a type</option>
             <option value="CONCURRENT">Concurrent with</option>
             <option value="DURING">During</option>
             <option value="EAE">Ends After End of</option>
@@ -225,14 +226,32 @@
           </select>
         </div>
         <div>
-          <select class="temporal_relation" style="width: 60px;">
+        <div>Low</div>
+          <select class="temporal_range_low_relation" style="width: 60px;">
             <option value="gt">&gt;</option>
             <option value="gte">&gt;=</option>
+          </select>
+          <input class="temporal_range_low_value" type="text" style="width: 60px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
+          <select class="temporal_range_low_unit" style="width: 80px;">
+            <option value="">unit</option>
+            <option value="a">yrs</option>
+            <option value="d">days</option>
+            <option value="h">hrs</option>
+            <option value="min">mins</option>
+            <option value="mo">mo.</option>
+            <option value="s">secs</option>
+            <option value="wk">wks</option>
+          </select>
+        </div>
+        <div>
+          <div>High</div>
+          <select class="temporal_range_high_relation" style="width: 60px;">
             <option value="lte">&lt;=</option>
             <option value="lt">&lt;</option>
           </select>
-          <input class="temporal_value" type="text" style="width: 60px;" value=""/>
-          <select class="temporal_unit" style="width: 80px;">
+          <input class="temporal_range_high_value" type="text" style="width: 60px;" value="{{if range}}${range.high && range.high.value || ''}{{/if}}"/>
+          <select class="temporal_range_high_unit" style="width: 80px;">
+            <option value="">unit</option>
             <option value="a">yrs</option>
             <option value="d">days</option>
             <option value="h">hrs</option>

@@ -89,8 +89,10 @@ class @bonnie.Builder
         (if e.offset && e.offset.value < 0 then 'lt' else 'gt') +
         if e.offset && e.offset.inclusive then 'e' else ''
       )
-      $(temporal_element[i]).find('.temporal_value').val(Math.abs(e.offset && e.offset.value) || '')
-      $(temporal_element[i]).find('.temporal_unit').val(e.offset && e.offset.unit)
+      $(temporal_element[i]).find('.temporal_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
+      $(temporal_element[i]).find('.temporal_range_high_unit').val(if e.range && e.range.high then e.range.high.unit)
+      $(temporal_element[i]).find('.temporal_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
+      $(temporal_element[i]).find('.temporal_range_low_unit').val(if e.range && e.range.low then e.range.low.unit)
       $(temporal_element[i]).find('.temporal_drop_zone').each((i, e) ->
         fillDrop(e);
       ).droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: ((e,ui) -> fillDrop(e)) });
