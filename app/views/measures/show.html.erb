@@ -74,6 +74,7 @@
       $('#selector > select').change(
         function(){
           $.bbq.pushState({population: $(this).val()});
+          test_button_bbq($(this).val());
           $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems").empty();
           $.getJSON($(this).val(), bonnie.builder.renderMeasureJSON);
         }

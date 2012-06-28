@@ -100,3 +100,25 @@ bind_inspect_highlight = () ->
     -> $(this).parent().css('background-color', '#f5f5f5'),
     -> $(this).parent().css('background-color', 'white')
   )
+
+# keep track of jquery bbq population criteria state and update test button href
+test_button_bbq = (e) ->
+  # save test button element for later, we will change a url parameter in the button href
+  test_button = $('#pageButtons .btn').eq(1)
+  
+  # split on ? in case we already have updated the href
+  base_url = test_button.attr('href').split("?")[0]
+  
+  # regex to find the population criteria number selected in the dropdown
+  definition_number_matches = e.match /.*\/(\d+)\/definition/
+  if definition_number_matches
+    population_criteria_number = definition_number_matches[1]
+  else
+    population_criteria_number = 0
+  population_criteria_number++     # off by one fix
+  
+  # console.log("population_criteria_number: " + population_criteria_number)
+
+  # make button link pass a url param
+  test_button.attr('href', base_url + "?population_criteria=" + population_criteria_number)
+  # console.log(test_button.attr('href'))
