@@ -49,10 +49,10 @@ class @bonnie.Builder
       $('.paramItem').removeClass('editing')
       $(event.currentTarget).closest('.paramItem').addClass('editing')
       @editDataCriteria(event.currentTarget))
-      
+
   renderCriteriaJSON: (data, target) =>
     @addParamItems(data,target)
-    
+
   editDataCriteria: (element) =>
     leaf = $(element)
     data_criteria = @dataCriteria($(element).data('criteria-id'))
@@ -123,12 +123,21 @@ class @bonnie.Builder
     $(form).find('.temporal_reference').each((i, e) ->
       temporal_references.push({
         type: $(e).find('.temporal_type').val()
-        offset: {
-          'inclusive?': $(e).find('.temporal_relation').val().indexOf('e') > -1,
-          type: 'PQ',
-          unit: $(e).find('.temporal_unit').val(),
-          value: $(e).find('.temporal_value').val() * if $(e).find('.temporal_relation').val().indexOf('lt') > -1 then -1 else 1
-        } if $(e).find('.temporal_value').val()
+        range: {
+          type: 'IVL_PQ'
+          high: {
+            type: 'PQ'
+            value: $(e).find('.temporal_range_high_value').val()
+            unit: $(e).find('.temporal_range_high_unit').val()
+            'inclusive?': $(e).find('.temporal_range_high_relation').val().indexOf('e') > -1
+          } if $(e).find('.temporal_range_high_value').val()
+          low: {
+            type: 'PQ'
+            value: $(e).find('.temporal_range_low_value').val()
+            unit: $(e).find('.temporal_range_low_unit').val()
+            'inclusive?': $(e).find('.temporal_range_low_relation').val().indexOf('e') > -1
+          } if $(e).find('.temporal_range_low_value').val()
+        }
         reference: (
           if $(e).find('.temporal_reference_value').length > 1
             $.post('/measures/' + $(form).find('input[type=hidden][name=id]').val() + '/upsert_criteria', {
@@ -265,7 +274,7 @@ class @bonnie.Builder
 
     $.each(items, (i,node) ->
       $(elemParent).append("<span class='not'>not</span>") if neg
-        
+
       if (node.temporal)
         $(elemParent).append("<span class='#{node.conjunction} temporal-operator'>#{node.title}</span><span class='block-down-arrow'></span>")
 
@@ -383,7 +392,7 @@ class @bonnie.DataCriteria
   valueText: =>
     text = ''
     text += @value.text() if @value?
-    text 
+    text
 
   temporalReferenceItems: =>
     items = []
