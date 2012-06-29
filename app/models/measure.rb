@@ -27,16 +27,6 @@ class Measure
   scope :by_measure_id, ->(id) { where({'measure_id'=>id }) }
   scope :by_user, ->(user) { where({'user_id'=>user.id}) }
   
-  # filtering scope for measures with multiple populations
-  scope :only_population, ->(num) {
-    if num == 1
-      only(["population_criteria.NUMER", "population_criteria.DENOM", "population_criteria.EXCL"])
-    else
-      num = num - 1
-      only(["population_criteria.NUMER_#{num}", "population_criteria.DENOM_#{num}", "population_criteria.EXCL_#{num}"])
-    end
-  }
-
   # Create or increment all of the versioning information for this measure
   def publish
     self.publish_date = Time.now

@@ -9,22 +9,34 @@
 
 <% content_for :page_content do %>
 
-  <%= debug params %>
+  <%# debug params %>
 
   <h3 class="measure-title">
     <span class="label">Testing:</span>
-    <span class="title"><%= @measure.title %></span>
+    <span class="title"><%= @measure.title %></span><br>
   </h3>
-
-  <br>
   
-  <ul class="nav nav-tabs" id="mainTabs">
+  <% if params[:population_criteria] %>
+    <h4 style="margin-left:2em">Population Criteria <%= params[:population_criteria] %></h4><br>
+  <% end %>
+  
+  <ul class="nav nav-tabs" id="mainTabs" style="margin:0.5em">
     <li class="active"><a href="#patients">All Patients</a></li>
   </ul>
   
-  <div class="tab-content">
+  <div class="tab-content" style="margin:0.5em">
+    
     <div class="tab-pane active" id="patients">
-      <%= simple_form_for(:patients, :url => test_measure_path, :method => :post, :html => { :class => 'form-horizontal' }) do |f| %>
+      <%
+        if params[:population_criteria]
+          test_url = "/measures/#{params[:id]}/test?population_criteria=#{params[:population_criteria]}"
+        else
+          test_url = test_measure_url
+        end
+      %>
+      
+        
+      <%= simple_form_for(:patients, :url => test_url, :method => :post, :html => { :class => 'form-horizontal' }) do |f| %>
         <%= f.submit 'Test Measure', :id => 'test-submit-button', :class => 'btn-primary' %><br>
         
         <div class="row total">
@@ -66,27 +78,15 @@
   </div>
   
   <% if params[:patients] %>
-    <%# @js = include_js_debug(@measure.measure_id, params[:patients]["patient_names"].reject {|p| p.empty?} ) %>
     <% params[:patients].reject {|p| p[1].empty?} %>
     <% patients_posted = params[:patients].collect {|p| p[0] } %>
+    <%# binding.pry%>
     
-    <% @js = include_js_debug(@measure.measure_id, patients_posted) %>
+    <% @js = include_js_debug(@measure.measure_id, patients_posted, params[:population_criteria].to_i) %>
     <%= javascript_tag do %>
       <%= raw(@js) %>
       <%= raw(include_js_libs(['map_reduce_utils'])) %>
     <% end %>
-    
-    <!--
-    <div id="right-pane" class="pull-right" style="margin-right:5%; border: 1px lightgray solid; width: 50%;">
-      <h3>Test Summary</h3>
-      <div id="log">
-        <%= debug params %>
-      </div>
-      <table id="test-summary">
-        <th></th>
-      </table>
-    </div>
-    -->
     
     <!-- TODO: coffeescript here instead? -->
     <%= javascript_tag do %>

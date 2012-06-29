@@ -11,7 +11,7 @@ module MeasuresHelper
   end
   
   # create a javascript object for the debug view
-  def include_js_debug(measure_id, patient_ids)
+  def include_js_debug(measure_id, patient_ids, population_criteria=1)
     # scope hack    
     hqmf_path, codes_path, filename, measure, measure_js = 0
 
@@ -35,13 +35,16 @@ module MeasuresHelper
       filename = Pathname.new(hqmf_path).basename
     
       measure = Measures::Loader.load(hqmf_path, codes_path, nil, nil, false)
-      measure_js = Measures::Exporter.execution_logic(measure)
+      measure_js = Measures::Exporter.execution_logic(measure, population_criteria - 1)
+      f = File.open("/Users/chris/Desktop/pop_#{population_criteria}.txt", 'w')
+      f.puts measure_js
+      f.close
+      # binding.pry
     }
     
     patient_json = Record.find(patient_ids).to_json
 
-    @js = ""
-    @js << "execute_measure = function(patient) {\n #{measure_js} \n}\n"
+    @js = "execute_measure = function(patient) {\n #{measure_js} \n}\n"
     @js << "emitted = []; emit = function(id, value) { emitted.push(value); } \n"
     @js << "ObjectId = function(id, value) { return 1; } \n"
     
