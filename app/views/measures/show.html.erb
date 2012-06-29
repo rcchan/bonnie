@@ -13,13 +13,13 @@
 
     var fillDrop = function(obj, id){
       // Populate id from possible sources in order [provided argument, hidden value in form, dragged element]
-      id = id || $(obj).find('.temporal_reference_value').val() || $('.dragged').data('criteria-id');
+      id = id || $(obj).find('.temporal_reference_value').val() || $('.dragged').attr('id');
 
       // Set target based on event object or given drop zone
       obj = (obj.target && ($(obj.target).hasClass('temporal_drop_zone') ? obj.target : $(obj.target).parents('.temporal_drop_zone'))) || obj;
 
       // Disallow dropping a reference on a reference
-      if ($('[data-criteria-id=' + id + ']').hasClass('temporal_drop_zone_element')) return;
+      if ($('#' + id).hasClass('temporal_drop_zone_element')) return;
 
       // Expand children criteria of temporal references
       if (bonnie.builder.data_criteria[id] && bonnie.builder.data_criteria[id].type == 'derived' && bonnie.builder.data_criteria[id].children_criteria.length){
@@ -41,13 +41,12 @@
         id ? (
           $(obj).find('.close').show() &&
           $(obj).addClass('fullDrop') &&
-          ($e = $('.paramText[data-criteria-id=' + id + ']')).length ? $e.first().clone() : $(document.createElement('div')).attr('draggable', 'true').text(id)
+          ($e = $('#' + id)).length ? $e.clone().attr('id', null) : $(document.createElement('div')).attr('draggable', 'true').text(id)
         ).addClass('temporal_drop_zone_element') : 'Drop Reference Here'
       );
     }
 
-    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>);
-    
+    var page = new Page(<%= @measure.data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
     $(document).ready(function() {
       page.initialize();
 
@@ -72,19 +71,18 @@
 
       $(window).on("resize",matchTitleHeight);
       matchTitleHeight();
-      $(".paramChildren label").draggable({helper:"clone",containment:'document',revert:true,zIndex:3000,distance:3,opacity:"1", start:function(){$(this).data("item",new queryStructure.AND(null, [],false))}});
-
       $('#selector > select').change(
         function(){
           $.bbq.pushState({population: $(this).val()});
-          $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems").empty();
+          change_test_button_params($(this).val()); // measure debugger needs to know about multiple populations
+          $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems").empty();
           $.getJSON($(this).val(), bonnie.builder.renderMeasureJSON);
         }
       )
 
-      $(document.body).on('dragstart', '.logicLeaf, div[data-criteria-id=MeasurePeriod], .temporal_drop_zone_element, #dataCriteria label',
+      $(document.body).on('dragstart', '.logicLeaf, #MeasurePeriod, .temporal_drop_zone_element',
         function(e){
-          if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.setData('text', 'arbitrary data');
+          e.originalEvent.dataTransfer.setData('text', 'arbitrary data');
           if (!$(e.target).hasClass('temporal_drop_zone_element')){
             $('#bonnie_tmpl_data_criteria_temporal_drop_zone').tmpl().insertAfter($('.temporal_reference .temporal_drop_zone.fullDrop:last-child'));
           }
@@ -100,11 +98,16 @@
 
       $(document.body).on('drop',
         function(e){
+
           // Fill the drop zone if element is dropped there
-          if ($(e.target).parents('.temporal_drop_zone').length) fillDrop(e);
+          if ($.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1) fillDrop(e);
 
           // Else if element was dragged off of the drop zone, flush that zone
           else if ($('.dragged').hasClass('temporal_drop_zone_element')) flushDrop();
+
+          // Clear any extra empty drop zones and remove drag class
+          $('.temporal_reference .temporal_drop_zone:not(.fullDrop)').filter(function(){return $(this).siblings('.temporal_drop_zone').length;}).remove();
+          $('.dragged').removeClass('dragged');
 
           // Fixes FF redirect bug
           e.preventDefault();
@@ -114,7 +117,6 @@
       $(document.body).on('dragend',
         function(){
           $('.temporal_reference .temporal_drop_zone:not(.fullDrop)').filter(function(){return $(this).siblings('.temporal_drop_zone').length;}).remove();
-          $('.dragged').removeClass('dragged');
         }
       );
 
@@ -166,10 +168,10 @@
   </script>
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_logic">
-    <div draggable="true" class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}data-criteria-id='${id}'{{/if}}>
+    <div draggable="true" class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}id='${id}'{{/if}}>
       {{if operator}}<label>${operator}</label>{{/if}}
       {{if category}}<label>${category}</label>{{/if}}
-      ${title} {{if value}}${valueText}{{/if}}${temporalText}
+      ${title} ${temporalText}
     </div>
   </script>
 
@@ -283,11 +285,11 @@
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
-    <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
+    <div style="width: 0px; height: 0px;"><!-- This is crap. --><span class="arrow-w" style="position: relative; top: 45px; left: -88px;"></span></div>
       <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
         <input type="hidden" name="criteria_id" value="${id}">
-        <h4>${title}</h4>
+        <div>${title}</div>
         <table>
           <tr>
             <td>Status:</td>
@@ -297,7 +299,6 @@
                 <option value="ordered">Ordered</option>
                 <option value="administered">Administered</option>
                 <option value="active">Active</option>
-                <option value="performed">Performed</option>
               </select>
             </td>
           </tr>
@@ -305,38 +306,15 @@
             <td>Standard Category:</td>
             <td>
               <select name="standard_category">
-                <option value="">--</option>
+                <option>--</option>
                 <option value="problem">Problem</option>
+                <option value="encounter">Encounter</option>
                 <option value="labresults">LabResults</option>
-                <option value="laboratory test">Laboratory Test</option>
                 <option value="procedure">Procedure</option>
                 <option value="medication">Medication</option>
                 <option value="rx">RX</option>
                 <option value="demographics">Demographics</option>
                 <option value="derived">Derived</option>
-                <option value="care_goal">Care Goal</option>
-                <option value="care_plan">Care Plan</option>
-                <option value="communication">Communication</option>
-                <option value="device">Device</option>
-                <option value="diagnosis">diagnosis</option>
-                <option value="diagnostic_study">diagnostic study</option>
-                <option value="encounter">encounter</option>
-                <option value="functional_status">functional status</option>
-                <option value="individual_characteristic">individual characteristic</option>
-                <option value="intervention">intervention</option>
-                <option value="laboratory_test">laboratory test</option>
-                <option value="medication">medication</option>
-                <option value="patient_care_experience">patient care experience</option>
-                <option value="patient_preference">patient preference</option>
-                <option value="physical_exam">physical exam</option>
-                <option value="procedure">procedure</option>
-                <option value="provider">provider</option>
-                <option value="risk_category_assessment">risk category assessment</option>
-                <option value="substance">substance</option>
-                <option value="symptom">symptom</option>
-                <option value="system_characteristic">system characteristic</option>
-                <option value="transfer_from">transfer from</option>
-                <option value="transfer_to">transfer to</option>
               </select>
             </td>
           </tr>
@@ -407,7 +385,7 @@
       <%= link_to 'Back', measures_path %>
 
       <div id="dataCriteria">
-        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria)}%>
+        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.unique_data_criteria)}%>
       </div>
     </div>
   </div>
@@ -425,9 +403,11 @@
       <li class="exceptions"><a href="#exceptionMeasures" data-toggle="tab">exceptions</a></li>
       <li id="selector">
         <select>
-          <% @measure.populations.each_with_index do |population, index| %>
-            <option value="<%= url_for :population => index, :action => 'definition' %>"<%= ' selected="selected"' if index == params[:population].to_i%>><%= population['title'] %></option>
-          <% end if @measure.populations %>
+          <option value="<%= url_for :population => nil, :action => 'definition' %>">Population Criteria 1</option>
+          <% current = 1 %>
+          <% while (@measure.population_criteria["NUMER_#{current}"]) do %>
+            <option value="<%= url_for :population => current, :action => 'definition' %>"<%= ' selected="selected"' if current == params[:population].to_i%>>Population Criteria <%= current += 1 %></option>
+          <% end if @measure.population_criteria %>
         </select>
       </li>
     </ul>
