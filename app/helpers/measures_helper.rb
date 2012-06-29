@@ -36,10 +36,7 @@ module MeasuresHelper
     
       measure = Measures::Loader.load(hqmf_path, codes_path, nil, nil, false)
       measure_js = Measures::Exporter.execution_logic(measure, population_criteria - 1)
-      f = File.open("/Users/chris/Desktop/pop_#{population_criteria}.txt", 'w')
-      f.puts measure_js
-      f.close
-      # binding.pry
+
     }
     
     patient_json = Record.find(patient_ids).to_json
