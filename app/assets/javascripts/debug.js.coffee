@@ -101,8 +101,9 @@ bind_inspect_highlight = () ->
     -> $(this).parent().css('background-color', 'white')
   )
 
-# keep track of jquery bbq population criteria state and update test button href
-test_button_bbq = (e) ->
+# keep track of population criteria id and update test button href
+# so that the debugger can handle multiple population criterias
+change_test_button_params = (e) ->
   # save test button element for later, we will change a url parameter in the button href
   test_button = $('#pageButtons .btn').eq(1)
   
