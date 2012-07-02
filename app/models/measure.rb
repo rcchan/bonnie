@@ -26,7 +26,7 @@ class Measure
   scope :published, -> { where({'published'=>true}) }
   scope :by_measure_id, ->(id) { where({'measure_id'=>id }) }
   scope :by_user, ->(user) { where({'user_id'=>user.id}) }
-  
+
   # Create or increment all of the versioning information for this measure
   def publish
     self.publish_date = Time.now
@@ -54,9 +54,9 @@ class Measure
   def parameter_json(population_index=0, inline=false)
     parameter_json = {}
     population_index ||= 0
-    
+
     population = populations[population_index]
-    
+
     title_mapping = {
       population["IPP"] => "population",
       population["DENOM"] => "denominator",
@@ -70,7 +70,7 @@ class Measure
 
     parameter_json
   end
-  
+
   def population_criteria_json(criteria, inline=false)
     {
         conjunction: "and",
@@ -101,7 +101,7 @@ class Measure
     self.data_criteria[criteria['id']] ||= {}
     self.data_criteria[criteria['id']].merge!(criteria)
   end
-  
+
   def all_data_criteria
     data_criteria.merge(source_data_criteria)
   end
@@ -134,20 +134,20 @@ class Measure
           element[:items] << if inline
               inline_data_criteria(data_criteria[precondition["reference"]])
             else
-              {id: precondition["reference"]}
+              {id: precondition["reference"], precondition_id: precondition['id']}
             end
         end
         if precondition['preconditions']
           precondition['conjunction_code'] = 'and' if precondition["reference"]
           element[:items] << parse_hqmf_preconditions(precondition, inline)
         end
-
+        element['precondition_id'] = precondition['id']
       end if criteria["preconditions"]
       return element
     end
 
   end
-  
+
   def inline_data_criteria(current_criteria)
     temporal_references = {}
     if current_criteria['temporal_references']
