@@ -6,6 +6,10 @@ class MeasureTest < ActiveSupport::TestCase
     @measure = FactoryGirl.create(:measure)
   end
   
+  teardown do
+    Measure.delete_all
+  end
+  
   test "publish measure should change state properly" do
     assert !@measure.published
     assert_nil @measure.publish_date
@@ -30,4 +34,5 @@ class MeasureTest < ActiveSupport::TestCase
     assert_equal 2, @measure.publishings.count
     assert_equal "changed title", @measure.publishings.by_version(2).first.title
   end
+  
 end

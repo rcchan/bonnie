@@ -26,7 +26,7 @@ class Measure
   scope :published, -> { where({'published'=>true}) }
   scope :by_measure_id, ->(id) { where({'measure_id'=>id }) }
   scope :by_user, ->(user) { where({'user_id'=>user.id}) }
-
+  
   # Create or increment all of the versioning information for this measure
   def publish
     self.publish_date = Time.now
@@ -132,22 +132,10 @@ class Measure
       criteria["preconditions"].each do |precondition|
         if precondition["reference"] # We've hit a leaf node - This is a data criteria reference
           element[:items] << if inline
-            data_criteria[precondition["reference"]].merge(
-              if data_criteria[precondition["reference"]]['temporal_references']
-                {
-                  'temporal_references' => data_criteria[precondition["reference"]]['temporal_references'].map {|r|
-                    r.merge(
-                      if r['reference'] != 'MeasurePeriod'
-                        {'reference' => data_criteria[r['reference']]}
-                      else {title: 'MeasurePeriod'}
-                      end
-                    )
-                  }
-                }
-              else {}
-              end
-            ) else {id: precondition["reference"]}
-          end
+              inline_data_criteria(data_criteria[precondition["reference"]])
+            else
+              {id: precondition["reference"]}
+            end
         end
         if precondition['preconditions']
           precondition['conjunction_code'] = 'and' if precondition["reference"]
@@ -158,6 +146,31 @@ class Measure
       return element
     end
 
+  end
+  
+  def inline_data_criteria(current_criteria)
+    temporal_references = {}
+    if current_criteria['temporal_references']
+      temporal_references = {
+        'temporal_references' => current_criteria['temporal_references'].map {|r|
+          r.merge(
+            if r['reference'] != 'MeasurePeriod'
+              {'reference' => inline_data_criteria(data_criteria[r['reference']])}
+            else {title: 'MeasurePeriod'}
+            end
+          )
+        }
+      }
+    end
+    children_criteria = {}
+    if current_criteria['children_criteria']
+      children_criteria = {
+        'children_criteria' => current_criteria['children_criteria'].map {|child|
+          inline_data_criteria(data_criteria[child])
+        }
+      }
+    end
+    current_criteria.merge(temporal_references).merge(children_criteria) 
   end
   
 end
