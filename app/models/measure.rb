@@ -26,7 +26,7 @@ class Measure
   scope :published, -> { where({'published'=>true}) }
   scope :by_measure_id, ->(id) { where({'measure_id'=>id }) }
   scope :by_user, ->(user) { where({'user_id'=>user.id}) }
-
+  
   # Create or increment all of the versioning information for this measure
   def publish
     self.publish_date = Time.now
