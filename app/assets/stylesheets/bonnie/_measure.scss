@@ -125,8 +125,14 @@
     color: black;
     cursor:pointer;
     text-transform: lowercase;
+    @include transition(background-color .2s linear);
+
     &.droppable {
       background-color:#fec;
+      @include transition(background-color .2s linear);
+    }
+    &.droppable2 {
+      background-color:#cfe;
       @include transition(background-color .2s linear);
     }
     &.editing {

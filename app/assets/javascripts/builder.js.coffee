@@ -202,9 +202,12 @@ class @bonnie.Builder
           item_height = $(item).height();
           item_mid = item_top + Math.round(item_height/2)
         # tgt = queryObj.parent ? queryObj
-        if queryObj instanceof queryStructure.Container 
+        console.log "queryObj" ,queryObj
+        if queryObj instanceof queryStructure.Container
+          console.log "container", @
           tgt = queryObj
         else
+          console.log "item", @
           tgt = queryObj.parent
         tgt?.add(
           id: $(ui.draggable).data('criteria-id')
@@ -244,6 +247,16 @@ class @bonnie.Builder
         # if (!elemParent.hasClass("paramItem"))
         items = data_criteria.temporalReferenceItems()
         elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last")
+
+        elemParent.droppable(
+          over:  @._over2
+          tolerance:'pointer'
+          greedy:true
+          accept:'label.ui-draggable'
+          out:  @._out
+          drop: makeDropFn(@)
+        )  
+
         data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
 
     if ($.isArray(items))
@@ -254,8 +267,12 @@ class @bonnie.Builder
     $(@).parents('.paramItem').removeClass('droppable')
     $(@).addClass('droppable')
 
+  _over2: ->
+    $(@).parents('.paramItem').removeClass('droppable2')
+    $(@).addClass('droppable2')
+    
   _out: ->
-    $(@).removeClass('droppable')
+    $(@).removeClass('droppable').removeClass('droppable2')
 
   renderParamItems: (conjunction, items, elemParent, container, neg) =>
     builder = bonnie.builder
