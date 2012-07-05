@@ -253,12 +253,12 @@ class @bonnie.Builder
         # we dont have a nested measure clause, add the item to the bottom of the list
         # if (!elemParent.hasClass("paramItem"))
         items = data_criteria.temporalReferenceItems()
-        elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last")
+        elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last")
         data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
 
     if ($.isArray(items))
       conjunction = obj['conjunction']
-      builder.renderParamItems(conjunction, items, elemParent, container, obj.negation || false)
+      builder.renderParamItems(conjunction, items, elemParent, container, obj)
 
   _over: ->
     $(@).parents('.paramItem').removeClass('droppable')
@@ -267,10 +267,11 @@ class @bonnie.Builder
   _out: ->
     $(@).removeClass('droppable')
 
-  renderParamItems: (conjunction, items, elemParent, container, neg) =>
+  renderParamItems: (conjunction, items, elemParent, container, obj) =>
+    neg = obj.negation || false
     builder = bonnie.builder
 
-    elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last") if items.length > 1 and !container?
+    elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last") if items.length > 1 and !container?
 
     $.each(items, (i,node) ->
       $(elemParent).append("<span class='not'>not</span>") if neg
