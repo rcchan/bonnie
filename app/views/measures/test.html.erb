@@ -3,6 +3,8 @@
     $(document).ready(function() {
       $('#mainTabs a:first').tab('show');
       bind_inspect_highlight();
+      $('#select-all').bind('click', select_all_patients);
+      $('#deselect-all').bind('click', deselect_all_patients);
     });
   </script>
 <% end %>
@@ -25,6 +27,9 @@
   </ul>
   
   <div class="tab-content" style="margin:0.5em">
+    
+    <a href="" id="select-all">Select All</a> |
+    <a href="" id="deselect-all">Deselect All</a>
     
     <div class="tab-pane active" id="patients">
       <%
@@ -77,12 +82,8 @@
     </div>
   </div>
   
-  <% if params[:patients] %>
-    <% params[:patients].reject {|p| p[1].empty?} %>
-    <% patients_posted = params[:patients].collect {|p| p[0] } %>
-    <%# binding.pry%>
-    
-    <% @js = include_js_debug(@measure.measure_id, patients_posted, params[:population_criteria].to_i) %>
+  <% if @patients_posted %>
+    <% @js = include_js_debug(@measure.measure_id, @patients_posted, params[:population_criteria].to_i) %>
     <%= javascript_tag do %>
       <%= raw(@js) %>
       <%= raw(include_js_libs(['map_reduce_utils'])) %>
@@ -92,6 +93,7 @@
     <%= javascript_tag do %>
       $().ready(function() {
         populate_test_table();
+        reselect_patients();
       });
     <% end %>
 
