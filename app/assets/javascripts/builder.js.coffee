@@ -48,7 +48,9 @@ class @bonnie.Builder
     $('.logicLeaf').click((event) =>
       $('.paramItem').removeClass('editing')
       $(event.currentTarget).closest('.paramItem').addClass('editing')
-      @editDataCriteria(event.currentTarget))
+      @editDataCriteria(event.currentTarget)
+      event.stopPropagation()
+    )
 
   renderCriteriaJSON: (data, target) =>
     @addParamItems(data,target)
@@ -56,6 +58,7 @@ class @bonnie.Builder
   editDataCriteria: (element) =>
     leaf = $(element)
     data_criteria = @dataCriteria($(element).data('criteria-id'))
+    if !data_criteria then return
     data_criteria.getProperty = (ns) ->
       obj = this
       y = ns.split(".")
