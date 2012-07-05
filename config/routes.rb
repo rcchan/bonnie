@@ -1,5 +1,5 @@
 Bonnie::Application.routes.draw do
-  
+
   resources :measures do
     member do
       get :export
@@ -14,6 +14,7 @@ Bonnie::Application.routes.draw do
       post :delete_population
       post :add_population
       post :update_population
+      post :update_population_criteria
     end
     collection do
       get :published

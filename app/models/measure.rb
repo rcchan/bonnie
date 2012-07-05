@@ -106,6 +106,25 @@ class Measure
     data_criteria.merge(source_data_criteria)
   end
 
+  def create_hqmf_preconditions(data)
+    conjunction_mapping = { "and" => "allTrue", "or" => "atLeastOneTrue" }
+    if data['conjunction?']
+      data['preconditions'] = [
+        create_hqmf_preconditions(data['preconditions'])
+      ]
+      self.population_criteria[data['type']] = data
+    else
+      data = {
+        'conjunction_code' => conjunction_mapping[data['conjunction']],
+        'id' => data['precondition_id'] || BSON::ObjectId.new.to_s,
+        'negation' => data['negation'] == true || data['negation'] == 'true',
+        'preconditions' => if data['items'] != nil then data['items'].map {|k,v| create_hqmf_preconditions(v)} end,
+        'reference' => data['id'],
+      }
+    end
+    data
+  end
+
   private
 
   def as_publishing
@@ -170,7 +189,7 @@ class Measure
         }
       }
     end
-    current_criteria.merge(temporal_references).merge(children_criteria) 
+    current_criteria.merge(temporal_references).merge(children_criteria)
   end
-  
+
 end

@@ -117,15 +117,15 @@ class MeasuresController < ApplicationController
     measure = Measure.find(params[:id])
     population_index = params[:population].to_i if params[:population]
     population = measure.parameter_json(population_index)
-    render :json => population 
+    render :json => population
   end
 
   def population_criteria_definition
     measure = Measure.find(params[:id])
     population = measure.population_criteria_json(measure.population_criteria[params[:key]])
-    render :json => population 
+    render :json => population
   end
-  
+
   def export
     measure = Measure.find(params[:id])
 
@@ -166,7 +166,7 @@ class MeasuresController < ApplicationController
     @measure.save!
     render partial: 'populations', locals: {measure: @measure}
   end
-  
+
   def delete_population
     @measure = Measure.find(params[:id])
     index = params['index'].to_i
@@ -178,11 +178,11 @@ class MeasuresController < ApplicationController
     @measure = Measure.find(params[:id])
     population = {}
     population['title']= params['title']
-    
+
     ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |key|
       population[key]= params[key] unless params[key].empty?
     end
-    
+
     if (population['NUMER'] and population['IPP'])
       @measure.populations << population
       @measure.save!
@@ -190,8 +190,12 @@ class MeasuresController < ApplicationController
       raise "numerator and initial population must be provided"
     end
 
-    
+
     render partial: 'populations', locals: {measure: @measure}
   end
-
+  def update_population_criteria
+    @measure = Measure.find(params[:id])
+    @measure.create_hqmf_preconditions(params['data'])
+    @measure.save!
+  end
 end

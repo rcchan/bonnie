@@ -46,8 +46,8 @@
       );
     }
 
-    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>);
-    
+    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>, '<%= url_for :action => 'update_population_criteria' %>');
+
     $(document).ready(function() {
       page.initialize();
 

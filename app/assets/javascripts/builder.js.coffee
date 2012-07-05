@@ -204,6 +204,15 @@ class @bonnie.Builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
     parent = obj.parent
+
+    push = (query, key, title) ->
+      ((o) ->
+        delete o.parent
+        for k of o
+          arguments.callee o[k]  if typeof o[k] is "object"
+      ) query = query
+      $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}})
+
     makeDropFn = (self) ->
       queryObj = parent ? obj
       dropFunction = (event,ui) ->
@@ -224,12 +233,29 @@ class @bonnie.Builder
         )
         $(@).removeClass('droppable')
         $('#workspace').empty()
-        $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems").empty()
-        bonnie.builder.addParamItems(bonnie.builder.populationQuery.toJson(),$("#initialPopulationItems"))
-        bonnie.builder.addParamItems(bonnie.builder.denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
-        bonnie.builder.addParamItems(bonnie.builder.numeratorQuery.toJson(),$("#outcomeMeasureItems"))
-        bonnie.builder.addParamItems(bonnie.builder.exclusionsQuery.toJson(),$("#exclusionMeasureItems"))
-        bonnie.builder.addParamItems(bonnie.builder.exceptionsQuery.toJson(),$("#exceptionMeasureItems"))
+
+        finder = queryObj
+        switch (
+          (while finder.parent
+            finder = finder.parent
+          ).pop()
+        )
+          when bonnie.builder.populationQuery.structure
+            bonnie.builder.addParamItems((query = bonnie.builder.populationQuery.toJson()),$("#initialPopulationItems").empty())
+            push(query, 'IPP', 'Initial Patient Population')
+          when bonnie.builder.denominatorQuery.structure
+            bonnie.builder.addParamItems((query = bonnie.builder.denominatorQuery.toJson()),$("#eligibilityMeasureItems").empty())
+            push(query, 'DENOM', 'Denominator')
+          when bonnie.builder.numeratorQuery.structure
+            bonnie.builder.addParamItems((query = bonnie.builder.numeratorQuery.toJson()),$("#outcomeMeasureItems").empty())
+            push(query, 'NUMER', 'Numerator')
+          when bonnie.builder.exclusionsQuery.structure
+            bonnie.builder.addParamItems((query = bonnie.builder.exclusionsQuery.toJson()),$("#exclusionMeasureItems").empty())
+            push(query, 'EXCL', 'Exclusions')
+          when bonnie.builder.exceptionsQuery.structure
+            bonnie.builder.addParamItems((query = bonnie.builder.exceptionsQuery.toJson()),$("#exceptionMeasureItems").empty())
+            push(query, 'DENEXCEP', 'Denominator Exceptions')
+
         self._bindClickHandler()
       return dropFunction
 
@@ -271,7 +297,7 @@ class @bonnie.Builder
     $(@).removeClass('droppable')
 
   renderParamItems: (conjunction, items, elemParent, container, obj) =>
-    neg = obj.negation || false
+    neg = (obj.negation || false) && obj.negation != 'false'
     builder = bonnie.builder
 
     elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last") if items.length > 1 and !container?
@@ -491,8 +517,9 @@ class @bonnie.Value
   $("#bonnie_tmpl_#{id}").tmpl(object)
 
 class Page
-  constructor: (data_criteria, measure_period) ->
+  constructor: (data_criteria, measure_period, update_url) ->
     bonnie.builder = new bonnie.Builder(data_criteria, measure_period)
+    bonnie.builder['update_url'] = update_url
 
   initialize: () =>
     $(document).on('click', '#dataCriteria .paramGroup', bonnie.builder.toggleDataCriteriaTree)
