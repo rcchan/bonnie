@@ -153,6 +153,17 @@ class MeasuresController < ApplicationController
   def test
     @measure = Measure.find(params[:id])
     @patient_names = Record.all.entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
+    # binding.pry
+
+    # we need to manipulate params[:patients] but it's immutable?
+    if params[:patients]
+      # full of {"4fa98074431a5fb25f000132"=>1} etc
+      @patients_posted = params[:patients].collect {|p| { p[0] => p[1].to_i } }
+      # reject patients that were not posted (checkbox not checked)
+      @patients_posted.reject! {|p| p.flatten[1] == 0}
+      # now full of ["4fa98074431a5fb25f000132"]
+      @patients_posted = @patients_posted.collect {|p| p.keys}.flatten
+    end
   end
 
   ####
