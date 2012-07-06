@@ -96,7 +96,7 @@ class Measure
     HQMF::Document.from_json(json)
   end
 
-  def upsert_data_criteria(criteria, source)
+  def upsert_data_criteria(criteria, source=false)
     edit = if source then self.source_data_criteria || {} else self.data_criteria || {} end
     edit[criteria['id']] ||= {}
     edit[criteria['id']].merge!(criteria)
@@ -121,11 +121,17 @@ class Measure
     else
       data = {
         'conjunction_code' => conjunction_mapping[data['conjunction']],
-        'id' => data['precondition_id'] || BSON::ObjectId.new.to_s,
+        'id' => data['precondition_id'],
         'negation' => data['negation'] == true || data['negation'] == 'true',
         'preconditions' => if data['items'] != nil then data['items'].map {|k,v| create_hqmf_preconditions(v)} end,
         'reference' => data['id'],
       }
+      if !data['id']
+        data['id'] = data['precondition_id'] || BSON::ObjectId.new.to_s
+        if data['reference']
+          upsert_data_criteria(self['source_data_criteria'][data['reference']].merge({'id' => data['reference'] += '_' + data['id']}))
+        end
+      end
     end
     data
   end
