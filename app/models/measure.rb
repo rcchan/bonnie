@@ -97,9 +97,9 @@ class Measure
   end
 
   def upsert_data_criteria(criteria)
-    self.data_criteria ||= {}
-    self.data_criteria[criteria['id']] ||= {}
-    self.data_criteria[criteria['id']].merge!(criteria)
+    self.source_data_criteria ||= {}
+    self.source_data_criteria[criteria['id']] ||= {}
+    self.source_data_criteria[criteria['id']].merge!(criteria)
   end
 
   def all_data_criteria
