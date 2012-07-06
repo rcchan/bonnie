@@ -4,11 +4,7 @@ class @bonnie.Builder
   constructor: (data_criteria, measure_period) ->
     @measure_period = new bonnie.MeasurePeriod(measure_period)
     @data_criteria = {}
-    @populationQuery = new queryStructure.Query()
-    @denominatorQuery = new queryStructure.Query()
-    @numeratorQuery = new queryStructure.Query()
-    @exclusionsQuery = new queryStructure.Query()
-    @exceptionsQuery = new queryStructure.Query()
+    @query = new queryStructure.Query()
     for key in _.keys(data_criteria)
       @data_criteria[key] = new bonnie.DataCriteria(key, data_criteria[key], @measure_period)
 
@@ -22,26 +18,16 @@ class @bonnie.Builder
     alert "updating display: " + @data_criteria
 
   renderMeasureJSON: (data) =>
-    if (!$.isEmptyObject(data.population))
-      @populationQuery.rebuildFromJson(data.population)
-      @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems"))
-      $("#initialPopulationItems .paramGroup").addClass("population")
+    $("#xxinitialPopulationItems, #xxoutcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems").text("DISABLED FOR DEBUGGING")
+    
+    @query.rebuildFromJson(data)
+    
+    @addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
+    @addParamItems(@query.denominator.toJson(),$("#eligibilityMeasureItems"))
+    @addParamItems(@query.numerator.toJson(),$("#outcomeMeasureItems"))
+    @addParamItems(@query.exclusions.toJson(),$("#exclusionMeasureItems"))
+    @addParamItems(@query.exceptions.toJson(),$("#exceptionMeasureItems"))
 
-    if (!$.isEmptyObject(data.denominator))
-      @denominatorQuery.rebuildFromJson(data.denominator)
-      @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
-
-    if (!$.isEmptyObject(data.numerator))
-      @numeratorQuery.rebuildFromJson(data.numerator)
-      @addParamItems(@numeratorQuery.toJson(),$("#outcomeMeasureItems"))
-
-    if (!$.isEmptyObject(data.exclusions))
-      @exclusionsQuery.rebuildFromJson(data.exclusions)
-      @addParamItems(@exclusionsQuery.toJson(),$("#exclusionMeasureItems"))
-
-    if (!$.isEmptyObject(data.exceptions))
-      @exceptionsQuery.rebuildFromJson(data.exceptions)
-      @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems"))
     @._bindClickHandler()
 
   _bindClickHandler: ->
@@ -187,11 +173,16 @@ class @bonnie.Builder
     });
 
   addParamItems: (obj,elemParent,container) =>
+    console.log "obj",obj
+    console.log "elemParent",elemParent
+    console.log "container",container
+    console.log "==================================="
     builder = bonnie.builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
     parent = obj.parent
     makeDropFn = (self) ->
+      console.log "making drop for ", obj
       queryObj = parent ? obj
       dropFunction = (event,ui) ->
         target = event.currentTarget
@@ -215,26 +206,24 @@ class @bonnie.Builder
         $(@).removeClass('droppable')
         $('#workspace').empty()
         $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems").empty()
-        bonnie.builder.addParamItems(bonnie.builder.populationQuery.toJson(),$("#initialPopulationItems"))
-        bonnie.builder.addParamItems(bonnie.builder.denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
-        bonnie.builder.addParamItems(bonnie.builder.numeratorQuery.toJson(),$("#outcomeMeasureItems"))
-        bonnie.builder.addParamItems(bonnie.builder.exclusionsQuery.toJson(),$("#exclusionMeasureItems"))
-        bonnie.builder.addParamItems(bonnie.builder.exceptionsQuery.toJson(),$("#exceptionMeasureItems"))
+        bonnie.builder.addParamItems(bonnie.builder.query.population.toJson(),$("#initialPopulationItems"))
+        bonnie.builder.addParamItems(bonnie.builder.query.denominator.toJson(),$("#eligibilityMeasureItems"))
+        bonnie.builder.addParamItems(bonnie.builder.query.numerator.toJson(),$("#outcomeMeasureItems"))
+        bonnie.builder.addParamItems(bonnie.builder.query.exclusions.toJson(),$("#exclusionMeasureItems"))
+        bonnie.builder.addParamItems(bonnie.builder.query.exceptions.toJson(),$("#exceptionMeasureItems"))
         self._bindClickHandler()
       return dropFunction
 
+    $(elemParent).data("query-struct",parent)
+    elemParent.droppable(
+        over:  @._over
+        tolerance:'pointer'
+        greedy:true
+        accept:'label.ui-draggable'
+        out:  @._out
+        drop: makeDropFn(@)
 
-    if !$(elemParent).hasClass("droppable")
-      $(elemParent).data("query-struct",parent)
-      elemParent.droppable(
-          over:  @._over
-          tolerance:'pointer'
-          greedy:true
-          accept:'label.ui-draggable'
-          out:  @._out
-          drop: makeDropFn(@)
-  
-      )   
+    )   
     if (data_criteria?)
       if (data_criteria.subset_operators?)
         for subset_operator in data_criteria.subset_operators
@@ -247,7 +236,6 @@ class @bonnie.Builder
         # if (!elemParent.hasClass("paramItem"))
         items = data_criteria.temporalReferenceItems()
         elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last")
-
         elemParent.droppable(
           over:  @._over2
           tolerance:'pointer'
@@ -255,8 +243,8 @@ class @bonnie.Builder
           accept:'label.ui-draggable'
           out:  @._out
           drop: makeDropFn(@)
-        )  
-
+        )
+        
         data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
 
     if ($.isArray(items))
