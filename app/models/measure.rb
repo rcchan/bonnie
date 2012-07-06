@@ -27,6 +27,17 @@ class Measure
   scope :by_measure_id, ->(id) { where({'measure_id'=>id }) }
   scope :by_user, ->(user) { where({'user_id'=>user.id}) }
 
+  TYPE_MAP = {
+    'problem' => 'conditions',
+    'encounter' => 'encounters',
+    'labresults' => 'results',
+    'procedure' => 'procedures',
+    'medication' => 'medications',
+    'rx' => 'medications',
+    'demographics' => 'characteristic',
+    'derived' => 'derived'
+  }
+  
   # Create or increment all of the versioning information for this measure
   def publish
     self.publish_date = Time.now
@@ -97,6 +108,8 @@ class Measure
   end
 
   def upsert_data_criteria(criteria, source=false)
+    criteria['type'] = criteria['type'] || TYPE_MAP[criteria['standard_category']]
+    
     edit = if source then self.source_data_criteria || {} else self.data_criteria || {} end
     edit[criteria['id']] ||= {}
     edit[criteria['id']].merge!(criteria)

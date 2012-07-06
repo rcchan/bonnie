@@ -4,16 +4,6 @@ class MeasuresController < ApplicationController
   before_filter :authenticate_user!
   before_filter :validate_authorization!
 
-  TYPE_MAP = {
-    'problem' => 'conditions',
-    'encounter' => 'encounters',
-    'labresults' => 'results',
-    'procedure' => 'procedures',
-    'medication' => 'medications',
-    'rx' => 'medications',
-    'demographics' => 'characteristic',
-    'derived' => 'derived'
-  }
   add_breadcrumb 'measures', ""
 
   rescue_from Mongoid::Errors::Validations do
@@ -76,7 +66,7 @@ class MeasuresController < ApplicationController
 
   def upsert_criteria
     @measure = Measure.find(params[:id])
-    criteria = {"id" => params[:criteria_id], "type" => params['type'] || TYPE_MAP[params[:standard_category]]}
+    criteria = {"id" => params[:criteria_id], "type" => params['type']}
     ["status", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
     ["title", "code_list_id", "property", "children_criteria", "description"].each { |f| criteria[f] = params[f] if params[f]}
     criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
