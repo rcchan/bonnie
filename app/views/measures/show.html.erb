@@ -72,7 +72,7 @@
 
       $(window).on("resize",matchTitleHeight);
       matchTitleHeight();
-      $(".paramChildren label").draggable({
+      $(".paramChildren label").not('[data-criteria-id=MeasurePeriod] label').draggable({
         helper: "clone",
         containment: 'document',
         revert: true,
