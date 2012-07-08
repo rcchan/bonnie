@@ -8,13 +8,11 @@ $.widget 'ui.ContainerUI',
     @parent = @options.parent
     @builder = @options.builder
     cc= @._createContainer()
-    #@element.append(cc)
     @builder._bindClickHandler()
     
   _createContainer: ->
     $inner = $("<div>")
-    #$inner = $dc.find(".paramItem")
-    # $dc.css("width",300).css("height",100).find(".paramItem").css("width",280).css("height",80)
+    console.log "@container = " ,@container
     for child,i in @container.children
       childItem = @._createItemUI(child)
       @element.append childItem
@@ -106,28 +104,32 @@ $.widget 'ui.ItemUI',
     $itemUI = $dc.find('.paramItem')
     $result_container.append($dc)
     data_criteria = @builder.data_criteria[@item.id]
-    console.log "data_criteria=",data_criteria
-    if (data_criteria.subset_operators?)
-      for subset_operator in data_criteria.subset_operators
-        $result_container.prepend("<span class='#{subset_operator.type} subset-operator'>#{subset_operator.title()}</span>")
-    
-    $itemUI.append(data_criteria.asHtml("data_criteria_logic"))
-    $itemUI.droppable(
-      over:  @._over2
-      tolerance:'pointer'
-      greedy:true
-      accept:'label.ui-draggable'
-      out:  @._out
-    )
-
-    if (data_criteria.temporal_references?)
-      temporal_items = data_criteria.temporalReferenceItems()
-      console.log "temporal_items = ",temporal_items
-      if temporal_items
-        for item in temporal_items 
-          $itemUI.append("<span class='#{item.conjunction} temporal-operator'>#{item.title}</span><span class='block-down-arrow'></span>")
-    #$dc.append($itemUI)
-    
+    if (data_criteria?)
+      console.log "data_criteria=",data_criteria
+      if (data_criteria.subset_operators?)
+        for subset_operator in data_criteria.subset_operators
+          $result_container.prepend("<span class='#{subset_operator.type} subset-operator'>#{subset_operator.title()}</span>")
+      
+      $itemUI.append(data_criteria.asHtml("data_criteria_logic"))
+      $itemUI.droppable(
+        over:  @_over2
+        tolerance:'pointer'
+        greedy:true
+        accept:'label.ui-draggable'
+        out:  @_out
+        drop: @_out
+      )
+  
+      if (data_criteria.temporal_references?)
+        temporal_items = data_criteria.temporalReferenceItems()
+        console.log "temporal_items = ",temporal_items
+        if ($.isArray(temporal_items))
+          for item in temporal_items 
+            $itemUI.append("<span class='#{item.conjunction} temporal-operator'>#{item.title}</span><span class='block-down-arrow'></span>")
+          $div = $("<div>")  
+          $div.AndContainerUI({builder:@builder,container:temporal_items[0]})
+          $itemUI.append($div.children())
+          
     @element.append($result_container.children())
   _over2: ->
     $(@).parents('.paramItem').removeClass('droppable2')
