@@ -7,14 +7,14 @@ $.widget 'ui.ContainerUI',
     @container = @options.container
     @parent = @options.parent
     @builder = @options.builder
-    cc= @._createContainer()
+    cc= @_createContainer()
     @builder._bindClickHandler()
     
   _createContainer: ->
     $inner = $("<div>")
     console.log "@container = " ,@container
     for child,i in @container.children
-      childItem = @._createItemUI(child)
+      childItem = @_createItemUI(child)
       @element.append childItem
       if (i < @container.children.length-1)
         if @container instanceof queryStructure.AND then conjunction="and" else conjunction="or"
@@ -22,39 +22,48 @@ $.widget 'ui.ContainerUI',
     return $inner.children()
       
   _createItemUI: (item) ->
+    console.log "createItemUI=",item
     # we need a container outside of the param_group
     $result_container = $("<div>")
 
 
     if item.children
-      $dc = @template('param_group')
-      $result_container.append($dc)
-      $itemUI = $dc.find('.paramItem')
-      console.log "item has children",item.children
-      $dc.addClass(if @container instanceof queryStructure.AND then "and" else "or")
-      $dc.find(".paramItem").droppable(
-        over: @._over
-        out: @._out
-        drop: @._drop
-      )
-      if item instanceof queryStructure.AND
-        # if we have no children array for this item, then we must be a leaf node (an individual data_criteria)
-        # $itemUI = @template('param_group')
-        $itemUI.AndContainerUI(
-          parent: @
-          container: item
-          builder: @builder
-        )
-      if item instanceof queryStructure.OR
-        # if we have no children array for this item, then we must be a leaf node (an individual data_criteria)
-        # $itemUI = @template('param_group')
-        $itemUI.OrContainerUI(
-          parent: @
-          container: item
-          builder: @builder
-        )
-      if !item instanceof queryStructure.AND && !item instanceof queryStructure.OR
+      if (!(item instanceof queryStructure.AND) && !(item instanceof queryStructure.OR))
         console.log("Error! - item is neither AND nor OR")
+
+        @element.ItemUI(
+          parent:@
+          item:item.children[0]
+        )
+      else
+        $dc = @template('param_group')
+        $result_container.append($dc)
+        $itemUI = $dc.find('.paramItem')
+        console.log "item has children",item.children
+        $dc.addClass(if @container instanceof queryStructure.AND then "and" else "or")
+        $dc.find(".paramItem").droppable(
+          over: @_over
+          out: @_out
+          drop: @_drop
+          greedy:true
+        )
+        if item instanceof queryStructure.AND
+          # if we have no children array for this item, then we must be a leaf node (an individual data_criteria)
+          # $itemUI = @template('param_group')
+          $itemUI.AndContainerUI(
+            parent: @
+            container: item
+            builder: @builder
+          )
+        if item instanceof queryStructure.OR
+          # if we have no children array for this item, then we must be a leaf node (an individual data_criteria)
+          # $itemUI = @template('param_group')
+          $itemUI.OrContainerUI(
+            parent: @
+            container: item
+            builder: @builder
+          )
+
     else 
       console.log("=============================================== item has no children", @)
       
@@ -110,31 +119,50 @@ $.widget 'ui.ItemUI',
         for subset_operator in data_criteria.subset_operators
           $result_container.prepend("<span class='#{subset_operator.type} subset-operator'>#{subset_operator.title()}</span>")
       
-      $itemUI.append(data_criteria.asHtml("data_criteria_logic"))
-      $itemUI.droppable(
-        over:  @_over2
-        tolerance:'pointer'
-        greedy:true
-        accept:'label.ui-draggable'
-        out:  @_out
-        drop: @_out
-      )
-  
-      if (data_criteria.temporal_references?)
-        temporal_items = data_criteria.temporalReferenceItems()
-        console.log "temporal_items = ",temporal_items
-        if ($.isArray(temporal_items))
-          for item in temporal_items 
-            $itemUI.append("<span class='#{item.conjunction} temporal-operator'>#{item.title}</span><span class='block-down-arrow'></span>")
+      
+      
+      if (data_criteria.children_criteria?)
+        items = data_criteria.childrenCriteriaItems()
+        if $.isArray(items)
           $div = $("<div>")  
-          $div.AndContainerUI({builder:@builder,container:temporal_items[0]})
+          foo = new queryStructure.OR(@parent,items)
+          $div.AndContainerUI({builder:@builder,container:foo})
           $itemUI.append($div.children())
+          $itemUI.droppable(
+            out:@_out
+            over:@_over
+            drop:@_out
+            greedy:true
+          )
+      else
+        $itemUI.append(data_criteria.asHtml("data_criteria_logic"))
+        $itemUI.droppable(
+          over:  @_over2
+          tolerance:'pointer'
+          greedy:true
+          accept:'label.ui-draggable'
+          out:  @_out
+          drop: @_out
+        )
+        if (data_criteria.temporal_references?)
+          temporal_items = data_criteria.temporalReferenceItems()
+          console.log "temporal_items = ",temporal_items
+          if ($.isArray(temporal_items))
+            for item in temporal_items 
+              $itemUI.append("<span class='#{item.conjunction} temporal-operator'>#{item.title}</span><span class='block-down-arrow'></span>")
+            $div = $("<div>")  
+            $div.AndContainerUI({builder:@builder,container:temporal_items[0]})
+            $itemUI.append($div.children())
+        
+        
           
     @element.append($result_container.children())
   _over2: ->
     $(@).parents('.paramItem').removeClass('droppable2')
     $(@).addClass('droppable2')
-    
+  _over: ->
+    $(@).parents('.paramItem').removeClass('droppable')
+    $(@).addClass('droppable')    
   _out: ->
     $(@).removeClass('droppable').removeClass('droppable2')
   template: (id,object={}) ->
