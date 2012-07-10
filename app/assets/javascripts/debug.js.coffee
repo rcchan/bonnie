@@ -123,3 +123,24 @@ change_test_button_params = (e) ->
   # make button link pass a url param
   test_button.attr('href', base_url + "?population_criteria=" + population_criteria_number)
   # console.log(test_button.attr('href'))
+
+# select all patients
+select_all_patients = (e) ->
+  if (e)
+    e.preventDefault()
+  $('#patients .name :checkbox').each (i) ->
+    $(this).attr('checked', true)
+    
+# deselect all patients
+deselect_all_patients = (e) ->
+  if (e)
+    e.preventDefault()
+  $('#patients .name :checkbox').each (i) ->
+    $(this).attr('checked', false)
+
+# select patient checkboxes that were previously selected in the form
+reselect_patients = () ->
+  deselect_all_patients()
+  for p in patient
+    do (p) ->
+      $('#patients_' + p._id).attr('checked', true)
