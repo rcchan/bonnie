@@ -339,7 +339,7 @@ class @bonnie.SubsetOperator
     @type_decoder = {'COUNT':'count', 'FIRST':'first', 'SECOND':'second', 'THIRD':'third', 'FOURTH':'fourth', 'FIFTH':'fifth', 'RECENT':'most recent', 'LAST':'last', 'MIN':'min', 'MAX':'max'}
 
   title: =>
-    range = " #{@range.text(true)}" if @range
+    range = " #{@range.text()}" if @range
     "#{@type_decoder[@type]}#{range || ''} of"
 
 class @bonnie.DataCriteria
@@ -353,8 +353,9 @@ class @bonnie.DataCriteria
     @status = criteria.status
     @type = criteria.type
     if criteria.value
-      @value = new bonnie.Range(criteria.value) if criteria.value.type = 'IVL_PQ'
-      @value = new bonnie.Value(criteria.value) if criteria.value.type = 'PQ'
+      @value = new bonnie.Range(criteria.value) if criteria.value.type == 'IVL_PQ'
+      @value = new bonnie.Value(criteria.value) if criteria.value.type == 'PQ'
+      @value = new bonnie.Coded(criteria.value) if criteria.value.type == 'CD'
     @category = this.buildCategory()
     @children_criteria = criteria.children_criteria
     @derivation_operator = criteria.derivation_operator
@@ -381,7 +382,7 @@ class @bonnie.DataCriteria
     text
   valueText: =>
     text = ''
-    text += @value.text() if @value?
+    text += "(result #{@value.text()})" if @value?
     text 
 
   temporalReferenceItems: =>
@@ -472,6 +473,16 @@ class @bonnie.Value
       ''
   equals: (other) ->
     return @type == other.type && @value == other.value && @unit == other.unit && @inclusive == other.inclusive
+
+class @bonnie.Coded
+  constructor: (value) ->
+    @type = value['type']
+    @title = value['title'] || ''
+    @system = value['system']
+    @code = value['code']
+    @code_list_id = value['code_list_id']
+  text: =>
+    ": #{@title}"
 
 @bonnie.template = (id, object={}) =>
   $("#bonnie_tmpl_#{id}").tmpl(object)
