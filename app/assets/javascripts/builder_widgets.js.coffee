@@ -8,7 +8,7 @@ $.widget 'ui.ContainerUI',
     @parent = @options.parent
     @builder = @options.builder
     cc= @_createContainer()
-    @builder._bindClickHandler()
+    #@builder._bindClickHandler()
 
   _createContainer: ->
     $inner = $("<div>")
@@ -91,10 +91,18 @@ $.widget 'ui.ItemUI',
     @builder = @options.builder ? @parent.builder
     @item = @options.item
     @_createItem()
+    
   _createItem: ->
     $result_container = $("<div>")
     $dc = @template('param_group')
     $itemUI = $dc.find('.paramItem')
+    
+    $itemUI.click((event) =>
+      event.stopPropagation()
+      $('.paramItem').removeClass('editing')
+      $(event.currentTarget).closest('.paramItem').addClass('editing')
+      @builder.editDataCriteria(event.currentTarget.firstElementChild)
+    )  
     $result_container.append($dc)
     data_criteria = @builder.data_criteria[@item.id]
     if (data_criteria?)
