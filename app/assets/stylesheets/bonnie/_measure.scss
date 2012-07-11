@@ -192,6 +192,8 @@
   span.block-down-arrow {
     border-top-color:$eligibilityParamGroup;
   }
+  .paramItem.ui-draggable-dragging {border:2px solid $eligibilityParamGroup}
+
   .paramItem .paramText {
 
       &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
@@ -253,6 +255,8 @@
   span.block-down-arrow {
     border-top-color:$outcomeParamGroup;
   }
+  .paramItem.ui-draggable-dragging {border:2px solid $outcomeParamGroup}
+
   .paramItem .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
       background:transparent url(/assets/treatment_green_dark.png) 0 2px no-repeat;
@@ -277,17 +281,24 @@
 
 #initialPopulation {
   .paramGroup {
-    background-color: #dcdcdc;
+    background-color: $initialPopulationParamGroup;
     .paramGroup {
-      background-color: #dcdcdc;
+      margin-left: 10px;
+      background-color: darken($initialPopulationParamGroup,7);
+      width: auto;
       .paramGroup {
-        background-color: #dcdcdc;
+        margin-left: 10px;
+        background-color: darken($initialPopulationParamGroup,15);
+        .paramGroup {
+          background-color: darken($initialPopulationParamGroup,25);
+        }
       }
     }
     .and {
       background-color: #dddddd;
     }
   }
+  .paramItem.ui-draggable-dragging {border:2px solid $initialPopulationParamGroup}
   .paramItem .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
         background:transparent url(/assets/treatment_gray.png) 0 2px no-repeat;
@@ -336,6 +347,7 @@
   span.block-down-arrow {
     border-top-color:darken($exclusionsGroup,15);
   }
+  .paramItem.ui-draggable-dragging {outline:2px solid $exclusionsGroup}
   .paramItem .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
         background:transparent url(/assets/treatment_gray.png) 0 2px no-repeat;
@@ -375,6 +387,7 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
       background-color: #dddddd;
     }
   }
+  .paramItem.ui-draggable-dragging {border:2px solid #dcdcdc}
   .paramItem .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
         background:transparent url(/assets/treatment_gray.png) 0 2px no-repeat;

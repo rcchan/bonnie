@@ -18,15 +18,18 @@ class @bonnie.Builder
     alert "updating display: " + @data_criteria
 
   renderMeasureJSON: (data) =>
-    $("#xxinitialPopulationItems, #xxoutcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems").text("DISABLED FOR DEBUGGING")
-    
     @query.rebuildFromJson(data)
     
-    @addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
-    @addParamItems(@query.denominator.toJson(),$("#eligibilityMeasureItems"))
-    @addParamItems(@query.numerator.toJson(),$("#outcomeMeasureItems"))
-    @addParamItems(@query.exclusions.toJson(),$("#exclusionMeasureItems"))
-    @addParamItems(@query.exceptions.toJson(),$("#exceptionMeasureItems"))
+    #$("#initialPopulationItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.population})
+    #$("#eligibilityMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.denominator})
+    $("#outcomeMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.numerator})
+    #$("#exclusionMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exclusions})
+    #$("#exceptionsMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exceptions})
+    #@addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
+    #@addParamItems(@query.denominator.toJson(),$("#eligibilityMeasureItems"))
+    #@addParamItems(@query.numerator.toJson(),$("#outcomeMeasureItems"))
+    #@addParamItems(@query.exclusions.toJson(),$("#exclusionMeasureItems"))
+    #@addParamItems(@query.exceptions.toJson(),$("#exceptionMeasureItems"))
 
     @._bindClickHandler()
 
@@ -173,16 +176,15 @@ class @bonnie.Builder
     });
 
   addParamItems: (obj,elemParent,container) =>
-    console.log "obj",obj
-    console.log "elemParent",elemParent
-    console.log "container",container
-    console.log "==================================="
+    #console.log "obj",obj
+    #console.log "elemParent",elemParent
+    #console.log "container",container
     builder = bonnie.builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
     parent = obj.parent
     makeDropFn = (self) ->
-      console.log "making drop for ", obj
+      #console.log "making drop for ", obj
       queryObj = parent ? obj
       dropFunction = (event,ui) ->
         target = event.currentTarget
@@ -394,7 +396,7 @@ class @bonnie.DataCriteria
     if @temporal_references.length > 0
       for temporal_reference in @temporal_references
         if temporal_reference.reference && temporal_reference.reference != 'MeasurePeriod'
-          items.push({'conjunction':temporal_reference.type, 'items': [{'id':temporal_reference.reference}], 'negation':null, 'temporal':true, 'title': "#{temporal_reference.offset_text()}#{temporal_reference.type_text()}"})
+          items.push({'conjunction':temporal_reference.type, 'items': [{'id':temporal_reference.reference}], 'children': [{'id':temporal_reference.reference}],'negation':null, 'temporal':true, 'title': "#{temporal_reference.offset_text()}#{temporal_reference.type_text()}"})
     if (items.length > 0)
       items
     else
@@ -406,7 +408,7 @@ class @bonnie.DataCriteria
       conjunction = 'or'
       conjunction = 'and' if @derivation_operator == 'XPRODUCT'
       for child in @children_criteria
-        items.push({'conjunction':conjunction, 'items': [{'id':child}], 'negation':null})
+        items.push({'conjunction':conjunction, 'items': [{'id':child}],'children':[{'id':child}], 'negation':null})
     if (items.length > 0)
       items
     else

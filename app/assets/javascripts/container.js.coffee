@@ -6,31 +6,26 @@
 # Will need to either update to hold multitple num/denominators or switch to hold just one generic tree
 class queryStructure.Query
   constructor: ->
-    @population = new queryStructure.AND(null)
-    @denominator = new queryStructure.AND(null)
-    @numerator = new queryStructure.AND(null)
-    @exclusions = new queryStructure.AND(null)
-    @exceptions = new queryStructure.AND(null)
-    
+
   toJson: -> 
     return {
-      'population' : @population.toJson()
+      'population'  : @population.toJson()
       'denominator' : @denominator.toJson()
-      'numerator' : @numerator.toJson()
-      'exclusions' : @exclusions.toJson()
-      'exceptions' : @exceptions.toJson()
+      'numerator'   : @numerator.toJson()
+      'exclusions'  : @exclusions.toJson()
+      'exceptions'  : @exceptions.toJson()
     }
   
   rebuildFromJson: (json) ->
-    @population = if json['population'] then @buildFromJson(null, json['population']) else new queryStructure.AND(null)
+    @population =  if json['population']  then @buildFromJson(null, json['population'])  else new queryStructure.AND(null)
     @denominator = if json['denominator'] then @buildFromJson(null, json['denominator']) else new queryStructure.AND(null)
-    @numerator = if json['numerator'] then @buildFromJson(null, json['numerator']) else new queryStructure.AND(null)
-    @exclusions = if json['exclusions'] then @buildFromJson(null, json['exclusions']) else new queryStructure.AND(null)
-    @exceptions = if json['exceptions'] then @buildFromJson(null, json['exceptions']) else new queryStructure.AND(null)
+    @numerator =   if json['numerator']   then @buildFromJson(null, json['numerator'])   else new queryStructure.AND(null)
+    @exclusions =  if json['exclusions']  then @buildFromJson(null, json['exclusions'])  else new queryStructure.AND(null)
+    @exceptions =  if json['exceptions']  then @buildFromJson(null, json['exceptions'])  else new queryStructure.AND(null)
 
   buildFromJson: (parent, element) ->
     if @getElementType(element) == 'rule'
-      return  { 'id': element.id }
+      return  { 'id': element.id, 'data_criteria':bonnie.builder.data_criteria[element.id] }
     else
       container = @getContainerType(element)
       newContainer = new queryStructure[container](parent, [], element.negation)

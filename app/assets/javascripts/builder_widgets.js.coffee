@@ -128,6 +128,14 @@ $.widget 'ui.ItemUI',
           out:  @_out 
           drop: @_drop
         )
+        $itemUI.draggable(
+          helper:"clone"
+          containment:'document'
+          revert:true
+          distance:3
+          opacity:1
+        )
+        
         if (data_criteria.temporal_references?)
           temporal_items = data_criteria.temporalReferenceItems()
           if ($.isArray(temporal_items))
