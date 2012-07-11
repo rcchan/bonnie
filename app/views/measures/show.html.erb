@@ -182,7 +182,9 @@
 
   <script type="text/html" id="bonnie_tmpl_param_group">
     <div class='paramGroup'>
-      <div class='paramItem{{if id}} logicLeaf{{/if}}'{{if id}} data-criteria-id="${id}"{{/if}}{{if precondition_id}} data-precondition-id="${precondition_id}"{{/if}}></div>
+      <div class='paramItem{{if id}} logicLeaf{{/if}}'{{if id}} data-criteria-id="${id}"{{/if}}{{if precondition_id}} data-precondition-id="${precondition_id}"{{/if}}>
+        {{if id}}{{if bonnie.builder.data_criteria[id].display_name}}<div class="display_name" style="border: 2px solid red">${bonnie.builder.data_criteria[id].display_name}</div>{{/if}}{{/if}}
+      </div>
     </div>
   </script>
 

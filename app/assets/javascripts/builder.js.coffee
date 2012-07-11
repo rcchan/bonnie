@@ -283,6 +283,9 @@ class @bonnie.Builder
         # if (!elemParent.hasClass("paramItem"))
         items = data_criteria.temporalReferenceItems()
         elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last")
+        $(elemParent).parent().find('.display_name').click(->
+          $(this).siblings().slideToggle();
+        );
         data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
 
     if ($.isArray(items))
@@ -300,7 +303,11 @@ class @bonnie.Builder
     neg = (obj.negation || false) && obj.negation != 'false'
     builder = bonnie.builder
 
-    elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last") if items.length > 1 and !container?
+    if items.length > 1 and !container?
+      elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last")
+      $(elemParent).parent().find('.display_name').click(->
+        $(this).siblings().slideToggle();
+      );
 
     $.each(items, (i,node) ->
       $(elemParent).append("<span class='not'>not</span>") if neg
