@@ -26,6 +26,17 @@ class Measure
   scope :published, -> { where({'published'=>true}) }
   scope :by_measure_id, ->(id) { where({'measure_id'=>id }) }
   scope :by_user, ->(user) { where({'user_id'=>user.id}) }
+
+  TYPE_MAP = {
+    'problem' => 'conditions',
+    'encounter' => 'encounters',
+    'labresults' => 'results',
+    'procedure' => 'procedures',
+    'medication' => 'medications',
+    'rx' => 'medications',
+    'demographics' => 'characteristic',
+    'derived' => 'derived'
+  }
   
   # Create or increment all of the versioning information for this measure
   def publish
@@ -54,9 +65,9 @@ class Measure
   def parameter_json(population_index=0, inline=false)
     parameter_json = {}
     population_index ||= 0
-    
+
     population = populations[population_index]
-    
+
     title_mapping = {
       population["IPP"] => "population",
       population["DENOM"] => "denominator",
@@ -70,7 +81,7 @@ class Measure
 
     parameter_json
   end
-  
+
   def population_criteria_json(criteria, inline=false)
     {
         conjunction: "and",
@@ -96,14 +107,46 @@ class Measure
     HQMF::Document.from_json(json)
   end
 
-  def upsert_data_criteria(criteria)
-    self.data_criteria ||= {}
-    self.data_criteria[criteria['id']] ||= {}
-    self.data_criteria[criteria['id']].merge!(criteria)
+  def upsert_data_criteria(criteria, source=false)
+    criteria['type'] = criteria['type'] || TYPE_MAP[criteria['standard_category']]
+    
+    edit = if source then self.source_data_criteria || {} else self.data_criteria || {} end
+    edit[criteria['id']] ||= {}
+    edit[criteria['id']].merge!(criteria)
+    if source
+      self.source_data_criteria = edit
+    else
+      self.data_criteria = edit
+    end
   end
-  
+
   def all_data_criteria
     data_criteria.merge(source_data_criteria)
+  end
+
+  def create_hqmf_preconditions(data)
+    conjunction_mapping = { "and" => "allTrue", "or" => "atLeastOneTrue" }
+    if data['conjunction?']
+      data['preconditions'] = [
+        create_hqmf_preconditions(data['preconditions'])
+      ]
+      self.population_criteria[data['type']] = data
+    else
+      data = {
+        'conjunction_code' => conjunction_mapping[data['conjunction']],
+        'id' => data['precondition_id'],
+        'negation' => data['negation'] == true || data['negation'] == 'true',
+        'preconditions' => if data['items'] != nil then data['items'].map {|k,v| create_hqmf_preconditions(v)} end,
+        'reference' => data['id'],
+      }
+      if !data['id']
+        data['id'] = data['precondition_id'] || BSON::ObjectId.new.to_s
+        if data['reference']
+          upsert_data_criteria(self['source_data_criteria'][data['reference']].merge({'id' => data['reference'] += '_' + data['id']}))
+        end
+      end
+    end
+    data
   end
 
   private
@@ -134,20 +177,20 @@ class Measure
           element[:items] << if inline
               inline_data_criteria(data_criteria[precondition["reference"]])
             else
-              {id: precondition["reference"]}
+              {id: precondition["reference"], precondition_id: precondition['id']}
             end
         end
         if precondition['preconditions']
           precondition['conjunction_code'] = 'and' if precondition["reference"]
           element[:items] << parse_hqmf_preconditions(precondition, inline)
         end
-
+        element['precondition_id'] = precondition['id']
       end if criteria["preconditions"]
       return element
     end
 
   end
-  
+
   def inline_data_criteria(current_criteria)
     temporal_references = {}
     if current_criteria['temporal_references']
@@ -170,7 +213,7 @@ class Measure
         }
       }
     end
-    current_criteria.merge(temporal_references).merge(children_criteria) 
+    current_criteria.merge(temporal_references).merge(children_criteria)
   end
-  
+
 end
