@@ -114,9 +114,24 @@ $.widget 'ui.ItemUI',
         items = data_criteria.childrenCriteriaItems()
         if $.isArray(items)
           $div = $("<div>")
+          conjunction = items[0].conjunction
           # What is the correct queryStructure here?
-          foo = new queryStructure.OR(@parent,items)
-          $div.AndContainerUI({builder:@builder,container:foo})
+          if conjunction == 'or'
+            child_criteria = new queryStructure.OR(@parent,items)
+          else
+            child_criteria = new queryStructure.AND(@parent,items)
+          $div.AndContainerUI({builder:@builder,container:child_criteria})
+          ### 
+          This is where we have drawn the child group of items, but need to add the drop handler to the exterior container
+          ###
+          $itemUI.droppable(
+            over: @_overGroup
+            tolerance:'pointer'
+            greedy:true
+            accept:'label.ui-draggable'
+            out:  @_outGroup
+            drop: @_drop
+          )
           $itemUI.append($div.children())
       else
         $itemUI.append(data_criteria.asHtml("data_criteria_logic"))
@@ -128,12 +143,16 @@ $.widget 'ui.ItemUI',
           out:  @_out 
           drop: @_drop
         )
-        $itemUI.draggable(
-          helper:"clone"
-          containment:'document'
+        $itemUI.find('.paramText').draggable(
+          helper: ->
+            return $(@).parent().clone()
           revert:true
           distance:3
           opacity:1
+          zIndex:10000
+          start: (event,ui) ->
+            $(ui.helper).find('.paramText').siblings().hide()
+            $(ui.helper).width($(@).closest('.paramItem').width()+10)
         )
         
         if (data_criteria.temporal_references?)
@@ -145,12 +164,17 @@ $.widget 'ui.ItemUI',
               $div.AndContainerUI({builder:@builder,container:temporal_items[i]})
               $itemUI.append($div.children())
     @element.append($result_container.children())
+  # Using different colors in the drop highlighting to aid in debugging  
   _over: ->
     $(@).toggleClass('droppable2',true)
+  _overGroup: ->
+    $(@).toggleClass('droppable3',true)
+  _outGroup: ->
+    $(@).toggleClass('droppable3',false)
   _out: ->
     $(@).toggleClass('droppable2',false)
   _drop: ->
-    $(@).toggleClass('droppable2',false)
+    $(@).removeClass('droppable2').removeClass('droppable3')
 
   template: (id,object={}) ->
       $("#bonnie_tmpl_#{id}").tmpl(object)

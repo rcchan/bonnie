@@ -123,7 +123,7 @@
     display: table;
     margin-left: 10px;
     color: black;
-    cursor:pointer;
+    xcursor:pointer;
     text-transform: lowercase;
     @include transition(background-color .2s linear);
 
@@ -135,17 +135,23 @@
       background-color:#cfe;
       @include transition(background-color .2s linear);
     }
+    &.droppable3 {
+      background-color:#ecf;
+      @include transition(background-color .2s linear);
+    }
     &.editing {
       background-color:#ddf0ff;
       @include transition(background-color .2s linear);
     }      
     .paramText {
       padding:2px 0 0 45px;
+      cursor:pointer;
     }
     label {
       color: black;
       font-weight: bold;
       padding-right: 4px;
+      cursor:pointer;
     }
   }
 }

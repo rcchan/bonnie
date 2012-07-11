@@ -20,8 +20,8 @@ class @bonnie.Builder
   renderMeasureJSON: (data) =>
     @query.rebuildFromJson(data)
     
-    #$("#initialPopulationItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.population})
-    #$("#eligibilityMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.denominator})
+    $("#initialPopulationItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.population})
+    $("#eligibilityMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.denominator})
     $("#outcomeMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.numerator})
     #$("#exclusionMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exclusions})
     #$("#exceptionsMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exceptions})
@@ -203,7 +203,7 @@ class @bonnie.Builder
         for k of o
           arguments.callee o[k]  if typeof o[k] is "object"
       ) query = query
-      $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}})
+      #$.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}})
 
     makeDropFn = (self) ->
       #console.log "making drop for ", obj
@@ -225,7 +225,7 @@ class @bonnie.Builder
         tgt?.add(
           id: $(ui.draggable).data('criteria-id')
         )
-        $(@).removeClass('droppable')
+        $(@).removeClass('droppable').removeClass('droppable2')
         $('#workspace').empty()
         finder = queryObj
         switch (
@@ -233,19 +233,19 @@ class @bonnie.Builder
             finder = finder.parent
           ).pop()
         )
-          when bonnie.builder.populationQuery.structure
+          when bonnie.builder.query.population
             bonnie.builder.addParamItems((query = bonnie.builder.query.population.toJson()),$("#initialPopulationItems").empty())
             push(query, 'IPP', 'Initial Patient Population')
-          when bonnie.builder.denominatorQuery.structure
+          when bonnie.builder.query.denominator
             bonnie.builder.addParamItems((query = bonnie.builder.query.denominator.toJson()),$("#eligibilityMeasureItems").empty())
             push(query, 'DENOM', 'Denominator')
-          when bonnie.builder.numeratorQuery.structure
+          when bonnie.builder.query.numerator
             bonnie.builder.addParamItems((query = bonnie.builder.query.numerator.toJson()),$("#outcomeMeasureItems").empty())
             push(query, 'NUMER', 'Numerator')
-          when bonnie.builder.exclusionsQuery.structure
+          when bonnie.builder.query.exclusions
             bonnie.builder.addParamItems((query = bonnie.builder.query.exclusions.toJson()),$("#exclusionMeasureItems").empty())
             push(query, 'EXCL', 'Exclusions')
-          when bonnie.builder.exceptionsQuery.structure
+          when bonnie.builder.query.exceptions
             bonnie.builder.addParamItems((query = bonnie.builder.query.exceptions.toJson()),$("#exceptionMeasureItems").empty())
             push(query, 'DENEXCEP', 'Denominator Exceptions')
         self._bindClickHandler()
