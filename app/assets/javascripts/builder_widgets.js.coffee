@@ -9,16 +9,16 @@ $.widget 'ui.ContainerUI',
     @builder = @options.builder
     cc= @_createContainer()
     @builder._bindClickHandler()
-    
+
   _createContainer: ->
     $inner = $("<div>")
-    console.log "@container = " ,@container
-    for child,i in @container.children
-      childItem = @_createItemUI(child)
-      @element.append childItem
-      if (i < @container.children.length-1)
-        if @container instanceof queryStructure.AND then conjunction="and" else conjunction="or"
-        @element.append("<span class='"+conjunction+"'>"+conjunction+"</span>")
+    if @container.children?
+      for child,i in @container.children
+        childItem = @_createItemUI(child)
+        @element.append childItem
+        if (i < @container.children.length-1)
+          if @container instanceof queryStructure.AND then conjunction="and" else conjunction="or"
+          @element.append("<span class='"+conjunction+"'>"+conjunction+"</span>")
     return $inner.children()
       
   _createItemUI: (item) ->
@@ -31,16 +31,20 @@ $.widget 'ui.ContainerUI',
           item:item.children[0]
         )
       else
-        $dc = @template('param_group')
-        $result_container.append($dc)
-        $itemUI = $dc.find('.paramItem')
-        $dc.addClass(if @container instanceof queryStructure.AND then "and" else "or")
-        $dc.find(".paramItem").droppable(
-          over: @_over
-          out: @_out
-          drop: @_drop
-          greedy:true
-        )
+        if item.negation is true
+          $itemUI = $result_container
+          $result_container.append("<span class='not'>not</span>")
+        else
+          $dc = @template('param_group')
+          $result_container.append($dc)
+          $itemUI = $dc.find('.paramItem')
+          $dc.addClass(if @container instanceof queryStructure.AND then "and" else "or")
+          $dc.find(".paramItem").droppable(
+            over: @_over
+            out: @_out
+            drop: @_drop
+            greedy:true
+          )
         if item instanceof queryStructure.AND
           $itemUI.AndContainerUI(
             parent: @
@@ -63,13 +67,11 @@ $.widget 'ui.ContainerUI',
   template: (id,object={}) ->
       $("#bonnie_tmpl_#{id}").tmpl(object)
   _over: ->
-    $(@).parents('.paramItem').removeClass('droppable')
-    $(@).addClass('droppable')
+    $(@).toggleClass('droppable',true)
   _out: ->
-    $(@).removeClass('droppable')
+    $(@).toggleClass('droppable',false)
   _drop: ->
-    $(@).removeClass('droppable')
-
+    $(@).toggleClass('droppable',false)
 
 $.widget "ui.AndContainerUI", $.ui.ContainerUI,
   options: {}
@@ -108,21 +110,15 @@ $.widget 'ui.ItemUI',
           foo = new queryStructure.OR(@parent,items)
           $div.AndContainerUI({builder:@builder,container:foo})
           $itemUI.append($div.children())
-          $itemUI.droppable(
-            out:@_out
-            over:@_over
-            drop:@_out
-            greedy:true
-          )
       else
         $itemUI.append(data_criteria.asHtml("data_criteria_logic"))
         $itemUI.droppable(
-          over:  @_over2
+          over:  @_over
           tolerance:'pointer'
           greedy:true
           accept:'label.ui-draggable'
-          out:  @_out
-          drop: @_out
+          out:  @_out 
+          drop: @_drop
         )
         if (data_criteria.temporal_references?)
           temporal_items = data_criteria.temporalReferenceItems()
@@ -133,14 +129,12 @@ $.widget 'ui.ItemUI',
               $div.AndContainerUI({builder:@builder,container:temporal_items[i]})
               $itemUI.append($div.children())
     @element.append($result_container.children())
-    
-  _over2: ->
-    $(@).parents('.paramItem').removeClass('droppable2')
-    $(@).addClass('droppable2')
   _over: ->
-    $(@).parents('.paramItem').removeClass('droppable')
-    $(@).addClass('droppable')    
+    $(@).toggleClass('droppable2',true)
   _out: ->
-    $(@).removeClass('droppable').removeClass('droppable2')
+    $(@).toggleClass('droppable2',false)
+  _drop: ->
+    $(@).toggleClass('droppable2',false)
+
   template: (id,object={}) ->
       $("#bonnie_tmpl_#{id}").tmpl(object)
