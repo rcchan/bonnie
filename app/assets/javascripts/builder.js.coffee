@@ -390,6 +390,7 @@ class @bonnie.DataCriteria
     @standard_category = criteria.standard_category
     @qds_data_type = criteria.qds_data_type
     @title = criteria.title
+    @display_name = criteria.display_name
     @status = criteria.status
     @type = criteria.type
     if criteria.value
@@ -423,7 +424,7 @@ class @bonnie.DataCriteria
   valueText: =>
     text = ''
     text += "(result #{@value.text()})" if @value?
-    text 
+    text
 
   temporalReferenceItems: =>
     items = []
