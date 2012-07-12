@@ -45,7 +45,6 @@ class queryStructure.Query
     else
       return null
 
-
 ##############
 # Containers
 ##############
@@ -53,15 +52,16 @@ class queryStructure.Query
 class queryStructure.Container
   constructor: (@parent, @children = [], @negation = false, @precondition_id) ->
     @children ||= []
-    @myid = "id_" + (new Date().getTime() + "").substr(5)
 
   add: (element, after) ->
     # first see if the element is already part of the children array
     # if it is there is no need to do anything
     index = @children.length
-    ci = @childIndex(after)
-    if ci != -1
-      index = ci + 1
+    if after?
+      ci = @childIndex(after)
+      if ci != -1
+        index = ci + 1
+    else index=0
     @children.splice(index,0,element)
     if element.parent && element.parent != this
       element.parent.removeChild(element)
@@ -102,7 +102,7 @@ class queryStructure.Container
   childIndex: (child) ->
     if child == null
       return -1
-    for index, _child of @children
+    for _child, index in @children
       if _child == child
         return index
     return -1
@@ -121,40 +121,22 @@ class queryStructure.Container
 class queryStructure.OR extends queryStructure.Container
   constructor: ->
     @conjunction = 'or'
+    @myid = "id_or_" + (Math.random().toString().split('.')[1])
+
     super
 
   toJson: ->
     childJson = @childrenToJson()
     return { "conjunction" : "or", "items" : childJson, "negation" : @negation, "parent" : @parent, "precondition_id" : @precondition_id, "myid" : @myid }
-  
-  test: (patient) -> 
-    if (@children.length == 0)
-      return true;
-    retval = false
-    for child in @children
-      if (child.test(patient))
-        retval = true
-        break
-    return if @negation then !retval else retval;
 
 
 class queryStructure.AND extends queryStructure.Container
   constructor: ->
     @conjunction = 'and'
+    @myid = "id_and_" + (Math.random().toString().split('.')[1])
     super
 
   toJson: ->
     childJson = @childrenToJson()
     return { "conjunction" : "and", "items" : childJson, "negation" : @negation, "parent" : @parent, "precondition_id" : @precondition_id, "myid" : @myid }
-
-  test: (patient) ->
-    if (@children.length == 0)
-      return true;
-    retval = true
-    for child in @children
-      if (!child.test(patient))
-        retval =  false
-        break
-
-    return if @negation then !retval else retval
 

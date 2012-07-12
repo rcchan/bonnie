@@ -4,6 +4,7 @@ $.widget 'ui.ContainerUI',
   options: {}
   _create: ->
   _init: ->
+    @element.addClass('widget')
     @container = @options.container
     @parent = @options.parent
     @builder = @options.builder
@@ -22,7 +23,7 @@ $.widget 'ui.ContainerUI',
     return $inner.children()
       
   _createItemUI: (item) ->
-    # we need a container outside of the param_group
+    # we need a temporary container outside of the param_group
     $result_container = $("<div>")
     if item.children
       if (!(item instanceof queryStructure.AND) && !(item instanceof queryStructure.OR))
@@ -31,18 +32,47 @@ $.widget 'ui.ContainerUI',
           item:item.children[0]
         )
       else
-        if item.negation is true
+        makeDropFn = (self) ->
+          currentItem = item
+          console.log "make Container Drop item = " ,self.container
+          dropFn = (event,ui) ->
+            console.log("Dropped on a container",self.container)
+            console.log("Dropped on me", currentItem)
+            target = event.currentTarget
+            dropY = event.pageY
+            child_items = $(@).children(".paramGroup")
+            after = null
+            for item,i in child_items
+              item_top = $(item).offset().top;
+              item_height = $(item).height();
+              item_mid = item_top + Math.round(item_height/2)
+              console.log "mid",item_mid
+              console.log "dropY",dropY
+              after = currentItem.children[i] if dropY > item_mid
+            id = $(ui.draggable).data('criteria-id')
+            currentItem.add(
+              id: id
+              data_criteria:self.builder.data_criteria[id]
+            after
+            )
+            self.element.empty().AndContainerUI({builder:self.builder,container:self.container})
+
+            _.bind(self._drop,@)()
+            
+          return dropFn
+        neg = (item.negation || false) && item.negation != 'false'
+        if neg is true
           $itemUI = $result_container
           $result_container.append("<span class='not'>not</span>")
         else
-          $dc = @template('param_group')
+          $dc = @template('param_group',item)
           $result_container.append($dc)
           $itemUI = $dc.find('.paramItem')
           $dc.addClass(if @container instanceof queryStructure.AND then "and" else "or")
           $dc.find(".paramItem").droppable(
             over: @_over
             out: @_out
-            drop: @_drop
+            drop: makeDropFn(@)
             greedy:true
           )
         if item instanceof queryStructure.AND
@@ -64,7 +94,7 @@ $.widget 'ui.ContainerUI',
         item:item
       )
     return $result_container.children()
-  template: (id,object={}) ->
+  template: (id,object={}) =>
       $("#bonnie_tmpl_#{id}").tmpl(object)
   _over: ->
     $(@).toggleClass('droppable',true)
@@ -82,7 +112,6 @@ $.widget "ui.OrContainerUI", $.ui.ContainerUI,
   options: {}
   collectionType: ->
     "OR"
-
  
 $.widget 'ui.ItemUI',
   options: {}
@@ -94,15 +123,25 @@ $.widget 'ui.ItemUI',
     
   _createItem: ->
     $result_container = $("<div>")
-    $dc = @template('param_group')
+    $dc = @template('param_group',@item)
     $itemUI = $dc.find('.paramItem')
     
     $itemUI.click((event) =>
-      event.stopPropagation()
       $('.paramItem').removeClass('editing')
       $(event.currentTarget).closest('.paramItem').addClass('editing')
       @builder.editDataCriteria(event.currentTarget.firstElementChild)
-    )  
+      event.stopPropagation()
+    )
+    makeDropFn = (self) ->
+      console.log "make Drop item = " ,self.item
+      dropFn = (event,ui) ->
+        target = event.currentTarget
+        dropY = event.pageY
+        childItems = $(@).children(".paramGroup")
+        _.bind(self._drop,@)()
+        
+      return dropFn
+      
     $result_container.append($dc)
     data_criteria = @builder.data_criteria[@item.id]
     if (data_criteria?)
@@ -141,18 +180,20 @@ $.widget 'ui.ItemUI',
           greedy:true
           accept:'label.ui-draggable'
           out:  @_out 
-          drop: @_drop
+          drop: makeDropFn(@)
         )
-        $itemUI.find('.paramText').draggable(
-          helper: ->
+        $itemUI.draggable(
+          xhelper: ->
             return $(@).parent().clone()
+          helper: "clone"
           revert:true
           distance:3
+          handle: '.paramText'
           opacity:1
           zIndex:10000
           start: (event,ui) ->
             $(ui.helper).find('.paramText').siblings().hide()
-            $(ui.helper).width($(@).closest('.paramItem').width()+10)
+            $(ui.helper).width($(@).closest('.paramItem').width()+12)
         )
         
         if (data_criteria.temporal_references?)
@@ -174,6 +215,8 @@ $.widget 'ui.ItemUI',
   _out: ->
     $(@).toggleClass('droppable2',false)
   _drop: ->
+    console.log("in drop")
+    console.log(@)
     $(@).removeClass('droppable2').removeClass('droppable3')
 
   template: (id,object={}) ->
