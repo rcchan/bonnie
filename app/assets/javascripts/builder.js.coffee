@@ -114,7 +114,7 @@ class @bonnie.Builder
       subset_element = $(element).find('.subset_operator')
       $.each(data_criteria.subset_operators, (i, e) ->
         $(subset_element[i]).find('.subset_type').val(e.type)
-        if e.range && e.range.low && e.range.low.equals(e.range.high) && e.range.low.inclusive
+        if e.range && e.range.low && e.range.high && e.range.low.equals(e.range.high) && e.range.low.inclusive
           $(subset_element[i]).find('.subset_range_type[value=value]').attr('checked', true)
           $(subset_element[i]).find('.subset_range').hide()
         else
