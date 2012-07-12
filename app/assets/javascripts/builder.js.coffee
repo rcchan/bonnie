@@ -126,7 +126,7 @@ class @bonnie.Builder
 
       field_element = $(element).find('.field_value')
       i = 0
-      $.each(data_criteria.field_values, (k, e) ->
+      $.each(data_criteria.field_values || {}, (k, e) ->
         $(f = field_element[i++]).find('.field_type').val(k)
         $(f).find('.field_oid').val(e.code_list_id)
       )
@@ -139,6 +139,7 @@ class @bonnie.Builder
   editDataCriteria_submit: (form) =>
     temporal_references = []
     subset_operators = []
+    field_values = {}
 
     $(form).find('.temporal_reference').each((i, e) ->
       temporal_references.push({
@@ -200,10 +201,18 @@ class @bonnie.Builder
         }
       })
     )
+    $(form).find('.field_value').each((i, e) ->
+      field_values[i] = {
+        code_list_id: oid = $(e).find('.field_oid').val()
+        title: @value_sets[oid].concept
+        type: 'CD'
+      }
+    )
     !$(form).ajaxSubmit({
       data: {
         temporal_references: JSON.stringify(temporal_references)
         subset_operators: JSON.stringify(subset_operators)
+        field_values: JSON.stringify(field_values)
       }
       success: (changes) =>
         criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
