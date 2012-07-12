@@ -6,7 +6,6 @@ class MeasuresHelperTest < ActionView::TestCase
     include MeasuresHelper
   end
   
-  # FIXME: I need a Record/Patient factory here - cdillon
   # helper creates a javascript string from a measure number
   test "javascript include for measure debug view" do
     # create a test record/patient

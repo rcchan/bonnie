@@ -4,16 +4,6 @@ class MeasuresController < ApplicationController
   before_filter :authenticate_user!
   before_filter :validate_authorization!
 
-  TYPE_MAP = {
-    'problem' => 'conditions',
-    'encounter' => 'encounters',
-    'labresults' => 'results',
-    'procedure' => 'procedures',
-    'medication' => 'medications',
-    'rx' => 'medications',
-    'demographics' => 'characteristic',
-    'derived' => 'derived'
-  }
   add_breadcrumb 'measures', ""
 
   rescue_from Mongoid::Errors::Validations do
@@ -76,12 +66,12 @@ class MeasuresController < ApplicationController
 
   def upsert_criteria
     @measure = Measure.find(params[:id])
-    criteria = {"id" => params[:criteria_id], "type" => params['type'] || TYPE_MAP[params[:standard_category]]}
+    criteria = {"id" => params[:criteria_id], "type" => params['type']}
     ["status", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
     ["title", "code_list_id", "property", "children_criteria", "description"].each { |f| criteria[f] = params[f] if params[f]}
     criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
     criteria['subset_operators'] = JSON.parse(params['subset_operators']) if params['subset_operators']
-    @measure.upsert_data_criteria(criteria)
+    @measure.upsert_data_criteria(criteria, params['source'])
     render :json => criteria if @measure.save
   end
 
@@ -117,15 +107,15 @@ class MeasuresController < ApplicationController
     measure = Measure.find(params[:id])
     population_index = params[:population].to_i if params[:population]
     population = measure.parameter_json(population_index)
-    render :json => population 
+    render :json => population
   end
 
   def population_criteria_definition
     measure = Measure.find(params[:id])
     population = measure.population_criteria_json(measure.population_criteria[params[:key]])
-    render :json => population 
+    render :json => population
   end
-  
+
   def export
     measure = Measure.find(params[:id])
 
@@ -177,7 +167,7 @@ class MeasuresController < ApplicationController
     @measure.save!
     render partial: 'populations', locals: {measure: @measure}
   end
-  
+
   def delete_population
     @measure = Measure.find(params[:id])
     index = params['index'].to_i
@@ -189,11 +179,11 @@ class MeasuresController < ApplicationController
     @measure = Measure.find(params[:id])
     population = {}
     population['title']= params['title']
-    
+
     ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |key|
       population[key]= params[key] unless params[key].empty?
     end
-    
+
     if (population['NUMER'] and population['IPP'])
       @measure.populations << population
       @measure.save!
@@ -201,8 +191,12 @@ class MeasuresController < ApplicationController
       raise "numerator and initial population must be provided"
     end
 
-    
+
     render partial: 'populations', locals: {measure: @measure}
   end
-
+  def update_population_criteria
+    @measure = Measure.find(params[:id])
+    @measure.create_hqmf_preconditions(params['data'])
+    @measure.save!
+  end
 end

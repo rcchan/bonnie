@@ -118,11 +118,8 @@ change_test_button_params = (e) ->
     population_criteria_number = 0
   population_criteria_number++     # off by one fix
   
-  # console.log("population_criteria_number: " + population_criteria_number)
-
   # make button link pass a url param
   test_button.attr('href', base_url + "?population_criteria=" + population_criteria_number)
-  # console.log(test_button.attr('href'))
 
 # select all patients
 select_all_patients = (e) ->
