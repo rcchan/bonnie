@@ -1,8 +1,9 @@
 bonnie = @bonnie || {}
 
 class @bonnie.Builder
-  constructor: (data_criteria, measure_period, preconditions) ->
+  constructor: (data_criteria, measure_period, preconditions, fields) ->
     @measure_period = new bonnie.MeasurePeriod(measure_period)
+    @field_map = fields
     @data_criteria = {}
     @populationQuery = new queryStructure.Query()
     @denominatorQuery = new queryStructure.Query()
@@ -410,6 +411,7 @@ class @bonnie.DataCriteria
     @qds_data_type = criteria.qds_data_type
     @title = criteria.title
     @display_name = criteria.display_name
+    @field_values = criteria.field_values
     @status = criteria.status
     @type = criteria.type
     if criteria.value
@@ -443,6 +445,17 @@ class @bonnie.DataCriteria
   valueText: =>
     text = ''
     text += "(result #{@value.text()})" if @value?
+
+  fieldsText: =>
+    text = ''
+    if @field_values?
+      text += '('
+      i=0
+      for key in _.keys(this.field_values)
+        text+=', ' if i > 0
+        i+=1
+        text+="#{bonnie.builder.field_map[key].title}:#{this.field_values[key].title}"
+      text += ')'
     text
 
   temporalReferenceItems: =>
@@ -548,8 +561,8 @@ class @bonnie.Coded
   $("#bonnie_tmpl_#{id}").tmpl(object)
 
 class Page
-  constructor: (data_criteria, measure_period, update_url, preconditions) ->
-    bonnie.builder = new bonnie.Builder(data_criteria, measure_period, preconditions)
+  constructor: (data_criteria, measure_period, update_url, preconditions, fields) ->
+    bonnie.builder = new bonnie.Builder(data_criteria, measure_period, preconditions, fields)
     bonnie.builder['update_url'] = update_url
 
   initialize: () =>
