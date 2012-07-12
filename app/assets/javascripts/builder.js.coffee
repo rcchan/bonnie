@@ -114,7 +114,7 @@ class @bonnie.Builder
       subset_element = $(element).find('.subset_operator')
       $.each(data_criteria.subset_operators, (i, e) ->
         $(subset_element[i]).find('.subset_type').val(e.type)
-        if e.range && e.range.low && e.range.low.equals(e.range.high) && e.range.low.inclusive
+        if e.range && e.range.low && e.range.high && e.range.low.equals(e.range.high) && e.range.low.inclusive
           $(subset_element[i]).find('.subset_range_type[value=value]').attr('checked', true)
           $(subset_element[i]).find('.subset_range').hide()
         else
@@ -122,6 +122,13 @@ class @bonnie.Builder
           $(subset_element[i]).find('.subset_value').hide()
           $(subset_element[i]).find('.subset_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
           $(subset_element[i]).find('.subset_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
+      )
+
+      field_element = $(element).find('.field_value')
+      i = 0
+      $.each(data_criteria.field_values || {}, (k, e) ->
+        $(f = field_element[i++]).find('.field_type').val(k)
+        $(f).find('.field_oid').val(e.code_list_id)
       )
 
   getNextChildCriteriaId: (base, start)=>
@@ -132,6 +139,7 @@ class @bonnie.Builder
   editDataCriteria_submit: (form) =>
     temporal_references = []
     subset_operators = []
+    field_values = {}
 
     $(form).find('.temporal_reference').each((i, e) ->
       temporal_references.push({
@@ -193,10 +201,18 @@ class @bonnie.Builder
         }
       })
     )
+    $(form).find('.field_value').each((i, e) =>
+      field_values[$(e).find('.field_type').val()] = {
+        code_list_id: oid = $(e).find('.field_oid').val()
+        title: @value_sets[oid].concept
+        type: 'CD'
+      }
+    )
     !$(form).ajaxSubmit({
       data: {
         temporal_references: JSON.stringify(temporal_references)
         subset_operators: JSON.stringify(subset_operators)
+        field_values: JSON.stringify(field_values)
       }
       success: (changes) =>
         criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
