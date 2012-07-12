@@ -146,6 +146,12 @@
         }
       );
 
+      $('#workspace').on('click', '.field_value > .close, .subset_operator > .close',
+        function(e){
+          $(e.target).parent().parent().remove();
+        }
+      );
+
       $('#workspace').on('click', '.temporal_reference > .close, .subset_operator > .close',
         function(e){
           $(e.target).parent().parent().remove();

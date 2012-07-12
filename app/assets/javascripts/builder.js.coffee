@@ -68,7 +68,7 @@ class @bonnie.Builder
       if data_criteria = @dataCriteria($(element).data('criteria-id'))
         data_criteria.asHtml('data_criteria_edit').appendTo('#workspace')
       else
-        bonnie.template('precondition_edit', {id: $(event.currentTarget).data('precondition-id')}).appendTo('#workspace')
+        bonnie.template('precondition_edit', {id: $(element).data('precondition-id')}).appendTo('#workspace')
 
     if data_criteria
       data_criteria.getProperty = (ns) ->
