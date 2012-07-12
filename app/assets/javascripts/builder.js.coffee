@@ -201,8 +201,8 @@ class @bonnie.Builder
         }
       })
     )
-    $(form).find('.field_value').each((i, e) ->
-      field_values[i] = {
+    $(form).find('.field_value').each((i, e) =>
+      field_values[$(e).find('.field_type').val()] = {
         code_list_id: oid = $(e).find('.field_oid').val()
         title: @value_sets[oid].concept
         type: 'CD'
