@@ -1,7 +1,7 @@
 bonnie = @bonnie || {}
 
 class @bonnie.Builder
-  constructor: (data_criteria, measure_period) ->
+  constructor: (data_criteria, measure_period, preconditions) ->
     @measure_period = new bonnie.MeasurePeriod(measure_period)
     @data_criteria = {}
     @populationQuery = new queryStructure.Query()
@@ -9,6 +9,7 @@ class @bonnie.Builder
     @numeratorQuery = new queryStructure.Query()
     @exclusionsQuery = new queryStructure.Query()
     @exceptionsQuery = new queryStructure.Query()
+    @preconditions = preconditions || {}
     for key in _.keys(data_criteria)
       @data_criteria[key] = new bonnie.DataCriteria(key, data_criteria[key], @measure_period)
 
@@ -45,7 +46,7 @@ class @bonnie.Builder
     @._bindClickHandler()
 
   _bindClickHandler: ->
-    $('.logicLeaf').click((event) =>
+    $('.paramItem').click((event) =>
       $('.paramItem').removeClass('editing')
       $(event.currentTarget).closest('.paramItem').addClass('editing')
       @editDataCriteria(event.currentTarget)
@@ -57,62 +58,68 @@ class @bonnie.Builder
 
   editDataCriteria: (element) =>
     leaf = $(element)
-    data_criteria = @dataCriteria($(element).data('criteria-id'))
-    if !data_criteria then return
-    data_criteria.getProperty = (ns) ->
-      obj = this
-      y = ns.split(".")
-      for i in [0..y.length-1]
-        if obj[y[i]]
-          obj = obj[y[i]]
-        else
-          return
-      obj
+
     top = $('#workspace > div').css('top')
     $('#workspace').empty();
-    element = data_criteria.asHtml('data_criteria_edit').appendTo('#workspace')
-    offset = leaf.offset().top + leaf.height()/2 - $('#workspace').offset().top - element.height()/2
-    offset = 0 if offset < 0
-    maxoffset = $('#measureEditContainer').height() - element.outerHeight(true) - $('#workspace').position().top - $('#workspace').outerHeight(true) + $('#workspace').height()
-    offset = maxoffset if offset > maxoffset
-    element.css("top", offset)
-    arrowOffset = leaf.offset().top + leaf.height()/2 - element.offset().top - $('.arrow-w').outerHeight()/2
-    arrowOffset = 0 if arrowOffset < 0
-    $('.arrow-w').css('top', arrowOffset)
-    element.css("top", top)
-    element.animate({top: offset})
-
-    element.find('select[name=status]').val(data_criteria.status)
-    element.find('select[name=standard_category]').val(data_criteria.standard_category)
-
-    temporal_element = $(element).find('.temporal_reference')
-    $.each(data_criteria.temporal_references, (i, e) ->
-      $(temporal_element[i]).find('.temporal_type').val(e.type)
-      $(temporal_element[i]).find('.temporal_relation').val(
-        (if e.offset && e.offset.value < 0 then 'lt' else 'gt') +
-        if e.offset && e.offset.inclusive then 'e' else ''
-      )
-      $(temporal_element[i]).find('.temporal_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
-      $(temporal_element[i]).find('.temporal_range_high_unit').val(if e.range && e.range.high then e.range.high.unit)
-      $(temporal_element[i]).find('.temporal_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
-      $(temporal_element[i]).find('.temporal_range_low_unit').val(if e.range && e.range.low then e.range.low.unit)
-      $(temporal_element[i]).find('.temporal_drop_zone').each((i, e) ->
-        fillDrop(e);
-      ).droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: ((e,ui) -> fillDrop(e)) });
-    );
-
-    subset_element = $(element).find('.subset_operator')
-    $.each(data_criteria.subset_operators, (i, e) ->
-      $(subset_element[i]).find('.subset_type').val(e.type)
-      if e.range && e.range.low && e.range.low.equals(e.range.high) && e.range.low.inclusive
-        $(subset_element[i]).find('.subset_range_type[value=value]').attr('checked', true)
-        $(subset_element[i]).find('.subset_range').hide()
+    element =
+      if data_criteria = @dataCriteria($(element).data('criteria-id'))
+        data_criteria.asHtml('data_criteria_edit').appendTo('#workspace')
       else
-        $(subset_element[i]).find('.subset_range_type[value=range]').attr('checked', true)
-        $(subset_element[i]).find('.subset_value').hide()
-        $(subset_element[i]).find('.subset_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
-        $(subset_element[i]).find('.subset_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
-    )
+        bonnie.template('precondition_edit', {id: $(event.currentTarget).data('precondition-id')}).appendTo('#workspace')
+
+    if data_criteria
+      data_criteria.getProperty = (ns) ->
+        obj = this
+        y = ns.split(".")
+        for i in [0..y.length-1]
+          if obj[y[i]]
+            obj = obj[y[i]]
+          else
+            return
+        obj
+
+      offset = leaf.offset().top + leaf.height()/2 - $('#workspace').offset().top - element.height()/2
+      offset = 0 if offset < 0
+      maxoffset = $('#measureEditContainer').height() - element.outerHeight(true) - $('#workspace').position().top - $('#workspace').outerHeight(true) + $('#workspace').height()
+      offset = maxoffset if offset > maxoffset
+      element.css("top", offset)
+      arrowOffset = leaf.offset().top + leaf.height()/2 - element.offset().top - $('.arrow-w').outerHeight()/2
+      arrowOffset = 0 if arrowOffset < 0
+      $('.arrow-w').css('top', arrowOffset)
+      element.css("top", top)
+      element.animate({top: offset})
+
+      element.find('select[name=status]').val(data_criteria.status)
+      element.find('select[name=standard_category]').val(data_criteria.standard_category)
+
+      temporal_element = $(element).find('.temporal_reference')
+      $.each(data_criteria.temporal_references, (i, e) ->
+        $(temporal_element[i]).find('.temporal_type').val(e.type)
+        $(temporal_element[i]).find('.temporal_relation').val(
+          (if e.offset && e.offset.value < 0 then 'lt' else 'gt') +
+          if e.offset && e.offset.inclusive then 'e' else ''
+        )
+        $(temporal_element[i]).find('.temporal_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
+        $(temporal_element[i]).find('.temporal_range_high_unit').val(if e.range && e.range.high then e.range.high.unit)
+        $(temporal_element[i]).find('.temporal_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
+        $(temporal_element[i]).find('.temporal_range_low_unit').val(if e.range && e.range.low then e.range.low.unit)
+        $(temporal_element[i]).find('.temporal_drop_zone').each((i, e) ->
+          fillDrop(e);
+        ).droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: ((e,ui) -> fillDrop(e)) });
+      );
+
+      subset_element = $(element).find('.subset_operator')
+      $.each(data_criteria.subset_operators, (i, e) ->
+        $(subset_element[i]).find('.subset_type').val(e.type)
+        if e.range && e.range.low && e.range.low.equals(e.range.high) && e.range.low.inclusive
+          $(subset_element[i]).find('.subset_range_type[value=value]').attr('checked', true)
+          $(subset_element[i]).find('.subset_range').hide()
+        else
+          $(subset_element[i]).find('.subset_range_type[value=range]').attr('checked', true)
+          $(subset_element[i]).find('.subset_value').hide()
+          $(subset_element[i]).find('.subset_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
+          $(subset_element[i]).find('.subset_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
+      )
 
   getNextChildCriteriaId: (base, start)=>
     id = start || 1
@@ -192,12 +199,15 @@ class @bonnie.Builder
         criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
         $element = $('#' + changes.id)
         $element.find('label').text(criteria.buildCategory())
-        $('#edit_save_message').empty().append('<span style="color: green">Saved!</span>')
-        setTimeout (->
-          $("#edit_save_message > span").fadeOut ->
-            $(this).remove()
-        ), 3000
+        @showSaved(@)
     });
+
+  showSaved: (e) =>
+    $(e).find('.edit_save_message').empty().append('<span style="color: green">Saved!</span>')
+    setTimeout (->
+      $(e).find(".edit_save_message > span").fadeOut ->
+        $(this).remove()
+    ), 3000
 
   addParamItems: (obj,elemParent,container) =>
     builder = bonnie.builder
@@ -538,8 +548,8 @@ class @bonnie.Coded
   $("#bonnie_tmpl_#{id}").tmpl(object)
 
 class Page
-  constructor: (data_criteria, measure_period, update_url) ->
-    bonnie.builder = new bonnie.Builder(data_criteria, measure_period)
+  constructor: (data_criteria, measure_period, update_url, preconditions) ->
+    bonnie.builder = new bonnie.Builder(data_criteria, measure_period, preconditions)
     bonnie.builder['update_url'] = update_url
 
   initialize: () =>

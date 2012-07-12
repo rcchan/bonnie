@@ -1,5 +1,12 @@
 <% content_for :head do %>
   <script type="text/javascript">
+    Function.prototype.curry = function() {
+        if (arguments.length<1) return this;
+        var __method = this;
+        var args = Array.prototype.slice.call(arguments);
+        return function() { return __method.apply(this, args.concat(arguments)); }
+    }
+
     var bonnie = bonnie || {};
 
     var flushDrop = function(e){
@@ -46,7 +53,9 @@
       );
     }
 
-    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>, '<%= url_for :action => 'update_population_criteria' %>');
+    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>,
+      <%= @measure.measure_period.to_json.html_safe %>, '<%= url_for :action => 'update_population_criteria' %>',
+      <%= @measure.preconditions.to_json.html_safe %>);
 
     $(document).ready(function() {
       page.initialize();
@@ -183,7 +192,11 @@
   <script type="text/html" id="bonnie_tmpl_param_group">
     <div class='paramGroup'>
       <div class='paramItem{{if id}} logicLeaf{{/if}}'{{if id}} data-criteria-id="${id}"{{/if}}{{if precondition_id}} data-precondition-id="${precondition_id}"{{/if}}>
-        {{if id}}{{if bonnie.builder.data_criteria[id].display_name}}<div class="display_name" style="border: 2px solid red">${bonnie.builder.data_criteria[id].display_name}</div>{{/if}}{{/if}}
+        {{if id}}
+          {{if bonnie.builder.data_criteria[id].display_name}}<div class="display_name" style="border: 2px solid red">${bonnie.builder.data_criteria[id].display_name}</div>{{/if}}
+        {{else precondition_id}}
+          {{if bonnie.builder.preconditions[precondition_id]}}<div class="display_name" style="border: 2px solid red">${bonnie.builder.preconditions[precondition_id]}</div>{{/if}}
+        {{/if}}
       </div>
     </div>
   </script>
@@ -323,10 +336,36 @@
     </tr>
   </script>
 
+   <script type="text/html" id="bonnie_tmpl_precondition_edit">
+    <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
+      <span class="close" style="position:absolute; top: 0; right: 0;">&times;</span>
+      <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
+      <%= form_tag({:action => 'name_precondition'}, {:onsubmit => "!$(this).ajaxSubmit({success:bonnie.builder.showSaved.curry(this)}); return false"}) do %>
+        <input type="hidden" name="id" value="<%= params[:id] %>" />
+        <input type="hidden" name="precondition_id" value="${id}">
+        <h4>Precondition ${id}</h4>
+        <table>
+          <tr>
+            <td>Name</td>
+            <td><input name="name" value="${bonnie.builder.preconditions[id]}" /></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              <input type="submit" value="save">
+              <span class="edit_save_message"></span>
+            </td>
+          </tr>
+          </tr>
+        </table>
+      <% end %>
+    </div>
+  </script>
+
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
       <span class="close" style="position:absolute; top: 0; right: 0;">&times;</span>
-    <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
+      <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
       <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
         <input type="hidden" name="criteria_id" value="${id}">
@@ -405,7 +444,7 @@
             <td></td>
             <td>
               <input type="submit" value="save">
-              <span id="edit_save_message"></span>
+              <span class="edit_save_message"></span>
             </td>
           </tr>
           </tr>

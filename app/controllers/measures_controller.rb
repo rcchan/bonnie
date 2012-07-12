@@ -197,6 +197,12 @@ class MeasuresController < ApplicationController
   def update_population_criteria
     @measure = Measure.find(params[:id])
     @measure.create_hqmf_preconditions(params['data'])
-    @measure.save!
+    render :json => @measure.save!
+  end
+
+  def name_precondition
+    @measure = Measure.find(params[:id])
+    @measure.name_precondition(params[:precondition_id], params[:name])
+    render :json => @measure.save!
   end
 end

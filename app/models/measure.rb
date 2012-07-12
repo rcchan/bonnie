@@ -18,6 +18,7 @@ class Measure
   field :measure_period, type: Hash
   field :measure_attributes, type: Hash
   field :populations, type: Array
+  field :preconditions, type: Hash
 
   belongs_to :user
   embeds_many :publishings
@@ -37,7 +38,7 @@ class Measure
     'demographics' => 'characteristic',
     'derived' => 'derived'
   }
-  
+
   # Create or increment all of the versioning information for this measure
   def publish
     self.publish_date = Time.now
@@ -109,7 +110,7 @@ class Measure
 
   def upsert_data_criteria(criteria, source=false)
     criteria['type'] = criteria['type'] || TYPE_MAP[criteria['standard_category']]
-    
+
     edit = if source then self.source_data_criteria || {} else self.data_criteria || {} end
     edit[criteria['id']] ||= {}
     edit[criteria['id']].merge!(criteria)
@@ -147,6 +148,11 @@ class Measure
       end
     end
     data
+  end
+
+  def name_precondition(id, name)
+    self.preconditions ||= {}
+    self.preconditions[id] = name
   end
 
   private
