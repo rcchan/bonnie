@@ -45,8 +45,7 @@
         ).addClass('temporal_drop_zone_element') : 'Drop Reference Here'
       );
     }
-
-    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>, '<%= url_for :action => 'update_population_criteria' %>');
+    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>, <%= HQMF::DataCriteria::FIELDS.to_json.html_safe %>,'<%= url_for :action => 'update_population_criteria' %>');
 
     $(document).ready(function() {
       page.initialize();
@@ -190,7 +189,7 @@
     <div draggable="true" class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}data-criteria-id='${id}'{{/if}}>
       {{if operator}}<label>${operator}</label>{{/if}}
       {{if category}}<label>${category}</label>{{/if}}
-      ${title} {{if value}}${valueText}{{/if}}${temporalText}
+      ${title} {{if value}}${valueText}{{/if}} ${fieldsText} ${temporalText}
     </div>
   </script>
 
