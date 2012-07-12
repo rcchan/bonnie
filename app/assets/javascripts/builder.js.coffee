@@ -536,8 +536,11 @@ class @bonnie.Coded
     @code = value['code']
     @code_list_id = value['code_list_id']
   text: =>
-    ": #{@title}"
-
+    if (@title? and @title.length > 0)
+      ": #{@title}"
+    else
+      ": #{@code}"
+    
 @bonnie.template = (id, object={}) =>
   $("#bonnie_tmpl_#{id}").tmpl(object)
 
