@@ -124,6 +124,13 @@ class @bonnie.Builder
           $(subset_element[i]).find('.subset_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
       )
 
+      field_element = $(element).find('.field_value')
+      i = 0
+      $.each(data_criteria.field_values, (k, e) ->
+        $(f = field_element[i++]).find('.field_type').val(k)
+        $(f).find('.field_oid').val(e.code_list_id)
+      )
+
   getNextChildCriteriaId: (base, start)=>
     id = start || 1
     id++  while @data_criteria[base + id]

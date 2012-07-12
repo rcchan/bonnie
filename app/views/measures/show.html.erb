@@ -176,6 +176,12 @@
         }
       );
 
+      $('#workspace').on('click', '#field_new',
+        function(){
+          $('#bonnie_tmpl_data_criteria_field_value').tmpl().insertBefore('#field_new_position');
+        }
+      );
+
       $('#workspace').on('change', '.subset_operator .subset_range_type',
         function(){
           $(this).parent().siblings().children('.subset_range_type').attr('checked', null);
@@ -340,6 +346,33 @@
     </tr>
   </script>
 
+  <script type="text/html" id="bonnie_tmpl_data_criteria_field_value">
+    <tr>
+      <td>Field Value:</td>
+      <td class="field_value">
+        <div style="text-align: right;" class="close">&times;</div>
+        <div>
+          <select class="field_type">
+            <option value="Severity">Severity</option>
+            <option value="Ordinal">Ordinal</option>
+            <option value="Environment">Environment</option>
+            <option value="Reason">Reason</option>
+            <option value="RADIATION_DOSAGE">RADIATION DOSAGE</option>
+            <option value="RADIATION_DURATION">RADIATION DURATION</option>
+            <option value="LENGTH_OF_STAY">LENGTH OF STAY</option>
+          </select>
+        </div>
+        <div>
+          <select class="field_oid">
+            {{each bonnie.builder.value_sets}}
+              <option value="${$index}">${$value.concept}</option>
+            {{/each}}
+          </script>
+        </div>
+      </td>
+    </tr>
+  </script>
+
    <script type="text/html" id="bonnie_tmpl_precondition_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
       <span class="close" style="position:absolute; top: 0; right: 0;">&times;</span>
@@ -443,6 +476,13 @@
           <tr id="subset_new_position">
             <td></td>
             <td><input type="button" id="subset_new" value="New Subset Operator" /></td>
+          </tr>
+          {{each field_values}}
+            {{tmpl($value) '#bonnie_tmpl_data_criteria_field_value'}}
+          {{/each}}
+          <tr id="field_new_position">
+            <td></td>
+            <td><input type="button" id="field_new" value="New Field Value" /></td>
           </tr>
           <tr>
             <td></td>
