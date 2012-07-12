@@ -430,6 +430,14 @@ class @bonnie.DataCriteria
     @title = criteria.title
     @display_name = criteria.display_name
     @field_values = criteria.field_values
+    if @field_values?
+      for key in _.keys(@field_values)
+        value = @field_values[key]
+        value = new bonnie.Range(value) if value.type == 'IVL_PQ'
+        value = new bonnie.Value(value) if value.type == 'PQ'
+        value = new bonnie.Coded(value) if value.type == 'CD'
+        @field_values[key] = value
+    
     @status = criteria.status
     @type = criteria.type
     if criteria.value
@@ -472,7 +480,7 @@ class @bonnie.DataCriteria
       for key in _.keys(this.field_values)
         text+=', ' if i > 0
         i+=1
-        text+="#{bonnie.builder.field_map[key].title}:#{this.field_values[key].title}"
+        text+="#{bonnie.builder.field_map[key].title}:#{@field_values[key].text()}"
       text += ')'
     text
 
