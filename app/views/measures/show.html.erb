@@ -52,10 +52,14 @@
         ).addClass('temporal_drop_zone_element') : 'Drop Reference Here'
       );
     }
-    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>,
-      <%= @measure.measure_period.to_json.html_safe %>, '<%= url_for :action => 'update_population_criteria' %>',
+    var page = new Page(
+      <%= @measure.all_data_criteria.to_json.html_safe %>,
+      <%= @measure.measure_period.to_json.html_safe %>,
+      '<%= url_for :action => 'update_population_criteria' %>',
       <%= @measure.preconditions.to_json.html_safe %>,
-      <%= HQMF::DataCriteria::FIELDS.to_json.html_safe %>,'<%= url_for :action => 'update_population_criteria' %>');
+      <%= HQMF::DataCriteria::FIELDS.to_json.html_safe %>,
+      <%= @measure.value_sets.where({'category' => 'attribute'}).map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.to_json.html_safe %>
+    );
 
     $(document).ready(function() {
       page.initialize();

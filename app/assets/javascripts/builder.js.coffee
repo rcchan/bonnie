@@ -1,16 +1,18 @@
 bonnie = @bonnie || {}
 
 class @bonnie.Builder
-  constructor: (data_criteria, measure_period, preconditions, fields) ->
+  constructor: (data_criteria, measure_period, preconditions, fields, value_sets) ->
     @measure_period = new bonnie.MeasurePeriod(measure_period)
     @field_map = fields
     @data_criteria = {}
+    @value_sets = {}
     @populationQuery = new queryStructure.Query()
     @denominatorQuery = new queryStructure.Query()
     @numeratorQuery = new queryStructure.Query()
     @exclusionsQuery = new queryStructure.Query()
     @exceptionsQuery = new queryStructure.Query()
     @preconditions = preconditions || {}
+    @value_sets[s.oid] = s for s in value_sets
     for key in _.keys(data_criteria)
       @data_criteria[key] = new bonnie.DataCriteria(key, data_criteria[key], @measure_period)
 
@@ -561,8 +563,8 @@ class @bonnie.Coded
   $("#bonnie_tmpl_#{id}").tmpl(object)
 
 class Page
-  constructor: (data_criteria, measure_period, update_url, preconditions, fields) ->
-    bonnie.builder = new bonnie.Builder(data_criteria, measure_period, preconditions, fields)
+  constructor: (data_criteria, measure_period, update_url, preconditions, fields, value_sets) ->
+    bonnie.builder = new bonnie.Builder(data_criteria, measure_period, preconditions, fields, value_sets)
     bonnie.builder['update_url'] = update_url
 
   initialize: () =>
