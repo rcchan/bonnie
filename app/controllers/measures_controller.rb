@@ -67,7 +67,7 @@ class MeasuresController < ApplicationController
   def upsert_criteria
     @measure = Measure.find(params[:id])
     criteria = {"id" => params[:criteria_id], "type" => params['type']}
-    ["status", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
+    ["status", "display_name", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
     ["title", "code_list_id", "property", "children_criteria", "description"].each { |f| criteria[f] = params[f] if params[f]}
     criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
     criteria['subset_operators'] = JSON.parse(params['subset_operators']) if params['subset_operators']
@@ -197,6 +197,12 @@ class MeasuresController < ApplicationController
   def update_population_criteria
     @measure = Measure.find(params[:id])
     @measure.create_hqmf_preconditions(params['data'])
-    @measure.save!
+    render :json => @measure.save!
+  end
+
+  def name_precondition
+    @measure = Measure.find(params[:id])
+    @measure.name_precondition(params[:precondition_id], params[:name])
+    render :json => @measure.save!
   end
 end
