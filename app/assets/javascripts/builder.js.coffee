@@ -70,6 +70,18 @@ class @bonnie.Builder
       else
         bonnie.template('precondition_edit', {id: $(element).data('precondition-id')}).appendTo('#workspace')
 
+
+    offset = leaf.offset().top + leaf.height()/2 - $('#workspace').offset().top - element.height()/2
+    offset = 0 if offset < 0
+    maxoffset = $('#measureEditContainer').height() - element.outerHeight(true) - $('#workspace').position().top - $('#workspace').outerHeight(true) + $('#workspace').height()
+    offset = maxoffset if offset > maxoffset
+    element.css("top", offset)
+    arrowOffset = leaf.offset().top + leaf.height()/2 - element.offset().top - $('.arrow-w').outerHeight()/2
+    arrowOffset = 0 if arrowOffset < 0
+    $('.arrow-w').css('top', arrowOffset)
+    element.css("top", top)
+    element.animate({top: offset})
+
     if data_criteria
       data_criteria.getProperty = (ns) ->
         obj = this
@@ -80,17 +92,6 @@ class @bonnie.Builder
           else
             return
         obj
-
-      offset = leaf.offset().top + leaf.height()/2 - $('#workspace').offset().top - element.height()/2
-      offset = 0 if offset < 0
-      maxoffset = $('#measureEditContainer').height() - element.outerHeight(true) - $('#workspace').position().top - $('#workspace').outerHeight(true) + $('#workspace').height()
-      offset = maxoffset if offset > maxoffset
-      element.css("top", offset)
-      arrowOffset = leaf.offset().top + leaf.height()/2 - element.offset().top - $('.arrow-w').outerHeight()/2
-      arrowOffset = 0 if arrowOffset < 0
-      $('.arrow-w').css('top', arrowOffset)
-      element.css("top", top)
-      element.animate({top: offset})
 
       element.find('select[name=status]').val(data_criteria.status)
       element.find('select[name=standard_category]').val(data_criteria.standard_category)
