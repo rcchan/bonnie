@@ -72,6 +72,7 @@ namespace :measures do
     raise "The user #{username} could not be found." unless user
 
     if delete_existing == 'true'
+      user.measures.each {|measure| measure.value_sets.delete_all}
       count = user.measures.delete_all
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
@@ -90,6 +91,7 @@ namespace :measures do
     raise "The user #{args.username} could not be found." unless user
 
     if args.delete_existing
+      user.measures.each {|measure| measure.value_sets.delete_all}
       count = user.measures.delete_all
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
