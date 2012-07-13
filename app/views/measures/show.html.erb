@@ -220,8 +220,8 @@
   <script type="text/html" id="bonnie_tmpl_data_criteria_logic">
     <div draggable="true" class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}data-criteria-id='${id}'{{/if}}>
       {{if operator}}<label>${operator}</label>{{/if}}
-      {{if category}}<label>${category}</label>{{/if}}
-      ${title} {{if value}}${valueText}{{/if}} ${fieldsText} ${temporalText}
+      {{if category}}<label>${category}{{if status}}, ${status}{{/if}}</label>{{/if}}
+      ${title} {{if value }}{{if type!='characteristic' }}${valueText}{{/if}}{{/if}} ${fieldsText} ${temporalText}
     </div>
   </script>
 
@@ -425,10 +425,19 @@
             <td>
               <select name="status">
                 <option value="">--</option>
-                <option value="ordered">Ordered</option>
-                <option value="administered">Administered</option>
-                <option value="active">Active</option>
-                <option value="performed">Performed</option>
+                
+                <option value="active">active</option>
+                <option value="performed">performed</option>
+                <option value="ordered">ordered</option>
+                <option value="recommended">recommended</option>
+                <option value="resolved">resolved</option>
+                <option value="inactive">inactive</option>
+                <option value="dispensed">dispensed</option>
+                <option value="administered">administered</option>
+                <option value="applied">applied</option>
+                <option value="assessed">assessed</option>
+                <option value="final report">final report</option>
+                
               </select>
             </td>
           </tr>
