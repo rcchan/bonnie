@@ -117,12 +117,12 @@ class @bonnie.Builder
         $(subset_element[i]).find('.subset_type').val(e.type)
         if e.range && e.range.low && e.range.high && e.range.low.equals(e.range.high) && e.range.low.inclusive
           $(subset_element[i]).find('.subset_range_type[value=value]').attr('checked', true)
-          $(subset_element[i]).find('.subset_range').hide()
+          $(subset_element[i]).find('.data_criteria_value').siblings().hide()
         else
           $(subset_element[i]).find('.subset_range_type[value=range]').attr('checked', true)
-          $(subset_element[i]).find('.subset_value').hide()
-          $(subset_element[i]).find('.subset_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
-          $(subset_element[i]).find('.subset_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
+          $(subset_element[i]).find('.data_criteria_range').siblings().hide()
+          $(subset_element[i]).find('.data_criteria_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
+          $(subset_element[i]).find('.data_criteria_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
       )
 
       field_element = $(element).find('.field_value')
@@ -179,26 +179,26 @@ class @bonnie.Builder
           type: 'IVL_PQ'
           high: if $(e).find('.subset_range_type:checked').val() == 'value' then {
             type: 'PQ'
-            value: $(e).find('.subset_value_value').val()
-            unit: $(e).find('.subset_value_unit').val()
+            value: $(e).find('.data_criteria_value_value').val()
+            unit: $(e).find('.data_criteria_value_unit').val()
             'inclusive?': true
           } else {
             type: 'PQ'
-            value: $(e).find('.subset_range_high_value').val()
-            unit: $(e).find('.subset_range_high_unit').val()
-            'inclusive?': $(e).find('.subset_range_high_relation').val().indexOf('e') > -1
-          } if $(e).find('.subset_range_high_value').val()
+            value: $(e).find('.data_criteria_range_high_value').val()
+            unit: $(e).find('.data_criteria_range_high_unit').val()
+            'inclusive?': $(e).find('.data_criteria_range_high_relation').val().indexOf('e') > -1
+          } if $(e).find('.data_criteria_range_high_value').val()
           low: if $(e).find('.subset_range_type:checked').val() == 'value' then {
             type: 'PQ'
-            value: $(e).find('.subset_value_value').val()
-            unit: $(e).find('.subset_value_unit').val()
+            value: $(e).find('.data_criteria_value_value').val()
+            unit: $(e).find('.data_criteria_value_unit').val()
             'inclusive?': true
           } else {
             type: 'PQ'
-            value: $(e).find('.subset_range_low_value').val()
-            unit: $(e).find('.subset_range_low_unit').val()
-            'inclusive?': $(e).find('.subset_range_low_relation').val().indexOf('e') > -1
-          } if $(e).find('.subset_range_low_value').val()
+            value: $(e).find('.data_criteria_range_low_value').val()
+            unit: $(e).find('.data_criteria_range_low_unit').val()
+            'inclusive?': $(e).find('.data_criteria_range_low_relation').val().indexOf('e') > -1
+          } if $(e).find('.data_criteria_range_low_value').val()
         }
       })
     )

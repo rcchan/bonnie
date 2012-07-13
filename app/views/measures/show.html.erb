@@ -192,11 +192,9 @@
         function(){
           $(this).parent().siblings().children('.subset_range_type').attr('checked', null);
           if ($(this).val() == 'value'){
-            $(this).parents('.subset_operator').find('.subset_value').show();
-            $(this).parents('.subset_operator').find('.subset_range').hide();
+            $(this).parents('.subset_operator').find('.data_criteria_value').show().siblings().hide();
           } else {
-            $(this).parents('.subset_operator').find('.subset_value').hide();
-            $(this).parents('.subset_operator').find('.subset_range').show();
+            $(this).parents('.subset_operator').find('.data_criteria_range').show().siblings().hide();
           }
         }
       );
@@ -322,34 +320,42 @@
           <label><input type="radio" class="subset_range_type" value="range" />Range</label>
         </div>
         <div class="subset_value">
-          <div>
-            <input class="subset_relation" type="hidden" value="eq">
-            <input class="subset_value_value" type="text" style="width: 120px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
-            <input class="subset_value_unit" style="width: 60px;" value="{{if range}}${range.low && range.low.unit || ''}{{/if}}" />
-          </div>
-        </div>
-        <div class="subset_range">
-          <div>
-            <div>Low</div>
-            <select class="subset_range_low_relation" style="width: 60px;">
-              <option value="gt">&gt;</option>
-              <option value="gte">&gt;=</option>
-            </select>
-            <input class="subset_range_low_value" type="text" style="width: 60px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
-            <input class="subset_range_low_unit" style="width: 60px;" value="{{if range}}${range.low && range.low.unit || ''}{{/if}}" />
-          </div>
-          <div>
-            <div>High</div>
-            <select class="subset_range_high_relation" style="width: 60px;">
-              <option value="lte">&lt;=</option>
-              <option value="lt">&lt;</option>
-            </select>
-            <input class="subset_range_high_value" type="text" style="width: 60px;" value="{{if range}}${range.high && range.high.value || ''}{{/if}}"/>
-            <input class="subset_range_high_unit" style="width: 60px;" value="{{if range}}${range.high && range.high.unit || ''}{{/if}}" />
-          </div>
+          {{tmpl(range.low) '#bonnie_tmpl_data_criteria_value'}}
+          {{tmpl(range) '#bonnie_tmpl_data_criteria_range'}}
         </div>
       </td>
     </tr>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_value">
+    <div class="data_criteria_value">
+        <input class="data_criteria_value_relation" type="hidden" value="eq">
+        <input class="data_criteria_value_value" type="text" style="width: 120px;" value="{{if value}}${value}{{/if}}"/>
+        <input class="data_criteria_value_unit" style="width: 60px;" value="{{if unit}}${unit}{{/if}}" />
+    </div>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_range">
+    <div class="data_criteria_range">
+      <div>
+        <div>Low</div>
+        <select class="data_criteria_range_low_relation" style="width: 60px;">
+          <option value="gt">&gt;</option>
+          <option value="gte">&gt;=</option>
+        </select>
+        <input class="data_criteria_range_low_value" type="text" style="width: 60px;" value="{{if low}}${low.value || ''}{{/if}}"/>
+        <input class="data_criteria_range_low_unit" style="width: 60px;" value="{{if low}}${low.unit || ''}{{/if}}" />
+      </div>
+      <div>
+        <div>High</div>
+        <select class="data_criteria_range_high_relation" style="width: 60px;">
+          <option value="lte">&lt;=</option>
+          <option value="lt">&lt;</option>
+        </select>
+        <input class="data_criteria_range_high_value" type="text" style="width: 60px;" value="{{if high}}${high.value || ''}{{/if}}"/>
+        <input class="data_criteria_range_high_unit" style="width: 60px;" value="{{if high}}${high.unit || ''}{{/if}}" />
+      </div>
+    </div>
   </script>
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_field_value">

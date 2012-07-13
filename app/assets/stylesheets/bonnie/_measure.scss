@@ -21,7 +21,7 @@
   background-color:#f5f5f5;
   left:0;
   top:0px;
-  
+
   min-height:100%;
   width:300px;
   padding:140px 0 0 0;
@@ -52,7 +52,7 @@
   }
   span.and {
     display: inline-block;
-    background-color: $eligibilityParamGroupAND; 
+    background-color: $eligibilityParamGroupAND;
   }
   span.or {
     display: inline-block;
@@ -132,7 +132,7 @@
     &.editing {
       background-color:#ddf0ff;
       @include transition(background-color .2s linear);
-    }      
+    }
     .paramText {
       padding:2px 0 0 45px;
     }
@@ -410,7 +410,7 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
       position:relative;
       cursor:pointer;
 
-     .paramText {  
+     .paramText {
        padding:5px 15px 5px 42px;
        margin:5px 0;
        text-transform:uppercase;
@@ -610,7 +610,7 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
     }
   }
 
-  .subset_operator {
+  .subset_operator, .criteria_value {
     label, input {
       display: inline;
     }
@@ -666,6 +666,6 @@ h3.measure-title .label {
   background: white;
   color: orange;
 }
-h3.measure-title .title { 
+h3.measure-title .title {
   font-size: 14px;
 }
