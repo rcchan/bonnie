@@ -49,7 +49,7 @@ class @bonnie.Builder
     @._bindClickHandler()
 
   _bindClickHandler: ->
-    $('.paramItem').click((event) =>
+    $('#eligibilityMeasures .paramItem').click((event) =>
       $('.paramItem').removeClass('editing')
       $(event.currentTarget).closest('.paramItem').addClass('editing')
       @editDataCriteria(event.currentTarget)

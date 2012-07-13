@@ -359,17 +359,19 @@
         <div style="text-align: right;" class="close">&times;</div>
         <div>
           <select class="field_type">
+            <option value="">--</option>
             <option value="SEVERITY">Severity</option>
             <option value="ORDINAL">Ordinal</option>
             <option value="ENVIRONMENT">Environment</option>
             <option value="REASON">Reason</option>
-            <option value="RADIATION_DOSAGE">RADIATION DOSAGE</option>
-            <option value="RADIATION_DURATION">RADIATION DURATION</option>
-            <option value="LENGTH_OF_STAY">LENGTH OF STAY</option>
+            <option value="RADIATION_DOSAGE">Radiation Dosage</option>
+            <option value="RADIATION_DURATION">Radiation Duratio</option>
+            <option value="LENGTH_OF_STAY">Length of Stay</option>
           </select>
         </div>
         <div>
           <select class="field_oid">
+            <option value="">--</option>
             {{each bonnie.builder.value_sets}}
               <option value="${$index}">${$value.concept}</option>
             {{/each}}
