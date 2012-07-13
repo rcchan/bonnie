@@ -129,7 +129,7 @@ class @bonnie.Builder
       i = 0
       $.each(data_criteria.field_values || {}, (k, e) ->
         $(f = field_element[i++]).find('.field_type').val(k)
-        $(f).find('.field_oid').val(e.code_list_id)
+        $(f).find('.data_criteria_oid').val(e.code_list_id)
       )
 
   getNextChildCriteriaId: (base, start)=>
@@ -204,7 +204,7 @@ class @bonnie.Builder
     )
     $(form).find('.field_value').each((i, e) =>
       field_values[$(e).find('.field_type').val()] = {
-        code_list_id: oid = $(e).find('.field_oid').val()
+        code_list_id: oid = $(e).find('.data_criteria_oid').val()
         title: @value_sets[oid].concept
         type: 'CD'
       }

@@ -329,9 +329,9 @@
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_value">
     <div class="data_criteria_value">
-        <input class="data_criteria_value_relation" type="hidden" value="eq">
-        <input class="data_criteria_value_value" type="text" style="width: 120px;" value="{{if value}}${value}{{/if}}"/>
-        <input class="data_criteria_value_unit" style="width: 60px;" value="{{if unit}}${unit}{{/if}}" />
+      <input class="data_criteria_value_relation" type="hidden" value="eq">
+      <input class="data_criteria_value_value" type="text" style="width: 120px;" value="{{if value}}${value}{{/if}}"/>
+      <input class="data_criteria_value_unit" style="width: 60px;" value="{{if unit}}${unit}{{/if}}" />
     </div>
   </script>
 
@@ -358,6 +358,15 @@
     </div>
   </script>
 
+  <script type="text/html" id="bonnie_tmpl_data_criteria_coded">
+    <select class="data_criteria_oid">
+      <option value="">--</option>
+      {{each bonnie.builder.value_sets}}
+        <option value="${$index}">${$value.concept}</option>
+      {{/each}}
+    </select>
+  </script>
+
   <script type="text/html" id="bonnie_tmpl_data_criteria_field_value">
     <tr>
       <td>Field Value:</td>
@@ -376,12 +385,7 @@
           </select>
         </div>
         <div>
-          <select class="field_oid">
-            <option value="">--</option>
-            {{each bonnie.builder.value_sets}}
-              <option value="${$index}">${$value.concept}</option>
-            {{/each}}
-          </script>
+          {{tmpl '#bonnie_tmpl_data_criteria_coded'}}
         </div>
       </td>
     </tr>
