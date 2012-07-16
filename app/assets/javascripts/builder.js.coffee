@@ -236,12 +236,12 @@ class @bonnie.Builder
                   type: 'PQ'
                   value: $(form).find('.criteria_value .data_criteria_range_low_value').val()
                   unit: $(form).find('.criteria_value .data_criteria_range_low_unit').val()
-                }
+                } if $(form).find('.criteria_value .data_criteria_range_low_value').val()
                 high: {
                   type: 'PQ'
                   value: $(form).find('.criteria_value .data_criteria_range_high_value').val()
                   unit: $(form).find('.criteria_value .data_criteria_range_high_unit').val()
-                }
+                } if $(form).find('.criteria_value .data_criteria_range_high_value').val()
               }
             when 'CD'
               {
