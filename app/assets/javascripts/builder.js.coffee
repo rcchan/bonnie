@@ -95,6 +95,18 @@ class @bonnie.Builder
 
       element.find('select[name=status]').val(data_criteria.status)
       element.find('select[name=standard_category]').val(data_criteria.standard_category)
+      element.find('input[type=radio][name=value_type]').change(
+        ( ->
+          element.find('.criteria_value_value').children().show().not('.' +
+            switch(if @ instanceof String then @toString() else $(@).val())
+              when 'PQ' then 'data_criteria_value'
+              when 'IVL_PQ' then 'data_criteria_range'
+              when 'CD' then 'data_criteria_oid'
+          ).hide()
+          arguments.callee
+        ).call data_criteria.value && data_criteria.value.type || 'PQ'
+      ).filter('[value=' + (data_criteria.value && data_criteria.value.type || 'PQ') + ']').prop('checked', 'checked')
+      element.find('select.data_criteria_oid').val(data_criteria.value && data_criteria.value.code_list_id)
 
       temporal_element = $(element).find('.temporal_reference')
       $.each(data_criteria.temporal_references, (i, e) ->
