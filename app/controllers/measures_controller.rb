@@ -69,6 +69,7 @@ class MeasuresController < ApplicationController
     criteria = {"id" => params[:criteria_id], "type" => params['type']}
     ["status", "display_name", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
     ["title", "code_list_id", "property", "children_criteria", "description"].each { |f| criteria[f] = params[f] if params[f]}
+    criteria['value'] = JSON.parse(params['value']).merge({'type' => params['value_type']}) if params['value'] && params['value_type']
     criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
     criteria['subset_operators'] = JSON.parse(params['subset_operators']) if params['subset_operators']
     criteria['field_values'] = JSON.parse(params['field_values']) if params['field_values']

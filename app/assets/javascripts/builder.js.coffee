@@ -223,6 +223,32 @@ class @bonnie.Builder
     )
     !$(form).ajaxSubmit({
       data: {
+        value: JSON.stringify(
+          switch $(form).find('.criteria_value input[type=radio][name=value_type]:checked').val()
+            when 'PQ'
+              {
+                value: $(form).find('.criteria_value .data_criteria_value_value').val()
+                unit: $(form).find('.criteria_value .data_criteria_value_unit').val()
+              }
+            when 'IVL_PQ'
+              {
+                low: {
+                  type: 'PQ'
+                  value: $(form).find('.criteria_value .data_criteria_range_low_value').val()
+                  unit: $(form).find('.criteria_value .data_criteria_range_low_unit').val()
+                }
+                high: {
+                  type: 'PQ'
+                  value: $(form).find('.criteria_value .data_criteria_range_high_value').val()
+                  unit: $(form).find('.criteria_value .data_criteria_range_high_unit').val()
+                }
+              }
+            when 'CD'
+              {
+                code_list_id: $(form).find('.criteria_value .data_criteria_oid').val()
+                title: $(form).find('.criteria_value .data_criteria_oid > option:selected').text()
+              }
+        )
         temporal_references: JSON.stringify(temporal_references)
         subset_operators: JSON.stringify(subset_operators)
         field_values: JSON.stringify(field_values)
