@@ -73,6 +73,7 @@ class MeasuresController < ApplicationController
     criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
     criteria['subset_operators'] = JSON.parse(params['subset_operators']) if params['subset_operators']
     criteria['field_values'] = JSON.parse(params['field_values']) if params['field_values']
+    criteria.delete('field_values') if criteria['field_values'].blank?
     @measure.upsert_data_criteria(criteria, params['source'])
     render :json => criteria if @measure.save
   end
