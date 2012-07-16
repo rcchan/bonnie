@@ -257,7 +257,7 @@ class @bonnie.Builder
         criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
         $element = $('#' + changes.id)
         $element.find('label').text(criteria.buildCategory())
-        @showSaved(@)
+        @showSaved('#workspace')
     });
 
   showSaved: (e) =>
