@@ -510,7 +510,7 @@ class @bonnie.DataCriteria
 
   fieldsText: =>
     text = ''
-    if @field_values?
+    if !$.isEmptyObject(@field_values)
       text += '('
       i=0
       for key in _.keys(this.field_values)
