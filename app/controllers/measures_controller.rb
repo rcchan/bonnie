@@ -22,7 +22,7 @@ class MeasuresController < ApplicationController
 
   def show_nqf
     @measure = Measure.find(params[:id])
-    @contents = File.read(File.expand_path(File.join('.','test','fixtures','measure-defs',@measure.measure_id,"#{@measure.measure_id}.html")))
+    @contents = File.read(File.expand_path(File.join('.','tmp','measures','html',"#{@measure.id}.html")))
   end
 
   def publish
@@ -138,13 +138,32 @@ class MeasuresController < ApplicationController
   def debug
     @measure = Measure.find(params[:id])
     @patient = Record.find(params[:record_id])
-    render "measures/debug"
+    @population = (params[:population] || 0).to_i
+    
+    respond_to do |wants|
+      wants.html do
+        @js = Measures::Exporter.execution_logic(@measure, @population)
+      end
+      wants.js do
+        @measure_js = Measures::Exporter.execution_logic(@measure, @population)
+        render :content_type => "application/javascript"
+      end
+    end
   end
+  def debug_libraries
+    respond_to do |wants|
+      wants.js do
+        @libraries = Measures::Exporter.library_functions
+        render :content_type => "application/javascript"
+      end
+    end
+  end
+  
 
   def test
+    @population = params[:population] || 0
     @measure = Measure.find(params[:id])
     @patient_names = Record.all.entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
-    # binding.pry
 
     # we need to manipulate params[:patients] but it's immutable?
     if params[:patients]
