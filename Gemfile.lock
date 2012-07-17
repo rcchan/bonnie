@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 835aab2d8c6eaef3c2450c596c8e9d01657ca328
+  revision: 5989e962ada5c464a98b2734d1647e050e63907e
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: c411642d5b85d880bb5e7bb4b9f8beef9ffca597
+  revision: 6961f8d5e007a22b51e1d8e52963243103fef62f
   branch: develop
   specs:
     hqmf2js (0.1.0)
@@ -22,7 +22,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: e81e819bf7ddfc32b0270e8a701289479641d957
+  revision: 6c16f770d129fac20795b7c2d19e5c18d88d6cfc
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
@@ -129,7 +129,7 @@ GEM
     jquery-ui-rails (1.0.0)
       jquery-rails
       railties (>= 3.1.0)
-    json (1.7.1)
+    json (1.7.3)
     jwt (0.1.4)
       json (>= 1.2.4)
     libv8 (3.3.10.4)
@@ -203,7 +203,7 @@ GEM
       rubyzip (>= 0.9.4)
       spreadsheet (> 0.6.4)
       todonotes (>= 0.1.0)
-    ruby-ole (1.2.11.3)
+    ruby-ole (1.2.11.4)
     rubyzip (0.9.9)
     sass (3.1.17)
     sass-rails (3.2.5)

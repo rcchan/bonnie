@@ -18,6 +18,13 @@
 }​
 </style>
   <script type="text/javascript">
+    Function.prototype.curry = function() {
+        if (arguments.length<1) return this;
+        var __method = this;
+        var args = Array.prototype.slice.call(arguments);
+        return function() { return __method.apply(this, args.concat(arguments)); }
+    }
+
     var bonnie = bonnie || {};
 
     var flushDrop = function(e){
@@ -63,8 +70,14 @@
         ).addClass('temporal_drop_zone_element') : 'Drop Reference Here'
       );
     }
-
-    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>, '<%= url_for :action => 'update_population_criteria' %>');
+    var page = new Page(
+      <%= @measure.all_data_criteria.to_json.html_safe %>,
+      <%= @measure.measure_period.to_json.html_safe %>,
+      '<%= url_for :action => 'update_population_criteria' %>',
+      <%= @measure.preconditions.to_json.html_safe %>,
+      <%= HQMF::DataCriteria::FIELDS.to_json.html_safe %>,
+      <%= @measure.value_sets.where({'category' => 'attribute'}).map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.to_json.html_safe %>
+    );
 
     $(document).ready(function() {
       page.initialize();
@@ -151,6 +164,12 @@
         }
       );
 
+      $('#workspace').on('click', '.field_value > .close, .subset_operator > .close',
+        function(e){
+          $(e.target).parent().parent().remove();
+        }
+      );
+
       $('#workspace').on('click', '.temporal_reference > .close, .subset_operator > .close',
         function(e){
           $(e.target).parent().parent().remove();
@@ -181,6 +200,12 @@
         }
       );
 
+      $('#workspace').on('click', '#field_new',
+        function(){
+          $('#bonnie_tmpl_data_criteria_field_value').tmpl().insertBefore('#field_new_position');
+        }
+      );
+
       $('#workspace').on('change', '.subset_operator .subset_range_type',
         function(){
           $(this).parent().siblings().children('.subset_range_type').attr('checked', null);
@@ -200,15 +225,21 @@
 
   <script type="text/html" id="bonnie_tmpl_param_group">
     <div class='paramGroup'>
-      <div class='paramItem{{if id}} logicLeaf{{/if}}'{{if id}} data-criteria-id="${id}"{{/if}}{{if precondition_id}} data-precondition-id="${precondition_id}"{{/if}}{{if myid}} data-myid="${myid}"{{/if}}></div>
+      <div class='paramItem{{if id}} logicLeaf{{/if}}'{{if id}} data-criteria-id="${id}"{{/if}}{{if precondition_id}} data-precondition-id="${precondition_id}"{{/if}}{{if myid}} data-myid="${myid}"{{/if}}>
+        {{if id}}
+          {{if bonnie.builder.data_criteria[id].display_name}}<div class="display_name" style="border: 2px solid red">${bonnie.builder.data_criteria[id].display_name}</div>{{/if}}
+        {{else precondition_id}}
+          {{if bonnie.builder.preconditions[precondition_id]}}<div class="display_name" style="border: 2px solid red">${bonnie.builder.preconditions[precondition_id]}</div>{{/if}}
+        {{/if}}
+      </div>
     </div>
   </script>
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_logic">
     <div draggable="true" class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}data-criteria-id='${id}'{{/if}}>
       {{if operator}}<label>${operator}</label>{{/if}}
-      {{if category}}<label>${category}</label>{{/if}}
-      ${title} {{if value}}${valueText}{{/if}}${temporalText}
+      {{if category}}<label>${category}{{if status}}, ${status}{{/if}}</label>{{/if}}
+      ${title} {{if value }}{{if type!='characteristic' }}${valueText}{{/if}}{{/if}} ${fieldsText} ${temporalText}
     </div>
   </script>
 
@@ -339,24 +370,92 @@
     </tr>
   </script>
 
+  <script type="text/html" id="bonnie_tmpl_data_criteria_field_value">
+    <tr>
+      <td>Field Value:</td>
+      <td class="field_value">
+        <div style="text-align: right;" class="close">&times;</div>
+        <div>
+          <select class="field_type">
+            <option value="">--</option>
+            <option value="SEVERITY">Severity</option>
+            <option value="ORDINAL">Ordinal</option>
+            <option value="ENVIRONMENT">Environment</option>
+            <option value="REASON">Reason</option>
+            <option value="RADIATION_DOSAGE">Radiation Dosage</option>
+            <option value="RADIATION_DURATION">Radiation Duratio</option>
+            <option value="LENGTH_OF_STAY">Length of Stay</option>
+          </select>
+        </div>
+        <div>
+          <select class="field_oid">
+            <option value="">--</option>
+            {{each bonnie.builder.value_sets}}
+              <option value="${$index}">${$value.concept}</option>
+            {{/each}}
+          </script>
+        </div>
+      </td>
+    </tr>
+  </script>
+
+   <script type="text/html" id="bonnie_tmpl_precondition_edit">
+    <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
+      <span class="close" style="position:absolute; top: 0; right: 0;">&times;</span>
+      <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
+      <%= form_tag({:action => 'name_precondition'}, {:onsubmit => "!$(this).ajaxSubmit({success:bonnie.builder.showSaved.curry(this)}); return false"}) do %>
+        <input type="hidden" name="id" value="<%= params[:id] %>" />
+        <input type="hidden" name="precondition_id" value="${id}">
+        <h4>Precondition ${id}</h4>
+        <table>
+          <tr>
+            <td>Name</td>
+            <td><input name="name" value="${bonnie.builder.preconditions[id]}" /></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              <input type="submit" value="save">
+              <span class="edit_save_message"></span>
+            </td>
+          </tr>
+          </tr>
+        </table>
+      <% end %>
+    </div>
+  </script>
+
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
       <span class="close" style="position:absolute; top: 0; right: 0;">&times;</span>
-    <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
+      <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
       <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
         <input type="hidden" name="criteria_id" value="${id}">
         <h4>${title}</h4>
         <table>
           <tr>
+            <td>Display Name</td>
+            <td><input name="display_name" value="${display_name}" /></td>
+          </tr>
+          <tr>
             <td>Status:</td>
             <td>
               <select name="status">
                 <option value="">--</option>
-                <option value="ordered">Ordered</option>
-                <option value="administered">Administered</option>
-                <option value="active">Active</option>
-                <option value="performed">Performed</option>
+                
+                <option value="active">active</option>
+                <option value="performed">performed</option>
+                <option value="ordered">ordered</option>
+                <option value="recommended">recommended</option>
+                <option value="resolved">resolved</option>
+                <option value="inactive">inactive</option>
+                <option value="dispensed">dispensed</option>
+                <option value="administered">administered</option>
+                <option value="applied">applied</option>
+                <option value="assessed">assessed</option>
+                <option value="final report">final report</option>
+                
               </select>
             </td>
           </tr>
@@ -413,11 +512,18 @@
             <td></td>
             <td><input type="button" id="subset_new" value="New Subset Operator" /></td>
           </tr>
+          {{each field_values}}
+            {{tmpl($value) '#bonnie_tmpl_data_criteria_field_value'}}
+          {{/each}}
+          <tr id="field_new_position">
+            <td></td>
+            <td><input type="button" id="field_new" value="New Field Value" /></td>
+          </tr>
           <tr>
             <td></td>
             <td>
               <input type="submit" value="save">
-              <span id="edit_save_message"></span>
+              <span class="edit_save_message"></span>
             </td>
           </tr>
           </tr>

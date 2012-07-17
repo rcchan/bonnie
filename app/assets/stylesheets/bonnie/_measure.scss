@@ -448,22 +448,22 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
          position:relative;
          i {position:relative;top:-2px;opacity:0.5;margin-right:2px}
         }
-      &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
+      &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.procedures, &.provider, &.providers {
           background:transparent url(/assets/treatment_gray.png) 0 50% no-repeat;
         }
-        &.diagnosis, &.symptom  {
+        &.diagnosis, &.symptom, &.symptoms, &.condition, &.conditions  {
           background:transparent url(/assets/condition_gray.png) 0 50% no-repeat;
         }
-        &.encounter, &.physical {
+        &.encounter, &.encounters, &.physical, &.physicals, &.physical_exams {
           background:transparent url(/assets/encounter_gray.png) 0 50% no-repeat;
         }
-        &.laboratory, &.diagnostic, &.diagnostic_study ,&.substance {
+        &.laboratory, &.laboratory_tests, &.diagnostic, &.diagnostic_study ,&.substance {
           background:transparent url(/assets/observation_gray.png) 0 50% no-repeat;
         }
-        &.medication {
+        &.medication, &.medications {
           background:transparent url(/assets/medication_gray.png) 0 50% no-repeat;
         }
-        &.patient, &.risk {
+        &.patient, &.patients, &.risk, &.risks, &.characteristic {
           background:transparent url(/assets/demographic_gray.png) 0 50% no-repeat;
         }
 

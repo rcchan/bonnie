@@ -11,8 +11,6 @@
 
 <% content_for :page_content do %>
 
-  <%# debug params %>
-
   <h3 class="measure-title">
     <span class="label">Testing:</span>
     <span class="title"><%= @measure.title %></span><br>
@@ -89,7 +87,7 @@
       <%= raw(include_js_libs(['map_reduce_utils'])) %>
     <% end %>
     
-    <!-- TODO: coffeescript here instead? -->
+    <!-- we call coffeescript functions here, minimizing plain js -->
     <%= javascript_tag do %>
       $().ready(function() {
         populate_test_table();
