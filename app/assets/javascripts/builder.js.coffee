@@ -48,8 +48,8 @@ class @bonnie.Builder
       @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems"))
     @._bindClickHandler()
 
-  _bindClickHandler: ->
-    $('#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems').find('.paramItem').click((event) =>
+  _bindClickHandler: (selector) ->
+    $(selector || '#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems').find('.paramItem').click((event) =>
       $('.paramItem').removeClass('editing')
       $(event.currentTarget).closest('.paramItem').addClass('editing')
       @editDataCriteria(event.currentTarget)
@@ -267,28 +267,33 @@ class @bonnie.Builder
         $(this).remove()
     ), 3000
 
-  pushTree: (queryObj) ->
+  pushTree: (queryObj) =>
     finder = queryObj
     switch (
       (while finder.parent
         finder = finder.parent
       ).pop()
     )
-      when bonnie.builder.populationQuery.structure
-        bonnie.builder.addParamItems((query = bonnie.builder.populationQuery.toJson()),$("#initialPopulationItems").empty())
-        bonnie.builder.saveTree(query, 'IPP', 'Initial Patient Population')
-      when bonnie.builder.denominatorQuery.structure
-        bonnie.builder.addParamItems((query = bonnie.builder.denominatorQuery.toJson()),$("#eligibilityMeasureItems").empty())
-        bonnie.builder.saveTree(query, 'DENOM', 'Denominator')
-      when bonnie.builder.numeratorQuery.structure
-        bonnie.builder.addParamItems((query = bonnie.builder.numeratorQuery.toJson()),$("#outcomeMeasureItems").empty())
-        bonnie.builder.saveTree(query, 'NUMER', 'Numerator')
-      when bonnie.builder.exclusionsQuery.structure
-        bonnie.builder.addParamItems((query = bonnie.builder.exclusionsQuery.toJson()),$("#exclusionMeasureItems").empty())
-        bonnie.builder.saveTree(query, 'EXCL', 'Exclusions')
-      when bonnie.builder.exceptionsQuery.structure
-        bonnie.builder.addParamItems((query = bonnie.builder.exceptionsQuery.toJson()),$("#exceptionMeasureItems").empty())
-        bonnie.builder.saveTree(query, 'DENEXCEP', 'Denominator Exceptions')
+      when @populationQuery.structure
+        @addParamItems((query = @populationQuery.toJson()),$("#initialPopulationItems").empty())
+        @saveTree(query, 'IPP', 'Initial Patient Population')
+        @_bindClickHandler("#initialPopulationItems")
+      when @denominatorQuery.structure
+        @addParamItems((query = @denominatorQuery.toJson()),$("#eligibilityMeasureItems").empty())
+        @saveTree(query, 'DENOM', 'Denominator')
+        @_bindClickHandler("#eligibilityMeasureItems")
+      when @numeratorQuery.structure
+        @addParamItems((query = @numeratorQuery.toJson()),$("#outcomeMeasureItems").empty())
+        @saveTree(query, 'NUMER', 'Numerator')
+        @_bindClickHandler("#outcomeMeasureItems")
+      when @exclusionsQuery.structure
+        @addParamItems((query = @exclusionsQuery.toJson()),$("#exclusionMeasureItems").empty())
+        @saveTree(query, 'EXCL', 'Exclusions')
+        @_bindClickHandler("#exclusionMeasureItems")
+      when @exceptionsQuery.structure
+        @addParamItems((query = @exceptionsQuery.toJson()),$("#exceptionMeasureItems").empty())
+        @saveTree(query, 'DENEXCEP', 'Denominator Exceptions')
+        @_bindClickHandler("#exceptionMeasureItems")
 
   saveTree: (query, key, title) ->
     ((o) ->
@@ -326,8 +331,6 @@ class @bonnie.Builder
         $('#workspace').empty()
 
         bonnie.builder.pushTree(queryObj)
-
-        self._bindClickHandler()
       return dropFunction
 
 
@@ -451,6 +454,9 @@ class @bonnie.Builder
         bonnie.builder.pushTree(e.parent.parent.children.splice(e.parent.parent.children.indexOf(e.parent), 1, if e.parent.children.indexOf(e) then e.parent.children[0] else e.parent.children[1])[0])
       else
         bonnie.builder.pushTree(e.parent.children.splice(e.parent.children.indexOf(e), 1)[0])
+      $('#confirm_criteria_delete').modal('hide')
+      $('#workspace').empty()
+      bonnie.builder._bindClickHandler()
     ).appendTo(document.body).modal()
 
 class @bonnie.TemporalReference
