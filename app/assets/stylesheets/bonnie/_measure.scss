@@ -102,14 +102,13 @@
   .subset-operator+.paramGroup {margin-top:0;border-top-left-radius:0}
   .paramGroup {
     margin: 10px 0 10px 10px;
-    border-radius: $radius;
-    -moz-border-radius: $radius;
-    -webkit-border-radius: $radius;
+    @include border-radius($radius);
     padding: 2px;
     display: table;
     &.paramItem {
       @include transition(background-color .2s linear);
     }
+    &.dragged {@include box-shadow(0 0 15px #06f);}
   }
   .paramGroupToggle {
     margin: 0 0 0 20px;
@@ -123,7 +122,6 @@
     display: table;
     margin-left: 10px;
     color: black;
-    xcursor:pointer;
     text-transform: lowercase;
     @include transition(background-color .2s linear);
 
@@ -642,6 +640,9 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
   }
 }
 
+.widget {
+  //border-left:1px dotted red;
+}
 #patients .row {
   margin: 0em;
   padding: 0em;

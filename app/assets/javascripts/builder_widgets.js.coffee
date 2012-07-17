@@ -38,24 +38,50 @@ $.widget 'ui.ContainerUI',
           dropFn = (event,ui) ->
             console.log("Dropped on a container",self.container)
             console.log("Dropped on me", currentItem)
+            console.log("In Drop, self = ",self)
+            console.log "event = ",event
+            console.log "ui = ",ui
+            if (currentItem.parent is self.container)
+              console.log("Dropped on my own box")
             target = event.currentTarget
             dropY = event.pageY
             child_items = $(@).children(".paramGroup")
             after = null
+            pos = 0
             for item,i in child_items
               item_top = $(item).offset().top;
               item_height = $(item).height();
               item_mid = item_top + Math.round(item_height/2)
-              console.log "mid",item_mid
-              console.log "dropY",dropY
               after = currentItem.children[i] if dropY > item_mid
+              pos = i+1 if dropY > item_mid
             id = $(ui.draggable).data('criteria-id')
             currentItem.add(
               id: id
               data_criteria:self.builder.data_criteria[id]
             after
             )
+            $(ui.helper).remove()
+            scrollTop = Math.max($("html").scrollTop(),$("body").scrollTop())
+            console.log("scrollTop was",scrollTop)
+
             self.element.empty().AndContainerUI({builder:self.builder,container:self.container})
+            $("body,html").scrollTop(scrollTop)
+            droppedElem = self.element.find(".paramItem[data-myid=#{currentItem.myid}]>.paramGroup").eq(pos)
+            console.log droppedElem
+            innerHeight = window.innerHeight
+            scrollTop = Math.max($("html").scrollTop(),$("body").scrollTop())
+            console.log("scrollTop is", scrollTop)
+            if droppedElem.offset().top > innerHeight*.75 or droppedElem.offset().top - scrollTop < 0
+              $.scrollTo(droppedElem,
+                duration:800
+                easing:'easeInOutQuad'
+                offset:
+                  top:Math.floor(innerHeight/2) * -1
+                onAfter: =>
+                  droppedElem.addClass('dropped')
+              )
+            else
+              droppedElem.addClass('dropped')
 
             _.bind(self._drop,@)()
             
@@ -71,6 +97,7 @@ $.widget 'ui.ContainerUI',
           $dc.addClass(if @container instanceof queryStructure.AND then "and" else "or")
           $dc.find(".paramItem").droppable(
             over: @_over
+            tolerance:'pointer'
             out: @_out
             drop: makeDropFn(@)
             greedy:true
@@ -101,6 +128,9 @@ $.widget 'ui.ContainerUI',
   _out: ->
     $(@).toggleClass('droppable',false)
   _drop: ->
+    window.setTimeout( -> $(".dropped").removeClass('xdropped'),
+    4500
+    )
     $(@).toggleClass('droppable',false)
 
 $.widget "ui.AndContainerUI", $.ui.ContainerUI,
@@ -133,7 +163,7 @@ $.widget 'ui.ItemUI',
       event.stopPropagation()
     )
     makeDropFn = (self) ->
-      console.log "make Drop item = " ,self.item
+      #console.log "make Drop item = " ,self.item
       dropFn = (event,ui) ->
         target = event.currentTarget
         dropY = event.pageY
@@ -174,6 +204,7 @@ $.widget 'ui.ItemUI',
           $itemUI.append($div.children())
       else
         $itemUI.append(data_criteria.asHtml("data_criteria_logic"))
+        $itemUI.find(".paramText").data('item-ui', @item)
         $itemUI.droppable(
           over:  @_over
           tolerance:'pointer'
@@ -192,8 +223,13 @@ $.widget 'ui.ItemUI',
           opacity:1
           zIndex:10000
           start: (event,ui) ->
+            #$(".paramGroup:has(.paramItem.dragged)").addClass("dragged")
+            console.log($itemUI)
+            $(event.target).closest(".paramGroup").addClass("dragged")
             $(ui.helper).find('.paramText').siblings().hide()
             $(ui.helper).width($(@).closest('.paramItem').width()+12)
+          stop: (event,ui) ->
+            $(event.target).closest(".paramGroup").removeClass("dragged")
         )
         
         if (data_criteria.temporal_references?)
