@@ -433,9 +433,10 @@ class @bonnie.DataCriteria
     if @field_values?
       for key in _.keys(@field_values)
         value = @field_values[key]
-        value = new bonnie.Range(value) if value.type == 'IVL_PQ'
-        value = new bonnie.Value(value) if value.type == 'PQ'
-        value = new bonnie.Coded(value) if value.type == 'CD'
+        if value?
+          value = new bonnie.Range(value) if value.type == 'IVL_PQ'
+          value = new bonnie.Value(value) if value.type == 'PQ'
+          value = new bonnie.Coded(value) if value.type == 'CD'
         @field_values[key] = value
     
     if criteria.value
