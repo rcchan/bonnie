@@ -429,7 +429,8 @@
       <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
       <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
-        <input type="hidden" name="criteria_id" value="${id}">
+        <input type="hidden" name="criteria_id" value="${id}" />
+        <input type="hidden" name="precondition_id" value="${precondition_id}" />
         <h4>${title}</h4>
         <table>
           <tr>
