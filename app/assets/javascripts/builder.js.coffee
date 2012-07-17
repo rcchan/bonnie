@@ -448,9 +448,9 @@ class @bonnie.Builder
     ).on("click", "input#confirm_criteria_delete_confirm", ->
       e = $("[data-precondition-id=" + precondition_id + "] > [data-criteria-id=" + criteria_id + "]").data("logic-id")
       if e.parent && e.parent.children.length <3
-        e.parent.parent.children.splice(e.parent.parent.children.indexOf(e.parent), 1, if e.parent.children.indexOf(e) then e.parent.children[0] else e.parent.children[1])
+        bonnie.builder.pushTree(e.parent.parent.children.splice(e.parent.parent.children.indexOf(e.parent), 1, if e.parent.children.indexOf(e) then e.parent.children[0] else e.parent.children[1])[0])
       else
-        e.parent.children.splice(e.parent.children.indexOf(e), 1)
+        bonnie.builder.pushTree(e.parent.children.splice(e.parent.children.indexOf(e), 1)[0])
     ).appendTo(document.body).modal()
 
 class @bonnie.TemporalReference
