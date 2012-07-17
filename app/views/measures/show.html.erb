@@ -199,6 +199,12 @@
         }
       );
 
+      $('#workspace').on('click', '.delete_criteria',
+        function(){
+          if (confirm('Are you sure you want to delete this attribute?')) alert($(this).parentsUntil('#workspace').last().find('form > input[type=hidden][name=criteria_id]').val());
+        }
+      );
+
     });
 
   </script>
@@ -520,7 +526,8 @@
           <tr>
             <td></td>
             <td>
-              <input type="submit" value="save">
+              <input type="button" class="delete_criteria" value="Delete">
+              <input style="float:right; margin-right: 20px;" type="submit" value="save">
               <span class="edit_save_message"></span>
             </td>
           </tr>
