@@ -355,7 +355,7 @@ class @bonnie.Builder
           $(this).siblings().slideToggle();
           e.stopPropagation()
         );
-        data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
+        data_criteria.asHtml('data_criteria_logic').data('logic-id', obj).appendTo(elemParent)
 
     if ($.isArray(items))
       conjunction = obj['conjunction']
