@@ -551,7 +551,7 @@
           <tr>
             <td></td>
             <td>
-              <input type="button" class="delete_criteria" value="Delete">
+              {{if typeof id != 'undefined' && typeof precondition_id != 'undefined'}}<input type="button" class="delete_criteria" value="Delete">{{/if}}
               <input style="float:right; margin-right: 20px;" type="submit" value="save">
               <span class="edit_save_message"></span>
             </td>
