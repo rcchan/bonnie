@@ -434,6 +434,22 @@ class @bonnie.Builder
       )
     )
 
+  delete_criteria_handler: ->
+    criteria_id = $(this).parentsUntil("#workspace").last().find("form > input[type=hidden][name=criteria_id]").val()
+    precondition_id = $(this).parentsUntil("#workspace").last().find("form > input[type=hidden][name=precondition_id]").val()
+    bonnie.template("confirm_criteria_delete",
+      criteria_id: criteria_id
+      precondition_id: precondition_id
+    ).bind("hidden", ->
+      $(this).remove()
+    ).on("click", "input#confirm_criteria_delete_confirm", ->
+      e = $("[data-precondition-id=" + precondition_id + "] > [data-criteria-id=" + criteria_id + "]").data("logic-id")
+      if e.parent && e.parent.children.length <3
+        e.parent.parent.children.splice(e.parent.parent.children.indexOf(e.parent), 1, if e.parent.children.indexOf(e) then e.parent.children[0] else e.parent.children[1])
+      else
+        e.parent.children.splice(e.parent.children.indexOf(e), 1)
+    ).appendTo(document.body).modal()
+
 class @bonnie.TemporalReference
   constructor: (temporal_reference) ->
     @range = new bonnie.Range(temporal_reference.range) if temporal_reference.range

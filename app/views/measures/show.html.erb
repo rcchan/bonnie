@@ -199,22 +199,7 @@
         }
       );
 
-      $('#workspace').on('click', '.delete_criteria',
-        function(){
-          bonnie.template('confirm_criteria_delete', {
-            criteria_id: $(this).parentsUntil('#workspace').last().find('form > input[type=hidden][name=criteria_id]').val(),
-            precondition_id: $(this).parentsUntil('#workspace').last().find('form > input[type=hidden][name=precondition_id]').val()
-          }).bind('hidden',
-            function(){
-              $(this).remove();
-            }
-          ).on('click', 'input#confirm_criteria_delete_confirm',
-            function(){
-              alert("GONE!");
-            }
-          ).appendTo(document.body).modal();
-        }
-      );
+      $('#workspace').on('click', '.delete_criteria', bonnie.builder.delete_criteria_handler);
     });
   </script>
 
@@ -412,7 +397,7 @@
         <h3>Confirm Attribute Deletion</h3>
       </div>
       <div class="modal-body">
-        <p>Are you sure you wish to delete the attribute<br />${precondition_id}?</p>
+        <p style="text-align: center">Are you sure you wish to delete the attribute<br />${criteria_id}?</p>
       </div>
       <div class="modal-footer">
         <button class="close btn" data-dismiss="modal">Close</button>
