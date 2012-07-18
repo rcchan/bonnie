@@ -438,6 +438,10 @@ class @bonnie.Builder
     )
 
   delete_criteria_handler: ->
+    find = (e, arr, key)->
+     for k of arr
+       return Number(k) if e[key] == arr[k][key]
+
     criteria_id = $(this).parentsUntil("#workspace").last().find("form > input[type=hidden][name=criteria_id]").val()
     precondition_id = $(this).parentsUntil("#workspace").last().find("form > input[type=hidden][name=precondition_id]").val()
     bonnie.template("confirm_criteria_delete",
@@ -448,9 +452,9 @@ class @bonnie.Builder
     ).on("click", "input#confirm_criteria_delete_confirm", ->
       e = $("[data-precondition-id=" + precondition_id + "]").data("logic-id")
       if e.parent && e.parent.children.length <3
-        bonnie.builder.pushTree(e.parent.parent.children.splice(e.parent.parent.children.indexOf(e.parent), 1, if e.parent.children.indexOf(e) then e.parent.children[0] else e.parent.children[1])[0])
+        bonnie.builder.pushTree(e.parent.parent.children.splice(find(e.parent, e.parent.parent.children, 'precondition_id'), 1, $.extend((if find(e, e.parent.children, 'precondition_id') then e.parent.children[0] else e.parent.children[1]), {parent: e.parent.parent}))[0])
       else
-        bonnie.builder.pushTree(e.parent.children.splice(e.parent.children.indexOf(e), 1)[0])
+        bonnie.builder.pushTree(e.parent.children.splice(find(e, e.parent.children, 'precondition_id'), 1)[0])
       $('#confirm_criteria_delete').modal('hide')
       $('#workspace').empty()
       bonnie.builder._bindClickHandler()
