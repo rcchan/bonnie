@@ -275,24 +275,24 @@ class @bonnie.Builder
       ).pop()
     )
       when @populationQuery.structure
-        @addParamItems((query = @populationQuery.toJson()),$("#initialPopulationItems").empty())
-        @saveTree(query, 'IPP', 'Initial Patient Population')
+        @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems").empty())
+        @saveTree(@populationQuery.toJson(), 'IPP', 'Initial Patient Population')
         @_bindClickHandler("#initialPopulationItems")
       when @denominatorQuery.structure
-        @addParamItems((query = @denominatorQuery.toJson()),$("#eligibilityMeasureItems").empty())
-        @saveTree(query, 'DENOM', 'Denominator')
+        @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems").empty())
+        @saveTree(@denominatorQuery.toJson(), 'DENOM', 'Denominator')
         @_bindClickHandler("#eligibilityMeasureItems")
       when @numeratorQuery.structure
-        @addParamItems((query = @numeratorQuery.toJson()),$("#outcomeMeasureItems").empty())
-        @saveTree(query, 'NUMER', 'Numerator')
+        @addParamItems(@numeratorQuery.toJson(),$("#outcomeMeasureItems").empty())
+        @saveTree(@numeratorQuery.toJson(), 'NUMER', 'Numerator')
         @_bindClickHandler("#outcomeMeasureItems")
       when @exclusionsQuery.structure
-        @addParamItems((query = @exclusionsQuery.toJson()),$("#exclusionMeasureItems").empty())
-        @saveTree(query, 'EXCL', 'Exclusions')
+        @addParamItems(@exclusionsQuery.toJson(),$("#exclusionMeasureItems").empty())
+        @saveTree(@exclusionsQuery.toJson(), 'EXCL', 'Exclusions')
         @_bindClickHandler("#exclusionMeasureItems")
       when @exceptionsQuery.structure
-        @addParamItems((query = @exceptionsQuery.toJson()),$("#exceptionMeasureItems").empty())
-        @saveTree(query, 'DENEXCEP', 'Denominator Exceptions')
+        @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems").empty())
+        @saveTree(@exceptionsQuery.toJson(), 'DENEXCEP', 'Denominator Exceptions')
         @_bindClickHandler("#exceptionMeasureItems")
 
   saveTree: (query, key, title) ->
