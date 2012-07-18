@@ -430,6 +430,7 @@ class @bonnie.DataCriteria
     @definition = criteria.definition
     @display_name = criteria.display_name
     @field_values = criteria.field_values
+    @specific_occurrence = criteria.specific_occurrence
     if @field_values?
       for key in _.keys(@field_values)
         value = @field_values[key]
