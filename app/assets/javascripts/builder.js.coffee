@@ -68,7 +68,7 @@ class @bonnie.Builder
       if data_criteria = @dataCriteria($(element).data('criteria-id'))
         bonnie.template('data_criteria_edit', $.extend({}, data_criteria, {precondition_id: $(element).data('precondition-id')})).appendTo('#workspace')
       else
-        bonnie.template('precondition_edit', {id: $(element).data('precondition-id')}).appendTo('#workspace')
+        bonnie.template('precondition_edit', {id: $(element).data('precondition-id'), precondition_id: $(element).data('precondition-id')}).appendTo('#workspace')
 
 
     offset = leaf.offset().top + leaf.height()/2 - $('#workspace').offset().top - element.height()/2
@@ -379,7 +379,7 @@ class @bonnie.Builder
     builder = bonnie.builder
 
     if items.length > 1
-      elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last")
+      elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
       $(elemParent).parent().find('.display_name').click((e)->
         $(this).siblings().slideToggle();
         e.stopPropagation()
