@@ -356,12 +356,12 @@ class @bonnie.Builder
         # we dont have a nested measure clause, add the item to the bottom of the list
         # if (!elemParent.hasClass("paramItem"))
         items = data_criteria.temporalReferenceItems()
-        elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last")
+        elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
         $(elemParent).parent().find('.display_name').click((e)->
           $(this).siblings().slideToggle();
           e.stopPropagation()
         );
-        data_criteria.asHtml('data_criteria_logic').data('logic-id', obj).appendTo(elemParent)
+        data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
 
     if ($.isArray(items))
       conjunction = obj['conjunction']
@@ -446,7 +446,7 @@ class @bonnie.Builder
     ).bind("hidden", ->
       $(this).remove()
     ).on("click", "input#confirm_criteria_delete_confirm", ->
-      e = $("[data-precondition-id=" + precondition_id + "] > [data-criteria-id=" + criteria_id + "]").data("logic-id")
+      e = $("[data-precondition-id=" + precondition_id + "]").data("logic-id")
       if e.parent && e.parent.children.length <3
         bonnie.builder.pushTree(e.parent.parent.children.splice(e.parent.parent.children.indexOf(e.parent), 1, if e.parent.children.indexOf(e) then e.parent.children[0] else e.parent.children[1])[0])
       else
