@@ -365,7 +365,7 @@ class @bonnie.Builder
 
     if ($.isArray(items))
       conjunction = obj['conjunction']
-      builder.renderParamItems(conjunction, items, elemParent, container, obj)
+      builder.renderParamItems(conjunction, items, elemParent, obj)
 
   _over: ->
     $(@).parents('.paramItem').removeClass('droppable')
@@ -374,11 +374,11 @@ class @bonnie.Builder
   _out: ->
     $(@).removeClass('droppable')
 
-  renderParamItems: (conjunction, items, elemParent, container, obj) =>
+  renderParamItems: (conjunction, items, elemParent, obj) =>
     neg = (obj.negation || false) && obj.negation != 'false'
     builder = bonnie.builder
 
-    if items.length > 1 and !container?
+    if items.length > 1
       elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last")
       $(elemParent).parent().find('.display_name').click((e)->
         $(this).siblings().slideToggle();
@@ -391,9 +391,6 @@ class @bonnie.Builder
       if (node.temporal)
         $(elemParent).append("<span class='#{node.conjunction} temporal-operator'>#{node.title}</span><span class='block-down-arrow'></span>")
 
-      # if (!container and i == 0)
-      #   if (!node.temporal && !node.items?)
-      #     elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last")
       builder.addParamItems(node,elemParent)
       if (i < items.length-1 and !node.temporal)
         next = items[i+1]
