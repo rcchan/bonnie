@@ -451,7 +451,9 @@ class @bonnie.Builder
       $(this).remove()
     ).on("click", "input#confirm_criteria_delete_confirm", ->
       e = $("[data-precondition-id=" + precondition_id + "]").data("logic-id")
-      if e.parent && e.parent.children.length <3
+      if !e.parent.parent
+        bonnie.builder.pushTree($.extend(e.parent, {children: []}));
+      else if e.parent && e.parent.children.length <3
         bonnie.builder.pushTree(e.parent.parent.children.splice(find(e.parent, e.parent.parent.children, 'precondition_id'), 1, $.extend((if find(e, e.parent.children, 'precondition_id') then e.parent.children[0] else e.parent.children[1]), {parent: e.parent.parent}))[0])
       else
         bonnie.builder.pushTree(e.parent.children.splice(find(e, e.parent.children, 'precondition_id'), 1)[0])
