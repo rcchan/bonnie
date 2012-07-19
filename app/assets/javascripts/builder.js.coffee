@@ -492,18 +492,27 @@ class @bonnie.DataCriteria
     @id = id
     @oid = criteria.code_list_id
     @property = criteria.property
-    @standard_category = criteria.standard_category
-    @qds_data_type = criteria.qds_data_type
     @title = criteria.title
+    @type = criteria.type
+    @definition = criteria.definition
     @display_name = criteria.display_name
     @field_values = criteria.field_values
-    @status = criteria.status
-    @type = criteria.type
+    @specific_occurrence = criteria.specific_occurrence
+    if @field_values?
+      for key in _.keys(@field_values)
+        value = @field_values[key]
+        if value?
+          value = new bonnie.Range(value) if value.type == 'IVL_PQ'
+          value = new bonnie.Value(value) if value.type == 'PQ'
+          value = new bonnie.Coded(value) if value.type == 'CD'
+        @field_values[key] = value
+    
     if criteria.value
       @value = new bonnie.Range(criteria.value) if criteria.value.type == 'IVL_PQ'
       @value = new bonnie.Value(criteria.value) if criteria.value.type == 'PQ'
       @value = new bonnie.Coded(criteria.value) if criteria.value.type == 'CD'
     @category = this.buildCategory()
+    @status = criteria.status
     @children_criteria = criteria.children_criteria
     @derivation_operator = criteria.derivation_operator
     @temporal_references = []
@@ -544,7 +553,7 @@ class @bonnie.DataCriteria
       for key in _.keys(this.field_values)
         text+=', ' if i > 0
         i+=1
-        text+="#{bonnie.builder.field_map[key].title}:#{this.field_values[key].title}"
+        text+="#{bonnie.builder.field_map[key].title}:#{@field_values[key].text()}"
       text += ')'
     text
 
@@ -571,16 +580,10 @@ class @bonnie.DataCriteria
     else
       null
 
-
-  # get the category for the data criteria... check standard_category then qds_data_type
-  # this probably needs to be done in a better way... probably direct f
+  # get the category for the data criteria
   buildCategory: =>
-    category = @standard_category
-    # QDS data type is most specific, so use it if available. Otherwise use the standard category.
-    category = @qds_data_type if @qds_data_type
-    category = "patient characteristic" if category == 'individual_characteristic'
-    category = category.replace('_',' ') if category
-    category
+    return 'patient characteristic' if (@type == 'characteristic')
+    @definition.replace(/_/g,' ')
 
 class @bonnie.MeasurePeriod
   constructor: (measure_period) ->
@@ -645,8 +648,11 @@ class @bonnie.Coded
     @code = value['code']
     @code_list_id = value['code_list_id']
   text: =>
-    ": #{@title}"
-
+    if (@title? and @title.length > 0)
+      ": #{@title}"
+    else
+      ": #{@code}"
+    
 @bonnie.template = (id, object={}) =>
   $("#bonnie_tmpl_#{id}").tmpl(object)
 

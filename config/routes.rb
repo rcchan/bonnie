@@ -20,6 +20,7 @@ Bonnie::Application.routes.draw do
     collection do
       get :published
       get :export_all
+      get :debug_libraries
     end
   end
 

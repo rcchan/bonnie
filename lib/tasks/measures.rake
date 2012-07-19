@@ -72,6 +72,7 @@ namespace :measures do
     raise "The user #{username} could not be found." unless user
 
     if delete_existing == 'true'
+      user.measures.each {|measure| measure.value_sets.delete_all}
       count = user.measures.delete_all
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
@@ -82,6 +83,7 @@ namespace :measures do
 
   desc 'Load a measure defintion into the DB'
   task :load_all, [:measures_dir, :username, :delete_existing] do |t, args|
+    
     measures_dir = args.measures_dir.empty? ? './test/fixtures/measure-defs' : args.measures_dir
     raise "The path the the measure definitions must be specified" unless measures_dir
     raise "The username to load the measures for must be specified" unless args.username
@@ -90,23 +92,29 @@ namespace :measures do
     raise "The user #{args.username} could not be found." unless user
 
     if args.delete_existing
+      user.measures.each {|measure| measure.value_sets.delete_all}
       count = user.measures.delete_all
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
 
+    html_out_path = File.join(".","tmp",'measures','html')
+    FileUtils.mkdir_p html_out_path
     Dir.foreach(measures_dir) do |entry|
       next if entry.starts_with? '.'
-      hqmf_path = File.join(measures_dir,entry,"#{entry}.xml")
-      codes_path = File.join(measures_dir,entry,"#{entry}.xls")
+      measure_dir = File.join(measures_dir,entry)
+      hqmf_path = Dir.glob(File.join(measure_dir,'*.xml')).first
+      codes_path = Dir.glob(File.join(measure_dir,'*.xls')).first
+      html_path = Dir.glob(File.join(measure_dir,'*.html')).first
       begin
-        Measures::Loader.load(hqmf_path, codes_path, user)
-        puts "Measure #{entry} successfully loaded.\n"
+        measure = Measures::Loader.load(hqmf_path, codes_path, user)
+        FileUtils.cp(html_path, File.join(html_out_path,"#{measure.id}.html"))
+        puts "Measure #{measure.measure_id} (#{measure.title}) successfully loaded.\n"
       rescue Exception => e
-        puts "Loading Measure #{entry} failed: #{e.message} \n"
+        puts "Loading Measure #{entry} failed: #{e.message}: [#{hqmf_path},#{codes_path}] \n"
       end
 
     end
-
+    
   end
 
   desc 'Drop all measure defintions from the DB'
