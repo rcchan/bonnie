@@ -350,7 +350,13 @@
             </select>
           </label>
           <label>Status / Subcategory <select name="status"></select></label>
-          <label>Value Set OID <input name="code_list_id" /></label>
+          <label>Value Set OID
+            <select name="code_list_id">
+              <% @measure.value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.each {|v|%>
+                <option value="<%= v['oid'] %>"><%= v['concept'] %> - <%= v['oid'] %></option>
+              <% } %>
+            </select>
+          </label>
           <label>Not Done:
             <select name="negation">
               <option value="">False</option>
