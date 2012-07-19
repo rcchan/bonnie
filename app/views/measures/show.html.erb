@@ -238,7 +238,7 @@
   <script type="text/html" id="bonnie_tmpl_data_criteria_logic">
     <div draggable="true" class='paramText {{if category}}${category}{{/if}} logicLeaf' {{if id}}data-criteria-id='${id}'{{/if}}>
       {{if operator}}<label>${operator}</label>{{/if}}
-      {{if category}}<label>${category}{{if status}}, ${status}{{/if}}</label>{{/if}}
+      {{if category}}<label>{{if specific_occurrence}}<span class="occurrence">Occurrence ${specific_occurrence}:</span>{{/if}} ${category}{{if status}}, ${status}{{/if}}</label>{{/if}}
       ${title} {{if value }}{{if type!='characteristic' }}${valueText}{{/if}}{{/if}} ${fieldsText} ${temporalText}
     </div>
   </script>
@@ -378,13 +378,9 @@
         <div>
           <select class="field_type">
             <option value="">--</option>
-            <option value="SEVERITY">Severity</option>
-            <option value="ORDINAL">Ordinal</option>
-            <option value="ENVIRONMENT">Environment</option>
-            <option value="REASON">Reason</option>
-            <option value="RADIATION_DOSAGE">Radiation Dosage</option>
-            <option value="RADIATION_DURATION">Radiation Duratio</option>
-            <option value="LENGTH_OF_STAY">Length of Stay</option>
+            <% HQMF::DataCriteria::FIELDS.each do |key,value| %>
+              <option value="<%= key %>"><%= value[:title]%></option>
+            <% end %>
           </select>
         </div>
         <div>
