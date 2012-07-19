@@ -24,29 +24,3 @@
   </div>
 
 <% end %>
-<div class="paramGroup" data-category="newDataCriteria">
-  <div class="paramItem">
-    <div class="paramText">
-      <label>Add New Data Criterion</label>
-    </div>
-  </div>
-</div>
-<div class="paramChildren newDataCriteria_children data-criteria">
-  <div class="paramItem">
-    <div class="paramText">
-      <form method="GET" action="<%= url_for :action => 'upsert_criteria' %>" onsubmit="return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);">
-        <label>criteria_id <input name="criteria_id" /></label>
-        <label>title <input name="title" /></label>
-        <label>standard_category <input name="standard_category" /></label>
-        <label>qds_data_type <input name="qds_data_type" /></label>
-        <label>code_list_id <input name="code_list_id" /></label>
-        <label>property <input name="property" /></label>
-        <label>type <input name="type" /></label>
-        <label>status <input name="status" /></label>
-        <input type="hidden" name="measure" value="<%= params[:id] %>" />
-        <input type="hidden" name="source" value="1" />
-        <label><input type="submit" value="Create" /></label>
-      </form>
-    </div>
-  </div>
-</div>

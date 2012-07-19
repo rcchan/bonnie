@@ -462,6 +462,9 @@ class @bonnie.Builder
       bonnie.builder._bindClickHandler()
     ).appendTo(document.body).modal()
 
+  add_new_criteria: ->
+    bonnie.template('data_criteria_new').appendTo(document.body).modal()
+
 class @bonnie.TemporalReference
   constructor: (temporal_reference) ->
     @range = new bonnie.Range(temporal_reference.range) if temporal_reference.range
@@ -506,7 +509,7 @@ class @bonnie.DataCriteria
           value = new bonnie.Value(value) if value.type == 'PQ'
           value = new bonnie.Coded(value) if value.type == 'CD'
         @field_values[key] = value
-    
+
     if criteria.value
       @value = new bonnie.Range(criteria.value) if criteria.value.type == 'IVL_PQ'
       @value = new bonnie.Value(criteria.value) if criteria.value.type == 'PQ'
@@ -652,7 +655,7 @@ class @bonnie.Coded
       ": #{@title}"
     else
       ": #{@code}"
-    
+
 @bonnie.template = (id, object={}) =>
   $("#bonnie_tmpl_#{id}").tmpl(object)
 

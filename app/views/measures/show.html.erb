@@ -327,6 +327,42 @@
     </tr>
   </script>
 
+  <script type="text/html" id="bonnie_tmpl_data_criteria_new">
+    <div class="modal hide fade in" id="data_criteria_new">
+      <div class="modal-header">
+        <h3>Create New Data Criterion</h3>
+      </div>
+      <div class="modal-body">
+        <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);"}) do %>
+          <% #NEEDS AN ID %>
+          <label>Title <input name="title" /></label>
+          <label>Category
+            <select name="category">
+              <% HQMF::DataCriteria.statuses_by_definition.each {|v| %>
+                <option value="<%= v[:category] %>"><%= v[:category] %></option>
+              <% } %>
+            </select>
+          </label>
+          <label>Status / Subcategory <select name="status"></select></label>
+          <label>Value Set OID <input name="code_list_id" /></label>
+          <label>Not Done:
+            <select name="negation">
+              <option value="">False</option>
+              <option value="true">True</option>
+            </select>
+          </label>
+          <input type="hidden" name="measure" value="<%= params[:id] %>" />
+          <input type="hidden" name="source" value="1" />
+          <label><input type="submit" value="Create" /></label>
+        <% end %>
+      </div>
+      <div class="modal-footer">
+        <button class="close btn" data-dismiss="modal">Close</button>
+        <input type="button" id="create_data_criterion" class="btn btn-primary" value="Create"></a>
+      </div>
+    </div>
+  </script>
+
   <script type="text/html" id="bonnie_tmpl_data_criteria_value">
     <div class="data_criteria_value">
       <input class="data_criteria_value_relation" type="hidden" value="eq">
@@ -590,6 +626,8 @@
       <%= link_to 'Edit', edit_measure_path(@measure) %> |
       <%= link_to 'NQF Definition', show_nqf_measure_path(@measure), :target => "_blank" %> |
       <%= link_to 'Back', measures_path %>
+
+      <div><a onclick="bonnie.builder.add_new_criteria()">Add New Data Criterion</a></div>
 
       <div id="dataCriteria">
         <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria)}%>
