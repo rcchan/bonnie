@@ -320,8 +320,8 @@
           <label><input type="radio" class="subset_range_type" value="range" />Range</label>
         </div>
         <div class="subset_value">
-          {{tmpl(range.low) '#bonnie_tmpl_data_criteria_value'}}
-          {{tmpl(range) '#bonnie_tmpl_data_criteria_range'}}
+          {{tmpl(typeof range=='undefined'||typeof range.low=='undefined'?undefined:range.low) '#bonnie_tmpl_data_criteria_value'}}
+          {{tmpl(typeof range=='undefined'?undefined:range) '#bonnie_tmpl_data_criteria_range'}}
         </div>
       </td>
     </tr>
@@ -448,7 +448,7 @@
             <td>
               <select name="status">
                 <option value="">--</option>
-                
+
                 <option value="active">active</option>
                 <option value="performed">performed</option>
                 <option value="ordered">ordered</option>
@@ -460,7 +460,7 @@
                 <option value="applied">applied</option>
                 <option value="assessed">assessed</option>
                 <option value="final report">final report</option>
-                
+
               </select>
             </td>
           </tr>
