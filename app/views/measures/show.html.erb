@@ -200,6 +200,12 @@
       );
 
       $('#workspace').on('click', '.delete_criteria', bonnie.builder.delete_criteria_handler);
+
+      $(document.body).on('change', '#data_criteria_new select[name=category]',
+        function(){
+          $('#data_criteria_new select[name=status]').empty().append((<%= raw Hash[HQMF::DataCriteria.statuses_by_definition.map{|v| [v[:category], v[:statuses]]}].to_json %>)[$(this).val()].map(function(e){return $(document.createElement('option')).val(e).text(e).get(0)}))
+        }
+      );
     });
   </script>
 

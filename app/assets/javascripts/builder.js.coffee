@@ -464,6 +464,7 @@ class @bonnie.Builder
 
   add_new_criteria: ->
     bonnie.template('data_criteria_new').appendTo(document.body).modal()
+    $('#data_criteria_new select[name=category]').trigger('change')
 
 class @bonnie.TemporalReference
   constructor: (temporal_reference) ->
