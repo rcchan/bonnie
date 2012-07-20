@@ -206,6 +206,12 @@
           $('#data_criteria_new select[name=status]').empty().append((<%= raw Hash[HQMF::DataCriteria.statuses_by_definition.map{|v| [v[:category], v[:statuses]]}].to_json %>)[$(this).val()].map(function(e){return $(document.createElement('option')).val(e).text(e).get(0)}))
         }
       );
+
+      $(document.body).on('change', '#data_criteria_new select[name=negation]',
+        function(){
+          $('#data_criteria_new .negation_reason_oid').slideToggle();
+        }
+      );
     });
   </script>
 
@@ -363,14 +369,22 @@
               <option value="true">True</option>
             </select>
           </label>
+          <div class="negation_reason_oid" style="display: none">
+            <label>Negation Reason OID
+              <select name="negation_oid">
+                <% @measure.value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.each {|v|%>
+                  <option value="<%= v['oid'] %>"><%= v['concept'] %> - <%= v['oid'] %></option>
+                <% } %>
+              </select>
+            </label>
+          </div>
           <input type="hidden" name="measure" value="<%= params[:id] %>" />
           <input type="hidden" name="source" value="1" />
-          <label><input type="submit" value="Create" /></label>
         <% end %>
       </div>
       <div class="modal-footer">
         <button class="close btn" data-dismiss="modal">Close</button>
-        <input type="button" id="create_data_criterion" class="btn btn-primary" value="Create"></a>
+        <input type="submit" class="btn btn-primary" value="Create"></a>
       </div>
     </div>
   </script>
