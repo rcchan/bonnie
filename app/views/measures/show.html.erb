@@ -203,7 +203,7 @@
 
       $(document.body).on('change', '#data_criteria_new select[name=category]',
         function(){
-          $('#data_criteria_new select[name=status]').empty().append((<%= raw Hash[HQMF::DataCriteria.statuses_by_definition.map{|v| [v[:category], v[:statuses]]}].to_json %>)[$(this).val()].map(function(e){return $(document.createElement('option')).val(e).text(e).get(0)}))
+          $('#data_criteria_new select[name=subcategory]').empty().append((<%= raw Hash[HQMF::DataCriteria.statuses_by_definition.map{|v| [v[:category], v[:statuses]]}].to_json %>)[$(this).val()].map(function(e){return $(document.createElement('option')).val(e).text(e).get(0)}))
         }
       );
 
@@ -341,12 +341,11 @@
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_new">
     <div class="modal hide fade in" id="data_criteria_new">
-      <div class="modal-header">
-        <h3>Create New Data Criterion</h3>
-      </div>
-      <div class="modal-body">
-        <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);"}) do %>
-          <% #NEEDS AN ID %>
+      <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);"}) do %>
+        <div class="modal-header">
+          <h3>Create New Data Criterion</h3>
+        </div>
+        <div class="modal-body">
           <label>Title <input name="title" /></label>
           <label>Category
             <select name="category">
@@ -355,7 +354,7 @@
               <% } %>
             </select>
           </label>
-          <label>Status / Subcategory <select name="status"></select></label>
+          <label>Status / Subcategory <select name="subcategory"></select></label>
           <label>Value Set OID
             <select name="code_list_id">
               <% @measure.value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.each {|v|%>
@@ -371,7 +370,7 @@
           </label>
           <div class="negation_reason_oid" style="display: none">
             <label>Negation Reason OID
-              <select name="negation_oid">
+              <select name="negation_code_list_id">
                 <% @measure.value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.each {|v|%>
                   <option value="<%= v['oid'] %>"><%= v['concept'] %> - <%= v['oid'] %></option>
                 <% } %>
@@ -380,12 +379,12 @@
           </div>
           <input type="hidden" name="measure" value="<%= params[:id] %>" />
           <input type="hidden" name="source" value="1" />
-        <% end %>
-      </div>
-      <div class="modal-footer">
-        <button class="close btn" data-dismiss="modal">Close</button>
-        <input type="submit" class="btn btn-primary" value="Create"></a>
-      </div>
+        </div>
+        <div class="modal-footer">
+          <button class="close btn" data-dismiss="modal">Close</button>
+          <input type="submit" class="btn btn-primary" value="Create"></a>
+        </div>
+      <% end %>
     </div>
   </script>
 
