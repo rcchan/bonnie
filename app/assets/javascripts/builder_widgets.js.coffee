@@ -15,6 +15,7 @@ $.widget 'ui.ContainerUI',
     $inner = $("<div>")
     if @container.children?
       for child,i in @container.children
+        console.log("child = ",child)
         childItem = @_createItemUI(child)
         @element.append childItem
         if (i < @container.children.length-1)
@@ -34,43 +35,57 @@ $.widget 'ui.ContainerUI',
       else
         makeDropFn = (self) ->
           currentItem = item
-          console.log "make Container Drop item = " ,self.container
+          #console.log "make Container Drop item = " ,self.container
           dropFn = (event,ui) ->
+            ###
             console.log("Dropped on a container",self.container)
             console.log("Dropped on me", currentItem)
-            console.log("In Drop, self = ",self)
             console.log "event = ",event
             console.log "ui = ",ui
-            if (currentItem.parent is self.container)
-              console.log("Dropped on my own box")
+            console.log "ui.draggable = ",ui.draggable
+            console.log "ui.draggable.data = ",ui.draggable.data()
+            console.log "ui.draggable.paramText.data = ",ui.draggable.find(".paramText").data()
+            ###
+            orig = ui.draggable.find('.paramText').data('item-ui') ? {} 
+            console.log("orig=",orig)
             target = event.currentTarget
             dropY = event.pageY
             child_items = $(@).children(".paramGroup")
             after = null
+            before = child_items[0] if child_items.length
             pos = 0
             for item,i in child_items
               item_top = $(item).offset().top;
               item_height = $(item).height();
               item_mid = item_top + Math.round(item_height/2)
+              before = currentItem.children[i] if dropY < item_mid
               after = currentItem.children[i] if dropY > item_mid
               pos = i+1 if dropY > item_mid
+            #console.log("after=",after)
             id = $(ui.draggable).data('criteria-id')
-            currentItem.add(
-              id: id
-              data_criteria:self.builder.data_criteria[id]
-            after
-            )
+            if (orig.parent? && orig.parent is currentItem)
+              console.log("Dropped on my own box")
+              console.log("orig = ",orig)
+              console.log("after= ",after)
+              c1 = currentItem.removeChild(orig)
+              currentItem.add(c1,after)
+            else
+              currentItem.add(
+                id: id
+                data_criteria:self.builder.data_criteria[id]
+              after
+              )
             $(ui.helper).remove()
             scrollTop = Math.max($("html").scrollTop(),$("body").scrollTop())
-            console.log("scrollTop was",scrollTop)
+            #console.log("scrollTop was",scrollTop)
 
             self.element.empty().AndContainerUI({builder:self.builder,container:self.container})
             $("body,html").scrollTop(scrollTop)
             droppedElem = self.element.find(".paramItem[data-myid=#{currentItem.myid}]>.paramGroup").eq(pos)
-            console.log droppedElem
+            #console.log droppedElem
             innerHeight = window.innerHeight
             scrollTop = Math.max($("html").scrollTop(),$("body").scrollTop())
-            console.log("scrollTop is", scrollTop)
+            #console.log("scrollTop is", scrollTop)
             if droppedElem.offset().top > innerHeight*.75 or droppedElem.offset().top - scrollTop < 0
               $.scrollTo(droppedElem,
                 duration:800
@@ -116,6 +131,7 @@ $.widget 'ui.ContainerUI',
           )
 
     else 
+      console.log("setting ItemUI = ", item)
       @element.ItemUI(
         parent:@
         item:item
@@ -148,14 +164,15 @@ $.widget 'ui.ItemUI',
   _init: ->
     @parent = @options.parent
     @builder = @options.builder ? @parent.builder
-    @item = @options.item
+    @item = @options['item']
     @_createItem()
     
   _createItem: ->
     $result_container = $("<div>")
     $dc = @template('param_group',@item)
     $itemUI = $dc.find('.paramItem')
-    
+    @item.rnd = Math.floor(Math.random()*100)
+    console.log('rnd=',@item.rnd)
     $itemUI.click((event) =>
       $('.paramItem').removeClass('editing')
       $(event.currentTarget).closest('.paramItem').addClass('editing')
@@ -205,6 +222,7 @@ $.widget 'ui.ItemUI',
       else
         $itemUI.append(data_criteria.asHtml("data_criteria_logic"))
         $itemUI.find(".paramText").data('item-ui', @item)
+        console.log("item-ui data=",$itemUI.find(".paramText").data('item-ui'))
         $itemUI.droppable(
           over:  @_over
           tolerance:'pointer'
@@ -214,8 +232,6 @@ $.widget 'ui.ItemUI',
           drop: makeDropFn(@)
         )
         $itemUI.draggable(
-          xhelper: ->
-            return $(@).parent().clone()
           helper: "clone"
           revert:true
           distance:3
@@ -224,7 +240,7 @@ $.widget 'ui.ItemUI',
           zIndex:10000
           start: (event,ui) ->
             #$(".paramGroup:has(.paramItem.dragged)").addClass("dragged")
-            console.log($itemUI)
+            console.log("item-ui data=",$itemUI.find('.paramText').data("item-ui"))
             $(event.target).closest(".paramGroup").addClass("dragged")
             $(ui.helper).find('.paramText').siblings().hide()
             $(ui.helper).width($(@).closest('.paramItem').width()+12)
