@@ -67,7 +67,7 @@ class @bonnie.Builder
     element =
       if data_criteria = @dataCriteria($(element).data('criteria-id'))
         bonnie.template('data_criteria_edit', $.extend({}, data_criteria, {precondition_id: $(element).data('precondition-id')})).appendTo('#workspace')
-      else
+      else if $(element).data('precondition-id')
         bonnie.template('precondition_edit', {id: $(element).data('precondition-id'), precondition_id: $(element).data('precondition-id')}).appendTo('#workspace')
 
 
