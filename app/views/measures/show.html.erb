@@ -164,7 +164,7 @@
         }
       );
 
-      $(document.body).on('click', '#workspace > div > .close',
+      $(document.body).on('click', '#workspace > div > .close_edit',
         function(e){
           $(e.target).parent().remove();
         }
@@ -465,7 +465,7 @@
 
    <script type="text/html" id="bonnie_tmpl_precondition_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
-      <span class="close" style="position:absolute; top: 0; right: 0;">&times;</span>
+      <span class="close_edit" style="position:absolute; top: 0; right: 0;">close</span>
       <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
       <%= form_tag({:action => 'name_precondition'}, {:onsubmit => "!$(this).ajaxSubmit({success:bonnie.builder.showSaved.curry(this)}); return false"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
@@ -492,7 +492,7 @@
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
-      <span class="close" style="position:absolute; top: 0; right: 0;">&times;</span>
+      <span class="close_edit" style="position:absolute; top: 0; right: 0;">close</span>
       <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
       <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
