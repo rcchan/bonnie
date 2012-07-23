@@ -142,8 +142,8 @@ class Measure
       }
       if !data['id']
         data['id'] = data['precondition_id'] || BSON::ObjectId.new.to_s
-        if data['reference']
-          upsert_data_criteria(self['source_data_criteria'][data['reference']].merge({'id' => data['reference'] += '_' + data['id']}))
+        if data['reference'] && self['data_criteria'][data['reference']].nil?
+          upsert_data_criteria((self['source_data_criteria'][data['reference']]).merge({'id' => data['reference'] += '_' + data['id']}))
         end
       end
     end
