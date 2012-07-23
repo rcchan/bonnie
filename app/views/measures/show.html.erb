@@ -219,9 +219,9 @@
     <div class='paramGroup'>
       <div class='paramItem{{if id}} logicLeaf{{/if}}'{{if id}} data-criteria-id="${id}"{{/if}}{{if precondition_id}} data-precondition-id="${precondition_id}"{{/if}}>
         {{if id}}
-          {{if bonnie.builder.data_criteria[id].display_name}}<div class="display_name" style="border: 2px solid red">${bonnie.builder.data_criteria[id].display_name}</div>{{/if}}
+          {{if bonnie.builder.data_criteria[id].display_name}}<div class="display_name">${bonnie.builder.data_criteria[id].display_name}</div>{{/if}}
         {{else precondition_id}}
-          {{if bonnie.builder.preconditions[precondition_id]}}<div class="display_name" style="border: 2px solid red">${bonnie.builder.preconditions[precondition_id]}</div>{{/if}}
+          {{if bonnie.builder.preconditions[precondition_id]}}<div class="display_name">${bonnie.builder.preconditions[precondition_id]}</div>{{/if}}
         {{/if}}
       </div>
     </div>

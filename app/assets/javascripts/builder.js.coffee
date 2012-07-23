@@ -358,7 +358,8 @@ class @bonnie.Builder
         items = data_criteria.temporalReferenceItems()
         elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
         $(elemParent).parent().find('.display_name').click((e)->
-          $(this).siblings().slideToggle();
+          $(this).toggleClass('collapsed')
+          $(this).siblings().slideToggle()
           e.stopPropagation()
         );
         data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
@@ -381,6 +382,7 @@ class @bonnie.Builder
     if items.length > 1
       elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
       $(elemParent).parent().find('.display_name').click((e)->
+        $(this).toggleClass('collapsed')
         $(this).siblings().slideToggle();
         e.stopPropagation()
       );
