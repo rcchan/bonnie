@@ -67,7 +67,7 @@ class MeasuresController < ApplicationController
   def upsert_criteria
     @measure = Measure.find(params[:id])
     criteria = {"id" => params[:criteria_id]  || BSON::ObjectId.new.to_s, "type" => params['type']}
-    ["status", "display_name", "standard_category", 'negation'].each { |f| criteria[f] = params[f]}
+    ["status", "display_name", "standard_category", 'negation'].each { |f| criteria[f] = params[f] if !params[f].nil?}
     ["title", "code_list_id", "property", "children_criteria", "description", "qds_data_type", 'negation_code_list_id'].each { |f| criteria[f] = params[f] if !params[f].blank?}
     criteria['value'] = JSON.parse(params['value']).merge({'type' => params['value_type']}) if params['value'] && params['value_type']
     criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
@@ -229,6 +229,12 @@ class MeasuresController < ApplicationController
   def name_precondition
     @measure = Measure.find(params[:id])
     @measure.name_precondition(params[:precondition_id], params[:name])
+    render :json => @measure.save!
+  end
+
+  def save_data_criteria
+    @measure = Measure.find(params[:id])
+    @measure.data_criteria[params[:criteria_id]]['saved'] = true
     render :json => @measure.save!
   end
 end

@@ -16,6 +16,7 @@ Bonnie::Application.routes.draw do
       post :update_population
       post :update_population_criteria
       post :name_precondition
+      post :save_data_criteria
     end
     collection do
       get :published
