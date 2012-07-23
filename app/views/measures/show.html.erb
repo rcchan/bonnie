@@ -58,7 +58,8 @@
       '<%= url_for :action => 'update_population_criteria' %>',
       <%= @measure.preconditions.to_json.html_safe %>,
       <%= HQMF::DataCriteria::FIELDS.to_json.html_safe %>,
-      <%= @measure.value_sets.where({'category' => 'attribute'}).map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.to_json.html_safe %>
+      <%= @measure.value_sets.where({'category' => 'attribute'}).map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.to_json.html_safe %>,
+      <%= raw Hash[HQMF::DataCriteria.statuses_by_definition.map{|v| [v[:category], v[:statuses]]}].to_json %>
     );
 
     $(document).ready(function() {
@@ -203,7 +204,7 @@
 
       $(document.body).on('change', '#data_criteria_new select[name=category]',
         function(){
-          $('#data_criteria_new select[name=subcategory]').empty().append((<%= raw Hash[HQMF::DataCriteria.statuses_by_definition.map{|v| [v[:category], v[:statuses]]}].to_json %>)[$(this).val()].map(function(e){return $(document.createElement('option')).val(e).text(e).get(0)}))
+          $('#data_criteria_new select[name=subcategory]').empty().append(bonnie.builder.statuses_by_definition[$(this).val()].map(function(e){return $(document.createElement('option')).val(e).text(e).get(0)}))
         }
       );
 
@@ -505,65 +506,22 @@
             <td><input name="display_name" value="${display_name}" /></td>
           </tr>
           <tr>
-            <td>Status:</td>
+            <td>Category:</td>
             <td>
-              <select name="status">
-                <option value="">--</option>
-
-                <option value="active">active</option>
-                <option value="performed">performed</option>
-                <option value="ordered">ordered</option>
-                <option value="recommended">recommended</option>
-                <option value="resolved">resolved</option>
-                <option value="inactive">inactive</option>
-                <option value="dispensed">dispensed</option>
-                <option value="administered">administered</option>
-                <option value="applied">applied</option>
-                <option value="assessed">assessed</option>
-                <option value="final report">final report</option>
-
-              </select>
+              <select name="category">
+              <% HQMF::DataCriteria.statuses_by_definition.each {|v| %>
+                <option value="<%= v[:category] %>"><%= v[:category] %></option>
+              <% } %>
+            </select>
             </td>
           </tr>
           <tr>
-            <td>Standard Category:</td>
+            <td>Status / Subcategory:</td>
             <td>
-              <select name="standard_category">
-                <option value="">--</option>
-                <option value="problem">Problem</option>
-                <option value="labresults">LabResults</option>
-                <option value="laboratory test">Laboratory Test</option>
-                <option value="procedure">Procedure</option>
-                <option value="medication">Medication</option>
-                <option value="rx">RX</option>
-                <option value="demographics">Demographics</option>
-                <option value="derived">Derived</option>
-                <option value="care_goal">Care Goal</option>
-                <option value="care_plan">Care Plan</option>
-                <option value="communication">Communication</option>
-                <option value="device">Device</option>
-                <option value="diagnosis">diagnosis</option>
-                <option value="diagnostic_study">diagnostic study</option>
-                <option value="encounter">encounter</option>
-                <option value="functional_status">functional status</option>
-                <option value="individual_characteristic">individual characteristic</option>
-                <option value="intervention">intervention</option>
-                <option value="laboratory_test">laboratory test</option>
-                <option value="medication">medication</option>
-                <option value="patient_care_experience">patient care experience</option>
-                <option value="patient_preference">patient preference</option>
-                <option value="physical_exam">physical exam</option>
-                <option value="procedure">procedure</option>
-                <option value="provider">provider</option>
-                <option value="risk_category_assessment">risk category assessment</option>
-                <option value="substance">substance</option>
-                <option value="symptom">symptom</option>
-                <option value="system_characteristic">system characteristic</option>
-                <option value="transfer_from">transfer from</option>
-                <option value="transfer_to">transfer to</option>
-              </select>
+              <select name="subcategory"></select>
             </td>
           </tr>
+          </div>
           <tr class="criteria_value">
             <td>Value</td>
             <td>

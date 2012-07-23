@@ -1,7 +1,7 @@
 bonnie = @bonnie || {}
 
 class @bonnie.Builder
-  constructor: (data_criteria, measure_period, preconditions, fields, value_sets) ->
+  constructor: (data_criteria, measure_period, preconditions, fields, value_sets, statuses_by_definition) ->
     @measure_period = new bonnie.MeasurePeriod(measure_period)
     @field_map = fields
     @data_criteria = {}
@@ -13,6 +13,7 @@ class @bonnie.Builder
     @exceptionsQuery = new queryStructure.Query()
     @preconditions = preconditions || {}
     @value_sets[s.oid] = s for s in value_sets
+    @statuses_by_definition = statuses_by_definition
     for key in _.keys(data_criteria)
       @data_criteria[key] = new bonnie.DataCriteria(key, data_criteria[key], @measure_period)
 
@@ -94,7 +95,13 @@ class @bonnie.Builder
         obj
 
       element.find('select[name=status]').val(data_criteria.status)
-      element.find('select[name=standard_category]').val(data_criteria.standard_category)
+      element.find('select[name=category]').val(data_criteria.category).on('change', ->
+        $(this).parents('form').find('select[name=subcategory]').empty().append(
+          bonnie.builder.statuses_by_definition[$(this).val()].map( (e)->
+            $(document.createElement('option')).val(e).text(e).get(0)
+          )
+        )
+      ).trigger('change');
       element.find('input[type=radio][name=value_type]').change(
         ( ->
           element.find('.criteria_value_value').children().show().not('.' +
@@ -666,8 +673,8 @@ class @bonnie.Coded
   $("#bonnie_tmpl_#{id}").tmpl(object)
 
 class Page
-  constructor: (data_criteria, measure_period, update_url, preconditions, fields, value_sets) ->
-    bonnie.builder = new bonnie.Builder(data_criteria, measure_period, preconditions, fields, value_sets)
+  constructor: (data_criteria, measure_period, update_url, preconditions, fields, value_sets, statuses_by_definition) ->
+    bonnie.builder = new bonnie.Builder(data_criteria, measure_period, preconditions, fields, value_sets, statuses_by_definition)
     bonnie.builder['update_url'] = update_url
 
   initialize: () =>
