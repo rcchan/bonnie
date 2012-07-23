@@ -33,7 +33,7 @@ class @bonnie.Builder
 
     if (!$.isEmptyObject(data.denominator))
       @denominatorQuery.rebuildFromJson(data.denominator)
-      @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
+      @addParamItems((if data.denominator.items.length then @denominatorQuery.toJson() else 'DENOMINATOR_PLACEHOLDER'),$("#eligibilityMeasureItems"))
 
     if (!$.isEmptyObject(data.numerator))
       @numeratorQuery.rebuildFromJson(data.numerator)
@@ -363,6 +363,9 @@ class @bonnie.Builder
           e.stopPropagation()
         );
         data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
+
+    else if obj == 'DENOMINATOR_PLACEHOLDER'
+      bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last").data('logic-id', obj).append(bonnie.template('data_criteria_logic', {title: 'Denominator consists only of IPP', category: 'initial patient population'}));
 
     if ($.isArray(items))
       conjunction = obj['conjunction']
