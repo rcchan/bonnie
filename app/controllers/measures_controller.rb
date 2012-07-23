@@ -69,14 +69,15 @@ class MeasuresController < ApplicationController
     criteria = {"id" => params[:criteria_id]  || BSON::ObjectId.new.to_s, "type" => params['type']}
     ["status", "display_name", "standard_category", 'negation'].each { |f| criteria[f] = params[f] if !params[f].nil?}
     ["title", "code_list_id", "property", "children_criteria", "description", "qds_data_type", 'negation_code_list_id'].each { |f| criteria[f] = params[f] if !params[f].blank?}
+
+    # Do that HQMF Processing
+    criteria = {'id' => criteria['id'] }.merge JSON.parse(HQMF::DataCriteria.create_from_category(criteria['id'], criteria['title'], criteria['description'], criteria['code_list_id'], params['category'], params['subcategory'], criteria['negation'], criteria['negation_code_list_id']).to_json.to_json).flatten[1]
+
     criteria['value'] = JSON.parse(params['value']).merge({'type' => params['value_type']}) if params['value'] && params['value_type']
     criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
     criteria['subset_operators'] = JSON.parse(params['subset_operators']) if params['subset_operators']
     criteria['field_values'] = JSON.parse(params['field_values']) if params['field_values']
     criteria.delete('field_values') if criteria['field_values'].blank?
-
-    # Do that HQMF Processing
-    criteria = {'id' => criteria['id'] }.merge JSON.parse(HQMF::DataCriteria.create_from_category(criteria['id'], criteria['title'], criteria['description'], criteria['code_list_id'], params['category'], params['subcategory'], criteria['negation'], criteria['negation_code_list_id']).to_json.to_json).flatten[1]
 
     @measure.upsert_data_criteria(criteria, params['source'])
     render :json => criteria if @measure.save
