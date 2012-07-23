@@ -24,9 +24,9 @@ class @bonnie.Builder
   renderMeasureJSON: (data) =>
     @query.rebuildFromJson(data)
     
-    $("#initialPopulationItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.population})
-    $("#eligibilityMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.denominator})
-    $("#outcomeMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.numerator})
+    $("#initialPopulationItems").ContainerUI({builder:bonnie.builder,container:bonnie.builder.query.population})
+    #$("#eligibilityMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.denominator})
+    #$("#outcomeMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.numerator})
     #$("#exclusionMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exclusions})
     #$("#exceptionsMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exceptions})
     #@addParamItems(@query.population.toJson(),$("#initialPopulationItems"))

@@ -188,6 +188,64 @@ $.widget 'ui.ItemUI',
         _.bind(self._drop,@)()
         
       return dropFn
+
+    makeGroupDropFn = (self,container) ->
+      currentItem = self.builder.data_criteria[self.item.id].children_criteria
+      console.log("makeGroupDrop currentItem = ",currentItem)
+      console.log("makeGroupDrop self=",self)
+      #console.log "make Container Drop item = " ,self.container
+      container = container
+      parent = self.item.parent
+      dropFn = (event,ui) ->
+        console.log("---------starting dropFn--------------")
+        console.log("self = ",self)
+        console.log("container = ",container)
+        console.log("self.element=",self.element)
+        console.log("currentItem=",currentItem)
+        console.log("@=",@)
+        console.log("parent=",parent)
+        origId = ui.draggable.data('criteria-id') ? null
+        console.log("origId=",origId)
+        target = event.currentTarget
+        dropY = event.pageY
+        child_items = $(@).children(".paramGroup")
+        after = null
+        before = child_items[0] if child_items.length
+        pos = 0
+        for item,i in child_items
+          item_top = $(item).offset().top;
+          item_height = $(item).height();
+          item_mid = item_top + Math.round(item_height/2)
+          pos = i+1 if dropY > item_mid
+        #console.log("after=",after)
+        currentItem.splice(pos,0,origId) if origId?
+        $(ui.helper).remove()
+        scrollTop = Math.max($("html").scrollTop(),$("body").scrollTop())
+        #console.log("scrollTop was",scrollTop)
+
+        $(@).empty().closest(".paramGroup>.paramItem").OrContainerUI({builder:self.builder,container:parent})
+        $("body,html").scrollTop(scrollTop)
+        droppedElem = self.element #.find(".paramItem[data-myid=#{currentItem.myid}]>.paramGroup").eq(pos)
+        #console.log droppedElem
+        innerHeight = window.innerHeight
+        scrollTop = Math.max($("html").scrollTop(),$("body").scrollTop())
+        #console.log("scrollTop is", scrollTop)
+        if droppedElem.offset().top > innerHeight*.75 or droppedElem.offset().top - scrollTop < 0
+          $.scrollTo(droppedElem,
+            duration:800
+            easing:'easeInOutQuad'
+            offset:
+              top:Math.floor(innerHeight/2) * -1
+            onAfter: =>
+              droppedElem.addClass('dropped')
+          )
+        else
+          droppedElem.addClass('dropped')
+
+        _.bind(self._drop,@)()
+        
+      return dropFn
+
       
     $result_container.append($dc)
     data_criteria = @builder.data_criteria[@item.id]
@@ -210,13 +268,14 @@ $.widget 'ui.ItemUI',
           ### 
           This is where we have drawn the child group of items, but need to add the drop handler to the exterior container
           ###
+          console.log("group item = ",@item)
           $itemUI.droppable(
             over: @_overGroup
             tolerance:'pointer'
             greedy:true
             accept:'label.ui-draggable'
             out:  @_outGroup
-            drop: @_drop
+            drop: makeGroupDropFn(@,child_criteria.children)
           )
           $itemUI.append($div.children())
       else

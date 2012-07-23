@@ -63,7 +63,7 @@ class queryStructure.Container
         index = ci + 1
     else index=0
     @children.splice(index,0,element)
-    if element.parent && element.parent != this
+    if element.parent? && element.parent != this
       element.parent.removeChild(element)
     element.parent = this
     return element
@@ -81,6 +81,7 @@ class queryStructure.Container
     if index != -1
       @children.splice(index,1)
       victim.parent = null
+      victim
 
   replaceChild: (child, newChild) ->
     index = @childIndex(child)
@@ -103,7 +104,7 @@ class queryStructure.Container
     if child == null
       return -1
     for _child, index in @children
-      if _child == child
+      if _child is child
         return index
     return -1
 
