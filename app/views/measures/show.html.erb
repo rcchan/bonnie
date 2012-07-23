@@ -608,6 +608,10 @@
               <span class="edit_save_message"></span>
             </td>
           </tr>
+          <tr>
+            <td></td>
+            <td><a onclick="$.post('<%= url_for({:action => 'save_data_criteria'}) %>', {authenticity_token: $('meta[name=csrf-token]').val(), criteria_id: $(this).parents('form').find('input[name=criteria_id]').val()});">Save Data Criteria</a></td>
+          </tr>
         </table>
       <% end %>
     </div>
