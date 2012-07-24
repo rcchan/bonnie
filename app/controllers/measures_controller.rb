@@ -51,14 +51,13 @@ class MeasuresController < ApplicationController
   end
 
   def create
-
     # Value sets
     value_set_file = params[:measure][:value_sets]
     value_set_path = value_set_file.tempfile.path
     value_set_format = HQMF::ValueSet::Parser.get_format(value_set_file.original_filename)
 
+    # Load the actual measure
     hqmf_path = params[:measure][:hqmf].tempfile.path
-
     measure = Measures::Loader.load(hqmf_path, value_set_path, current_user, value_set_format)
 
     redirect_to edit_measure_url(measure)
@@ -103,7 +102,6 @@ class MeasuresController < ApplicationController
     authorize! :manage, Measure
   end
 
-
   def definition
     measure = Measure.find(params[:id])
     population_index = params[:population].to_i if params[:population]
@@ -134,6 +132,27 @@ class MeasuresController < ApplicationController
 
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "measures.zip"
   end
+  
+  def generate_patients
+    measure = Measure.find(params[:id])
+    measure.records.destroy_all
+    
+    begin
+      generator = HQMF::Generator.new(measure.as_hqmf_model, measure.value_sets)
+      measure.records = generator.generate_patients
+      measure.save
+    rescue
+    end
+    
+    redirect_to :test_measure
+  end
+  
+  def download_patients
+    measure = Measure.find(params[:id])
+    zip = TPG::Exporter.zip(measure.records, "c32")
+    
+    send_file zip.path, :type => 'application/zip', :disposition => 'attachment', :filename => "patients.zip"
+  end
 
   def debug
     @measure = Measure.find(params[:id])
@@ -163,7 +182,7 @@ class MeasuresController < ApplicationController
   def test
     @population = params[:population] || 0
     @measure = Measure.find(params[:id])
-    @patient_names = Record.all.entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
+    @patient_names = @measure.records.entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
 
     # we need to manipulate params[:patients] but it's immutable?
     if params[:patients]

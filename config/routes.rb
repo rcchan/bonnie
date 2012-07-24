@@ -11,6 +11,8 @@ Bonnie::Application.routes.draw do
       get :test   # select patients form
       get 'debug/:record_id' => 'Measures#debug', :as => :debug_measure   # FIXME: too nested - cdillon
       post :test  # handle select patients form
+      post :generate_patients
+      get :download_patients
       post :delete_population
       post :add_population
       post :update_population
