@@ -4,18 +4,17 @@ $.widget 'ui.ContainerUI',
   options: {}
   _create: ->
   _init: ->
-    @element.addClass('widget')
+    #@element.addClass('widget')
     @container = @options.container
     @parent = @options.parent
     @builder = @options.builder
-    cc= @_createContainer()
-    #@builder._bindClickHandler()
+    @_createContainer()
 
   _createContainer: ->
     $inner = $("<div>")
     if @container.children?
       for child,i in @container.children
-        console.log("child = ",child)
+        #console.log("child = ",child)
         childItem = @_createItemUI(child)
         @element.append childItem
         if (i < @container.children.length-1)
@@ -46,7 +45,7 @@ $.widget 'ui.ContainerUI',
             console.log "ui.draggable.data = ",ui.draggable.data()
             console.log "ui.draggable.paramText.data = ",ui.draggable.find(".paramText").data()
             ###
-            orig = ui.draggable.find('.paramText').data('item-ui') ? {} 
+            orig = ui.draggable.data('item-ui') ? {} 
             console.log("orig=",orig)
             target = event.currentTarget
             dropY = event.pageY
@@ -132,10 +131,15 @@ $.widget 'ui.ContainerUI',
 
     else 
       console.log("setting ItemUI = ", item)
-      @element.ItemUI(
+      $dc = @template('param_group',item)
+      $result_container.append($dc)
+      $itemUI = $dc.find('.paramItem')
+      $itemUI.ItemUI(
         parent:@
         item:item
       )
+      $itemUI.data("item-ui",item)
+      console.log "@element is ", @element
     return $result_container.children()
   template: (id,object={}) =>
       $("#bonnie_tmpl_#{id}").tmpl(object)
@@ -171,6 +175,7 @@ $.widget 'ui.ItemUI',
     $result_container = $("<div>")
     $dc = @template('param_group',@item)
     $itemUI = $dc.find('.paramItem')
+    $itemUI = @element
     @item.rnd = Math.floor(Math.random()*100)
     console.log('rnd=',@item.rnd)
     $itemUI.click((event) =>
@@ -247,7 +252,7 @@ $.widget 'ui.ItemUI',
       return dropFn
 
       
-    $result_container.append($dc)
+    #$result_container.append($dc)
     data_criteria = @builder.data_criteria[@item.id]
     if (data_criteria?)
       if (data_criteria.subset_operators?)
@@ -280,8 +285,8 @@ $.widget 'ui.ItemUI',
           $itemUI.append($div.children())
       else
         $itemUI.append(data_criteria.asHtml("data_criteria_logic"))
-        $itemUI.find(".paramText").data('item-ui', @item)
-        console.log("item-ui data=",$itemUI.find(".paramText").data('item-ui'))
+        #$itemUI.find(".paramText").data('item-ui', @item)
+        #console.log("item-ui data=",$itemUI.find(".paramText").data('item-ui'))
         $itemUI.droppable(
           over:  @_over
           tolerance:'pointer'
@@ -299,7 +304,7 @@ $.widget 'ui.ItemUI',
           zIndex:10000
           start: (event,ui) ->
             #$(".paramGroup:has(.paramItem.dragged)").addClass("dragged")
-            console.log("item-ui data=",$itemUI.find('.paramText').data("item-ui"))
+            #console.log("item-ui data=",$itemUI.find('.paramText').data("item-ui"))
             $(event.target).closest(".paramGroup").addClass("dragged")
             $(ui.helper).find('.paramText').siblings().hide()
             $(ui.helper).width($(@).closest('.paramItem').width()+12)
@@ -315,7 +320,7 @@ $.widget 'ui.ItemUI',
               $div = $("<div>")  
               $div.AndContainerUI({builder:@builder,container:temporal_items[i]})
               $itemUI.append($div.children())
-    @element.append($result_container.children())
+    @element.parent().parent().prepend($result_container.children())
   # Using different colors in the drop highlighting to aid in debugging  
   _over: ->
     $(@).toggleClass('droppable2',true)
