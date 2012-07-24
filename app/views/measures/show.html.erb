@@ -28,6 +28,13 @@
       // Disallow dropping a reference on same reference
       if ($.inArray(id, $(obj).parents('.temporal_reference').find('.fullDrop .temporal_reference_value').map(function(i, e){return $(e).val()})) > -1) return;
 
+      // Ensure element does not create circular structure
+      if ($.inArray($(obj).parents('form').find('input[name=criteria_id]').val(), $('[data-criteria-id=' + id + ']').find('[data-criteria-id]').map(
+        function(i, e){
+          return $(e).data('criteria-id');
+        }
+      )) + 1) return alert('Cannot reference parent item from child');
+
       // Expand children criteria of temporal references
       if (bonnie.builder.data_criteria[id] && bonnie.builder.data_criteria[id].type == 'derived' && bonnie.builder.data_criteria[id].children_criteria.length){
         $.each(bonnie.builder.data_criteria[id].children_criteria,
