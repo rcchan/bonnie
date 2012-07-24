@@ -3,8 +3,7 @@ module Measures
   # Utility class for loading measure definitions into the database
   class Loader
     
-    def self.load(hqmf_path, value_set_path, user, value_set_format=nil, persist = true)
-      
+    def self.load(hqmf_path, value_set_path, user, value_set_format = nil, persist = true)
       measure = Measure.new
 
       # Meta data
@@ -28,7 +27,6 @@ module Measures
 
       # Parsed HQMF
       if hqmf_path
-        
         codes_by_oid = HQMF2JS::Generator::CodesToJson.from_value_sets(measure.value_sets) if (value_sets) 
         
         hqmf_contents = Nokogiri::XML(File.new hqmf_path).to_s
@@ -54,8 +52,6 @@ module Measures
 
       measure.save! if persist
       measure
-
     end
-    
   end
 end

@@ -28,6 +28,13 @@ GIT
     hquery-patient-api (0.1.0)
 
 GIT
+  remote: https://github.com/pophealth/test-patient-generator.git
+  revision: b7565d65fe93a7ea45dace9bd77524db89b8c035
+  branch: master
+  specs:
+    test-patient-generator (0.1.0)
+
+GIT
   remote: https://github.com/projectcypress/health-data-standards.git
   revision: 495b95f89505ac4a7d0383ae186e88f8deacc77a
   branch: develop
@@ -279,6 +286,7 @@ DEPENDENCIES
   simple_form
   spork (~> 0.9.0)
   spork-testunit (~> 0.0.8)
+  test-patient-generator!
   therubyracer
   turn
   uglifier (>= 1.0.3)

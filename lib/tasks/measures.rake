@@ -57,6 +57,7 @@ namespace :measures do
     codes_path = args.codes_path
     username = args.username
     delete_existing = args.delete_existing
+    
     if delete_existing.nil? && username.in?(['true', 'false', nil])
       delete_existing = args.username
       username = args.codes_path
@@ -72,13 +73,12 @@ namespace :measures do
     raise "The user #{username} could not be found." unless user
 
     if delete_existing == 'true'
-      user.measures.each {|measure| measure.value_sets.delete_all}
-      count = user.measures.delete_all
+      user.measures.each {|measure| measure.value_sets.destroy_all}
+      count = user.measures.destroy_all
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
 
     Measures::Loader.load(hqmf_path, codes_path, user)
-
   end
 
   desc 'Load a measure defintion into the DB'
@@ -92,8 +92,8 @@ namespace :measures do
     raise "The user #{args.username} could not be found." unless user
 
     if args.delete_existing
-      user.measures.each {|measure| measure.value_sets.delete_all}
-      count = user.measures.delete_all
+      user.measures.each {|measure| measure.value_sets.destroy_all}
+      count = user.measures.destroy_all
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
 
