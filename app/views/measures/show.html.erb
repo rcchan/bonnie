@@ -65,7 +65,7 @@
       '<%= url_for :action => 'update_population_criteria' %>',
       <%= @measure.preconditions.to_json.html_safe %>,
       <%= HQMF::DataCriteria::FIELDS.to_json.html_safe %>,
-      <%= @measure.value_sets.where({'category' => 'attribute'}).map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.to_json.html_safe %>,
+      <%= @measure.value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid', 'description'].include?(k) } }.to_json.html_safe %>,
       <%= raw Hash[HQMF::DataCriteria.statuses_by_definition.map{|v| [v[:category], v[:statuses]]}].to_json %>
     );
 
@@ -240,6 +240,7 @@
       {{if operator}}<label>${operator}</label>{{/if}}
       {{if category}}<label>{{if specific_occurrence}}<span class="occurrence">Occurrence ${specific_occurrence}:</span>{{/if}} ${category}{{if status}}, ${status}{{/if}}</label>{{/if}}
       ${title} {{if value }}{{if type!='characteristic' }}${valueText}{{/if}}{{/if}} ${fieldsText} ${temporalText}
+      <div>{{if negation}} <b>not done:</b> {{if negation_code_list_id}}${bonnie.builder.value_sets[negation_code_list_id].concept}: ${bonnie.builder.value_sets[negation_code_list_id].description}{{/if}}{{/if}}</div>
     </div>
   </script>
 

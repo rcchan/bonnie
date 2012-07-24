@@ -514,6 +514,8 @@ class @bonnie.DataCriteria
     @display_name = criteria.display_name
     @field_values = criteria.field_values
     @specific_occurrence = criteria.specific_occurrence
+    @negation = criteria.negation
+    @negation_code_list_id = criteria.negation_code_list_id
     if @field_values?
       for key in _.keys(@field_values)
         value = @field_values[key]

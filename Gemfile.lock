@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 6c8c8e07816a1dfb2a215f3f89b0b198a994565a
+  revision: 02ab7e1ef07a84242b1edc743cb5f3ef1ac14251
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -130,8 +130,8 @@ GEM
       jquery-rails
       railties (>= 3.1.0)
     json (1.7.3)
-    jwt (0.1.4)
-      json (>= 1.2.4)
+    jwt (0.1.5)
+      multi_json (>= 1.0)
     libv8 (3.3.10.4)
     log4r (1.1.10)
     macaddr (1.6.0)
