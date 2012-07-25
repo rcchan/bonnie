@@ -28,6 +28,13 @@
       // Disallow dropping a reference on same reference
       if ($.inArray(id, $(obj).parents('.temporal_reference').find('.fullDrop .temporal_reference_value').map(function(i, e){return $(e).val()})) > -1) return;
 
+      // Ensure element does not create circular structure
+      if ($.inArray($(obj).parents('form').find('input[name=criteria_id]').val(), $('[data-criteria-id=' + id + ']').find('[data-criteria-id]').map(
+        function(i, e){
+          return $(e).data('criteria-id');
+        }
+      )) + 1) return alert('Cannot reference parent item from child');
+
       // Expand children criteria of temporal references
       if (bonnie.builder.data_criteria[id] && bonnie.builder.data_criteria[id].type == 'derived' && bonnie.builder.data_criteria[id].children_criteria.length){
         $.each(bonnie.builder.data_criteria[id].children_criteria,
@@ -58,7 +65,8 @@
       '<%= url_for :action => 'update_population_criteria' %>',
       <%= @measure.preconditions.to_json.html_safe %>,
       <%= HQMF::DataCriteria::FIELDS.to_json.html_safe %>,
-      <%= @measure.value_sets.where({'category' => 'attribute'}).map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.to_json.html_safe %>
+      <%= @measure.value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid', 'description'].include?(k) } }.to_json.html_safe %>,
+      <%= raw Hash[HQMF::DataCriteria.statuses_by_definition.map{|v| [v[:category], v[:statuses]]}].to_json %>
     );
 
     $(document).ready(function() {
@@ -164,7 +172,7 @@
         }
       );
 
-      $(document.body).on('click', '#workspace > div > .close',
+      $(document.body).on('click', '#workspace > div > .close_edit',
         function(e){
           $(e.target).parent().remove();
         }
@@ -192,26 +200,36 @@
         function(){
           $(this).parent().siblings().children('.subset_range_type').attr('checked', null);
           if ($(this).val() == 'value'){
-            $(this).parents('.subset_operator').find('.subset_value').show();
-            $(this).parents('.subset_operator').find('.subset_range').hide();
+            $(this).parents('.subset_operator').find('.data_criteria_value').show().siblings().hide();
           } else {
-            $(this).parents('.subset_operator').find('.subset_value').hide();
-            $(this).parents('.subset_operator').find('.subset_range').show();
+            $(this).parents('.subset_operator').find('.data_criteria_range').show().siblings().hide();
           }
         }
       );
 
-    });
+      $('#workspace').on('click', '.delete_criteria', bonnie.builder.delete_criteria_handler);
 
+      $(document.body).on('change', '#data_criteria_new select[name=category]',
+        function(){
+          $('#data_criteria_new select[name=subcategory]').empty().append(bonnie.builder.statuses_by_definition[$(this).val()].map(function(e){return $(document.createElement('option')).val(e).text(e).get(0)}))
+        }
+      );
+
+      $(document.body).on('change', '#data_criteria_new select[name=negation]',
+        function(){
+          $('#data_criteria_new .negation_reason_oid').slideToggle();
+        }
+      );
+    });
   </script>
 
   <script type="text/html" id="bonnie_tmpl_param_group">
     <div class='paramGroup'>
       <div class='paramItem{{if id}} logicLeaf{{/if}}'{{if id}} data-criteria-id="${id}"{{/if}}{{if precondition_id}} data-precondition-id="${precondition_id}"{{/if}}>
         {{if id}}
-          {{if bonnie.builder.data_criteria[id].display_name}}<div class="display_name" style="border: 2px solid red">${bonnie.builder.data_criteria[id].display_name}</div>{{/if}}
+          {{if bonnie.builder.data_criteria[id].display_name}}<div class="display_name">${bonnie.builder.data_criteria[id].display_name}</div>{{/if}}
         {{else precondition_id}}
-          {{if bonnie.builder.preconditions[precondition_id]}}<div class="display_name" style="border: 2px solid red">${bonnie.builder.preconditions[precondition_id]}</div>{{/if}}
+          {{if bonnie.builder.preconditions[precondition_id]}}<div class="display_name">${bonnie.builder.preconditions[precondition_id]}</div>{{/if}}
         {{/if}}
       </div>
     </div>
@@ -222,6 +240,7 @@
       {{if operator}}<label>${operator}</label>{{/if}}
       {{if category}}<label>{{if specific_occurrence}}<span class="occurrence">Occurrence ${specific_occurrence}:</span>{{/if}} ${category}{{if status}}, ${status}{{/if}}</label>{{/if}}
       ${title} {{if value }}{{if type!='characteristic' }}${valueText}{{/if}}{{/if}} ${fieldsText} ${temporalText}
+      <div>{{if negation}} <b>not done:</b> {{if negation_code_list_id}}${bonnie.builder.value_sets[negation_code_list_id].concept}: ${bonnie.builder.value_sets[negation_code_list_id].description}{{/if}}{{/if}}</div>
     </div>
   </script>
 
@@ -322,34 +341,100 @@
           <label><input type="radio" class="subset_range_type" value="range" />Range</label>
         </div>
         <div class="subset_value">
-          <div>
-            <input class="subset_relation" type="hidden" value="eq">
-            <input class="subset_value_value" type="text" style="width: 120px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
-            <input class="subset_value_unit" style="width: 60px;" value="{{if range}}${range.low && range.low.unit || ''}{{/if}}" />
-          </div>
-        </div>
-        <div class="subset_range">
-          <div>
-            <div>Low</div>
-            <select class="subset_range_low_relation" style="width: 60px;">
-              <option value="gt">&gt;</option>
-              <option value="gte">&gt;=</option>
-            </select>
-            <input class="subset_range_low_value" type="text" style="width: 60px;" value="{{if range}}${range.low && range.low.value || ''}{{/if}}"/>
-            <input class="subset_range_low_unit" style="width: 60px;" value="{{if range}}${range.low && range.low.unit || ''}{{/if}}" />
-          </div>
-          <div>
-            <div>High</div>
-            <select class="subset_range_high_relation" style="width: 60px;">
-              <option value="lte">&lt;=</option>
-              <option value="lt">&lt;</option>
-            </select>
-            <input class="subset_range_high_value" type="text" style="width: 60px;" value="{{if range}}${range.high && range.high.value || ''}{{/if}}"/>
-            <input class="subset_range_high_unit" style="width: 60px;" value="{{if range}}${range.high && range.high.unit || ''}{{/if}}" />
-          </div>
+          {{tmpl(typeof range=='undefined'||typeof range.low=='undefined'?undefined:range.low) '#bonnie_tmpl_data_criteria_value'}}
+          {{tmpl(typeof range=='undefined'?undefined:range) '#bonnie_tmpl_data_criteria_range'}}
         </div>
       </td>
     </tr>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_new">
+    <div class="modal hide fade in" id="data_criteria_new">
+      <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);"}) do %>
+        <div class="modal-header">
+          <h3>Create New Data Criterion</h3>
+        </div>
+        <div class="modal-body">
+          <label>Title <input name="title" /></label>
+          <label>Category
+            <select name="category">
+              <% HQMF::DataCriteria.statuses_by_definition.each {|v| %>
+                <option value="<%= v[:category] %>"><%= v[:category] %></option>
+              <% } %>
+            </select>
+          </label>
+          <label>Status / Subcategory <select name="subcategory"></select></label>
+          <label>Value Set OID
+            <select name="code_list_id">
+              <% @measure.value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.each {|v|%>
+                <option value="<%= v['oid'] %>"><%= v['concept'] %> - <%= v['oid'] %></option>
+              <% } %>
+            </select>
+          </label>
+          <label>Not Done:
+            <select name="negation">
+              <option value="">False</option>
+              <option value="true">True</option>
+            </select>
+          </label>
+          <div class="negation_reason_oid" style="display: none">
+            <label>Negation Reason OID
+              <select name="negation_code_list_id">
+                <% @measure.value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.each {|v|%>
+                  <option value="<%= v['oid'] %>"><%= v['concept'] %> - <%= v['oid'] %></option>
+                <% } %>
+              </select>
+            </label>
+          </div>
+          <input type="hidden" name="measure" value="<%= params[:id] %>" />
+          <input type="hidden" name="source" value="1" />
+        </div>
+        <div class="modal-footer">
+          <button class="close btn" data-dismiss="modal">Close</button>
+          <input type="submit" class="btn btn-primary" value="Create"></a>
+        </div>
+      <% end %>
+    </div>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_value">
+    <div class="data_criteria_value">
+      <input class="data_criteria_value_relation" type="hidden" value="eq">
+      <input class="data_criteria_value_value" type="text" style="width: 120px;" value="{{if value}}${value}{{/if}}"/>
+      <input class="data_criteria_value_unit" style="width: 60px;" value="{{if unit}}${unit}{{/if}}" />
+    </div>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_range">
+    <div class="data_criteria_range">
+      <div>
+        <div>Low</div>
+        <select class="data_criteria_range_low_relation" style="width: 60px;">
+          <option value="gt">&gt;</option>
+          <option value="gte">&gt;=</option>
+        </select>
+        <input class="data_criteria_range_low_value" type="text" style="width: 60px;" value="{{if low}}${low.value || ''}{{/if}}"/>
+        <input class="data_criteria_range_low_unit" style="width: 60px;" value="{{if low}}${low.unit || ''}{{/if}}" />
+      </div>
+      <div>
+        <div>High</div>
+        <select class="data_criteria_range_high_relation" style="width: 60px;">
+          <option value="lte">&lt;=</option>
+          <option value="lt">&lt;</option>
+        </select>
+        <input class="data_criteria_range_high_value" type="text" style="width: 60px;" value="{{if high}}${high.value || ''}{{/if}}"/>
+        <input class="data_criteria_range_high_unit" style="width: 60px;" value="{{if high}}${high.unit || ''}{{/if}}" />
+      </div>
+    </div>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_coded">
+    <select class="data_criteria_oid">
+      <option value="">--</option>
+      {{each bonnie.builder.value_sets}}
+        <option value="${$index}">${$value.concept}</option>
+      {{/each}}
+    </select>
   </script>
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_field_value">
@@ -366,20 +451,30 @@
           </select>
         </div>
         <div>
-          <select class="field_oid">
-            <option value="">--</option>
-            {{each bonnie.builder.value_sets}}
-              <option value="${$index}">${$value.concept}</option>
-            {{/each}}
-          </script>
+          {{tmpl '#bonnie_tmpl_data_criteria_coded'}}
         </div>
       </td>
     </tr>
   </script>
 
+   <script type="text/html" id="bonnie_tmpl_confirm_criteria_delete">
+     <div class="modal hide fade in" id="confirm_criteria_delete">
+      <div class="modal-header">
+        <h3>Confirm Attribute Deletion</h3>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center">Are you sure you wish to delete the attribute<br />${criteria_id || 'Precondition ' + precondition_id}?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="close btn" data-dismiss="modal">Close</button>
+        <input type="button" id="confirm_criteria_delete_confirm" class="btn btn-primary" value="Confirm Delete"></a>
+      </div>
+    </div>
+   </script>
+
    <script type="text/html" id="bonnie_tmpl_precondition_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
-      <span class="close" style="position:absolute; top: 0; right: 0;">&times;</span>
+      <span class="close_edit" style="position:absolute; top: 0; right: 0;">close</span>
       <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
       <%= form_tag({:action => 'name_precondition'}, {:onsubmit => "!$(this).ajaxSubmit({success:bonnie.builder.showSaved.curry(this)}); return false"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
@@ -393,6 +488,7 @@
           <tr>
             <td></td>
             <td>
+              {{if typeof precondition_id != 'undefined'}}<input type="button" class="delete_criteria" value="Delete">{{/if}}
               <input type="submit" value="save">
               <span class="edit_save_message"></span>
             </td>
@@ -405,11 +501,12 @@
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
-      <span class="close" style="position:absolute; top: 0; right: 0;">&times;</span>
+      <span class="close_edit" style="position:absolute; top: 0; right: 0;">close</span>
       <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
       <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
-        <input type="hidden" name="criteria_id" value="${id}">
+        <input type="hidden" name="criteria_id" value="${id}" />
+        <input type="hidden" name="precondition_id" value="${precondition_id}" />
         <h4>${title}</h4>
         <table>
           <tr>
@@ -417,63 +514,35 @@
             <td><input name="display_name" value="${display_name}" /></td>
           </tr>
           <tr>
-            <td>Status:</td>
+            <td>Category:</td>
             <td>
-              <select name="status">
-                <option value="">--</option>
-                
-                <option value="active">active</option>
-                <option value="performed">performed</option>
-                <option value="ordered">ordered</option>
-                <option value="recommended">recommended</option>
-                <option value="resolved">resolved</option>
-                <option value="inactive">inactive</option>
-                <option value="dispensed">dispensed</option>
-                <option value="administered">administered</option>
-                <option value="applied">applied</option>
-                <option value="assessed">assessed</option>
-                <option value="final report">final report</option>
-                
-              </select>
+              <select name="category">
+              <% HQMF::DataCriteria.statuses_by_definition.each {|v| %>
+                <option value="<%= v[:category] %>"><%= v[:category] %></option>
+              <% } %>
+            </select>
             </td>
           </tr>
           <tr>
-            <td>Standard Category:</td>
+            <td>Status / Subcategory:</td>
             <td>
-              <select name="standard_category">
-                <option value="">--</option>
-                <option value="problem">Problem</option>
-                <option value="labresults">LabResults</option>
-                <option value="laboratory test">Laboratory Test</option>
-                <option value="procedure">Procedure</option>
-                <option value="medication">Medication</option>
-                <option value="rx">RX</option>
-                <option value="demographics">Demographics</option>
-                <option value="derived">Derived</option>
-                <option value="care_goal">Care Goal</option>
-                <option value="care_plan">Care Plan</option>
-                <option value="communication">Communication</option>
-                <option value="device">Device</option>
-                <option value="diagnosis">diagnosis</option>
-                <option value="diagnostic_study">diagnostic study</option>
-                <option value="encounter">encounter</option>
-                <option value="functional_status">functional status</option>
-                <option value="individual_characteristic">individual characteristic</option>
-                <option value="intervention">intervention</option>
-                <option value="laboratory_test">laboratory test</option>
-                <option value="medication">medication</option>
-                <option value="patient_care_experience">patient care experience</option>
-                <option value="patient_preference">patient preference</option>
-                <option value="physical_exam">physical exam</option>
-                <option value="procedure">procedure</option>
-                <option value="provider">provider</option>
-                <option value="risk_category_assessment">risk category assessment</option>
-                <option value="substance">substance</option>
-                <option value="symptom">symptom</option>
-                <option value="system_characteristic">system characteristic</option>
-                <option value="transfer_from">transfer from</option>
-                <option value="transfer_to">transfer to</option>
-              </select>
+              <select name="subcategory"></select>
+            </td>
+          </tr>
+          </div>
+          <tr class="criteria_value">
+            <td>Value</td>
+            <td>
+              <div>
+                <label><input type="radio" name="value_type" value="PQ" />Value</label>
+                <label><input type="radio" name="value_type" value="IVL_PQ" />Range</label>
+                <label><input type="radio" name="value_type" value="CD" />Coded</label>
+              </div>
+              <div class="criteria_value_value">
+                {{tmpl(typeof value=='undefined'?undefined:value) '#bonnie_tmpl_data_criteria_value'}}
+                {{tmpl(typeof value=='undefined'?undefined:value) '#bonnie_tmpl_data_criteria_range'}}
+                {{tmpl '#bonnie_tmpl_data_criteria_coded'}}
+              </div>
             </td>
           </tr>
           {{each temporal_references}}
@@ -500,10 +569,14 @@
           <tr>
             <td></td>
             <td>
-              <input type="submit" value="save">
+              {{if typeof precondition_id != 'undefined'}}<input type="button" class="delete_criteria" value="Delete">{{/if}}
+              <input style="float:right; margin-right: 20px;" type="submit" value="save">
               <span class="edit_save_message"></span>
             </td>
           </tr>
+          <tr>
+            <td></td>
+            <td><a onclick="$.post('<%= url_for({:action => 'save_data_criteria'}) %>', {authenticity_token: $('meta[name=csrf-token]').val(), criteria_id: $(this).parents('form').find('input[name=criteria_id]').val()});">Save Data Criteria</a></td>
           </tr>
         </table>
       <% end %>
@@ -548,6 +621,8 @@
       <%= link_to 'Edit', edit_measure_path(@measure) %> |
       <%= link_to 'NQF Definition', show_nqf_measure_path(@measure), :target => "_blank" %> |
       <%= link_to 'Back', measures_path %>
+
+      <div><a onclick="bonnie.builder.add_new_criteria()">Add New Data Criterion</a></div>
 
       <div id="dataCriteria">
         <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria)}%>

@@ -17,6 +17,10 @@ module Measures
         value_sets = value_set_parser.parse(value_set_path, {format: value_set_format})
         value_set_models = []
         value_sets.each do |value_set|
+          if value_set['code_sets'].include? nil
+            puts "Value Set has a bad code set (code set is null)"
+            value_set['code_sets'].compact!
+          end
           set = ValueSet.new(value_set)
           set.measure = measure
           value_set_models << set

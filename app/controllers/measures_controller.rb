@@ -65,12 +65,19 @@ class MeasuresController < ApplicationController
 
   def upsert_criteria
     @measure = Measure.find(params[:id])
-    criteria = {"id" => params[:criteria_id], "type" => params['type']}
-    ["status", "display_name", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
-    ["title", "code_list_id", "property", "children_criteria", "description"].each { |f| criteria[f] = params[f] if params[f]}
+    criteria = {"id" => params[:criteria_id]  || BSON::ObjectId.new.to_s, "type" => params['type']}
+    ["status", "display_name", "standard_category", 'negation'].each { |f| criteria[f] = params[f] if !params[f].nil?}
+    ["title", "code_list_id", "property", "children_criteria", "description", "qds_data_type", 'negation_code_list_id'].each { |f| criteria[f] = params[f] if !params[f].blank?}
+
+    # Do that HQMF Processing
+    criteria = {'id' => criteria['id'] }.merge JSON.parse(HQMF::DataCriteria.create_from_category(criteria['id'], criteria['title'], criteria['description'], criteria['code_list_id'], params['category'], params['subcategory'], criteria['negation'], criteria['negation_code_list_id']).to_json.to_json).flatten[1]
+
+    criteria['value'] = JSON.parse(params['value']).merge({'type' => params['value_type']}) if params['value'] && params['value_type']
     criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
     criteria['subset_operators'] = JSON.parse(params['subset_operators']) if params['subset_operators']
     criteria['field_values'] = JSON.parse(params['field_values']) if params['field_values']
+    criteria.delete('field_values') if criteria['field_values'].blank?
+
     @measure.upsert_data_criteria(criteria, params['source'])
     render :json => criteria if @measure.save
   end
@@ -158,7 +165,7 @@ class MeasuresController < ApplicationController
     @measure = Measure.find(params[:id])
     @patient = Record.find(params[:record_id])
     @population = (params[:population] || 0).to_i
-    
+
     respond_to do |wants|
       wants.html do
         @js = Measures::Exporter.execution_logic(@measure, @population)
@@ -177,7 +184,7 @@ class MeasuresController < ApplicationController
       end
     end
   end
-  
+
 
   def test
     @population = params[:population] || 0
@@ -242,6 +249,12 @@ class MeasuresController < ApplicationController
   def name_precondition
     @measure = Measure.find(params[:id])
     @measure.name_precondition(params[:precondition_id], params[:name])
+    render :json => @measure.save!
+  end
+
+  def save_data_criteria
+    @measure = Measure.find(params[:id])
+    @measure.data_criteria[params[:criteria_id]]['saved'] = true
     render :json => @measure.save!
   end
 end
