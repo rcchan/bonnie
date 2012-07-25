@@ -109,7 +109,7 @@
         }
       });
 
-      $('#selector > select').change(
+      $('#selector').change(
         function(){
           $.bbq.pushState({population: $(this).val()});
           change_test_button_params($(this).val()); // measure debugger needs to know about multiple populations
@@ -175,6 +175,7 @@
       $(document.body).on('click', '#workspace > div > .close_edit',
         function(e){
           $(e.target).parent().remove();
+          $('.editing').removeClass('editing');
         }
       );
 
@@ -220,6 +221,17 @@
           $('#data_criteria_new .negation_reason_oid').slideToggle();
         }
       );
+
+      $('#text_view').click(
+        function(){
+          if (!$('#text_view_styles').length) $('head').append('<link id="text_view_styles" rel="stylesheet" type="text/css" href="/assets/text_view">');
+          else $('#text_view_styles').prop('disabled', $('#text_view_styles').prop('disabled') ? null : 'disabled')
+
+          if ($("#measureDetailInformation").css('left') != ($('#text_view_styles').prop('disabled') ? '0px' : '-285px')) $('#measureDetailBorder').trigger('click');
+
+        }
+      );
+
     });
   </script>
 
@@ -240,7 +252,7 @@
       {{if operator}}<label>${operator}</label>{{/if}}
       {{if category}}<label>{{if specific_occurrence}}<span class="occurrence">Occurrence ${specific_occurrence}:</span>{{/if}} ${category}{{if status}}, ${status}{{/if}}</label>{{/if}}
       ${title} {{if value }}{{if type!='characteristic' }}${valueText}{{/if}}{{/if}} ${fieldsText} ${temporalText}
-      <div>{{if negation}} <b>not done:</b> {{if negation_code_list_id}}${bonnie.builder.value_sets[negation_code_list_id].concept}: ${bonnie.builder.value_sets[negation_code_list_id].description}{{/if}}{{/if}}</div>
+      <div class="negation_text">{{if negation}} <b>not done:</b> {{if negation_code_list_id}}${bonnie.builder.value_sets[negation_code_list_id].concept}: ${bonnie.builder.value_sets[negation_code_list_id].description}{{/if}}{{/if}}</div>
     </div>
   </script>
 
@@ -641,8 +653,9 @@
       <li class="numerator"><a href="#outcomeMeasures" data-toggle="tab">numerator</a></li>
       <li class="exclusions"><a href="#exclusionMeasures" data-toggle="tab">exclusions</a></li>
       <li class="exceptions"><a href="#exceptionMeasures" data-toggle="tab">exceptions</a></li>
-      <li id="selector">
-        <select>
+      <li id="pr_controls">
+        <span id="text_view" class="btn">Toggle Text View</span>
+        <select id="selector">
           <% @measure.populations.each_with_index do |population, index| %>
             <option value="<%= url_for :population => index, :action => 'definition' %>"<%= ' selected="selected"' if index == params[:population].to_i%>><%= population['title'] %></option>
           <% end if @measure.populations %>

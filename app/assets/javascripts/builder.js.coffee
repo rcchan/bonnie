@@ -52,6 +52,7 @@ class @bonnie.Builder
   _bindClickHandler: (selector) ->
     $(selector || '#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems').find('.paramItem').click((event) =>
       $('.paramItem').removeClass('editing')
+      return if $('#text_view_styles').prop('disabled')-1
       $(event.currentTarget).closest('.paramItem').addClass('editing')
       @editDataCriteria(event.currentTarget)
       event.stopPropagation()
