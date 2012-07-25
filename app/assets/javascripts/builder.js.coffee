@@ -400,8 +400,8 @@ class @bonnie.TemporalReference
     @range = new bonnie.Range(temporal_reference.range) if temporal_reference.range
     @reference = temporal_reference.reference
     @type = temporal_reference.type
-    @type_decoder = {'DURING':'During','SBS':'Starts Before Start of','SAS':'Starts After Start of','SBE':'Starts Before End of','SAE':'Starts After End of','EBS':'Ends Before Start of','EAS':'Ends After Start of'
-                     ,'EBE':'Ends Before End of','EAE':'Ends After End of','SDU':'Starts During','EDU':'Ends During','ECW':'Ends Concurrent with','SCW':'Starts Concurrent with','CONCURRENT':'Concurrent with'}
+    @type_decoder = {'DURING':'During','SBS':'Starts Before Start of','SAS':'Starts After Start of','SBE':'Starts Before or During','SAE':'Starts After End of','EBS':'Ends Before Start of','EAS':'Ends During or After'
+                     ,'EBE':'Ends Before or During','EAE':'Ends After End of','SDU':'Starts During','EDU':'Ends During','ECW':'Ends Concurrent with','SCW':'Starts Concurrent with','CONCURRENT':'Concurrent with'}
   offset_text: =>
     if(@range)
       @range.text(true)
