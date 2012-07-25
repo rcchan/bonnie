@@ -175,6 +175,7 @@
       $(document.body).on('click', '#workspace > div > .close_edit',
         function(e){
           $(e.target).parent().remove();
+          $('.editing').removeClass('editing');
         }
       );
 
