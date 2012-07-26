@@ -283,23 +283,23 @@ class @bonnie.Builder
       ).pop()
     )
       when @populationQuery.structure
-        @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems").empty())
+        $("#initialPopulationItems").empty()
         @saveTree(@populationQuery.toJson(), 'IPP', 'Initial Patient Population')
         @_bindClickHandler("#initialPopulationItems")
       when @denominatorQuery.structure
-        @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems").empty())
+        $("#eligibilityMeasureItems").empty()
         @saveTree(@denominatorQuery.toJson(), 'DENOM', 'Denominator')
         @_bindClickHandler("#eligibilityMeasureItems")
       when @numeratorQuery.structure
-        @addParamItems(@numeratorQuery.toJson(),$("#outcomeMeasureItems").empty())
+        $("#outcomeMeasureItems").empty()
         @saveTree(@numeratorQuery.toJson(), 'NUMER', 'Numerator')
         @_bindClickHandler("#outcomeMeasureItems")
       when @exclusionsQuery.structure
-        @addParamItems(@exclusionsQuery.toJson(),$("#exclusionMeasureItems").empty())
+        $("#exclusionMeasureItems").empty()
         @saveTree(@exclusionsQuery.toJson(), 'EXCL', 'Exclusions')
         @_bindClickHandler("#exclusionMeasureItems")
       when @exceptionsQuery.structure
-        @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems").empty())
+        $("#exceptionMeasureItems").empty()
         @saveTree(@exceptionsQuery.toJson(), 'DENEXCEP', 'Denominator Exceptions')
         @_bindClickHandler("#exceptionMeasureItems")
 
@@ -309,7 +309,11 @@ class @bonnie.Builder
       for k of o
         arguments.callee o[k]  if typeof o[k] is "object"
     ) query = query
-    $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}})
+    $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}}, (r) =>
+      for key in _.keys(r.data_criteria)
+        @data_criteria[key] = new bonnie.DataCriteria(key, r.data_criteria[key], @measure_period)
+      @renderMeasureJSON(r.population_criteria)
+    )
 
   addParamItems: (obj,elemParent,container) =>
     builder = bonnie.builder
