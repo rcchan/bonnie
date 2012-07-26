@@ -391,7 +391,7 @@ class @bonnie.Builder
     builder = bonnie.builder
 
     if items.length > 1
-      elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
+      elemParent = bonnie.template('param_group', $.extend({}, obj, {conjunction: conjunction || items[0] && items[0].conjunction})).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
       $(elemParent).parent().find('.display_name').click((e)->
         $(this).toggleClass('collapsed')
         $(this).siblings().slideToggle();
@@ -408,7 +408,7 @@ class @bonnie.Builder
       if (i < items.length-1 and !node.temporal)
         next = items[i+1]
         conjunction = node.conjunction if !conjunction
-        $(elemParent).append("<span class='"+conjunction+"'>"+conjunction+"</span>")
+        $(elemParent).append("<span class='conjunction "+conjunction+"'>"+conjunction+"</span>")
     )
 
 

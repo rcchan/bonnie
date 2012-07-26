@@ -147,6 +147,9 @@
         padding: 0;
       }
     }
+    span.conjunction:first-of-type {
+      display: none;
+    }
   }
 }
 
