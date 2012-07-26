@@ -187,7 +187,7 @@
 
       $('#workspace').on('click', '#subset_new',
         function(){
-          $('#bonnie_tmpl_data_criteria_subset_operator').tmpl().insertBefore('#subset_new_position');
+          $('#bonnie_tmpl_data_criteria_subset_operator').tmpl().insertBefore('#subset_new_position').find('input.subset_range_type[value=value]').click();
         }
       );
 
