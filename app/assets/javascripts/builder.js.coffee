@@ -261,10 +261,19 @@ class @bonnie.Builder
         subset_operators: JSON.stringify(subset_operators)
         field_values: JSON.stringify(field_values)
       }
-      success: (changes) =>
-        criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
-        $element = $('#' + changes.id)
-        $element.find('label').text(criteria.buildCategory())
+      success: (r) =>
+        @data_criteria[r.id] = new bonnie.DataCriteria(r.id, r, @measure_period)
+        @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems").empty())
+        @_bindClickHandler("#initialPopulationItems")
+        @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems").empty())
+        @_bindClickHandler("#eligibilityMeasureItems")
+        @addParamItems(@numeratorQuery.toJson(),$("#outcomeMeasureItems").empty())
+        @_bindClickHandler("#outcomeMeasureItems")
+        @addParamItems(@exclusionsQuery.toJson(),$("#exclusionMeasureItems").empty())
+        @_bindClickHandler("#exclusionMeasureItems")
+        @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems").empty())
+        @_bindClickHandler("#exceptionMeasureItems")
+
         @showSaved('#workspace')
     });
 

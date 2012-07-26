@@ -83,7 +83,7 @@ class MeasuresController < ApplicationController
     criteria.delete('field_values') if criteria['field_values'].blank?
 
     @measure.upsert_data_criteria(criteria, params['source'])
-    render :json => criteria if @measure.save
+    render :json => @measure.data_criteria[criteria['id']] if @measure.save
   end
 
   def update
