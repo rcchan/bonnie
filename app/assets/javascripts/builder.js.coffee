@@ -279,6 +279,10 @@ class @bonnie.Builder
         @_bindClickHandler("#exceptionMeasureItems")
 
         @showSaved('#workspace')
+
+        $('.paramItem[data-criteria-id=' + $('#workspace form > input[name=criteria_id]').val() + ']').stop(true).css('background-color', '#AAD9FF').animate({'background-color': '#DDF0FF'}, 1200, ->
+            $(@).css('background-color', '').addClass('editing')
+        );
     });
 
   showSaved: (e) =>
