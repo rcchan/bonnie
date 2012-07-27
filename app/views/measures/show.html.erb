@@ -240,6 +240,12 @@
         }
       );
 
+      $('#workspace').on('change', 'select[name=negation]',
+        function(){
+          $(this).parents('form').find('.negation_reason_oid').slideToggle();
+        }
+      );
+
       $('#text_view').click(
         function(){
           if (!$('#text_view_styles').length) $('head').append('<link id="text_view_styles" rel="stylesheet" type="text/css" href="/assets/bonnie/text_view">');
@@ -575,6 +581,25 @@
                 {{tmpl(typeof value=='undefined'?undefined:value) '#bonnie_tmpl_data_criteria_range'}}
                 {{tmpl '#bonnie_tmpl_data_criteria_coded'}}
               </div>
+            </td>
+          </tr>
+          <tr>
+            <td>Not done</td>
+            <td>
+              <select name="negation">
+                <option value="">False</option>
+                <option value="true">True</option>
+              </select>
+            </td>
+          </tr>
+          <tr class="negation_reason_oid" style="display: none">
+            <td>Negation Reason</td>
+            <td>
+              <select name="negation_code_list_id">
+                <% @measure.value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.each {|v|%>
+                  <option value="<%= v['oid'] %>"><%= v['concept'] %> - <%= v['oid'] %></option>
+                <% } %>
+              </select>
             </td>
           </tr>
           {{each temporal_references}}
