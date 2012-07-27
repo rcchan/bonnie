@@ -32,8 +32,8 @@ module Measures
 
       # Parsed HQMF
       if hqmf_path
-        codes_by_oid = HQMF2JS::Generator::CodesToJson.from_value_sets(measure.value_sets) if (value_sets) 
-        
+        codes_by_oid = HQMF2JS::Generator::CodesToJson.from_value_sets(measure.value_sets) if (value_sets)
+
         hqmf_contents = Nokogiri::XML(File.new hqmf_path).to_s
         hqmf = HQMF::Parser.parse(hqmf_contents, HQMF::Parser::HQMF_VERSION_1, codes_by_oid)
         # go into and out of json to make sure that we've converted all the symbols to strings, this will happen going to mongo anyway if persisted
