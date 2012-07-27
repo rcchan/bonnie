@@ -69,6 +69,10 @@
     .paramItem {
       cursor: inherit;
 
+      .block-down-arrow + .paramGroup {
+        margin-left: 25px;
+      }
+
       span.conjunction {
         display: none;
 
