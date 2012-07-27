@@ -50,7 +50,7 @@ class @bonnie.Builder
     @._bindClickHandler()
 
   _bindClickHandler: (selector) ->
-    $(selector || '#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems').find('.paramItem').click((event) =>
+    $(selector || '#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems').find('.paramItem[data-precondition-id], .paramItem[data-criteria-id]').click((event) =>
       $('.paramItem').removeClass('editing')
       return if $('#text_view_styles').prop('disabled')-1
       $(event.currentTarget).closest('.paramItem').addClass('editing')
