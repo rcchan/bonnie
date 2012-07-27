@@ -26,10 +26,14 @@ $.widget 'ui.ContainerUI',
     $result_container = $("<div>")
     if item.children
       if (!(item instanceof queryStructure.AND) && !(item instanceof queryStructure.OR))
-        @element.ItemUI(
+        console.log("item.children and not AND and not OR")
+        console.log("item.children = ",item.children)
+        $itemUI = $result_container;
+        $itemUI.ItemUI(
           parent:@
           item:item.children[0]
         )
+        @element.append($itemUI.children())
       else
         makeDropFn = (self) ->
           currentItem = item
@@ -183,10 +187,19 @@ $.widget 'ui.ItemUI',
       event.stopPropagation()
     )
     makeDropFn = (self) ->
+      currentItem = @item
+      container = @container
       dropFn = (event,ui) ->
         target = event.currentTarget
-        dropY = event.pageY
-        childItems = $(@).children(".paramGroup")
+        console.log("---------starting dropFn--------------")
+        console.log("self = ",self)
+        console.log("container = ",container)
+        console.log("self.element=",self.element)
+        console.log("currentItem=",currentItem)
+        console.log("@=",@)
+        console.log("parent=",parent)
+        console.log("self.parent = ",self.parent)
+        
         _.bind(self._drop,@)()
         
       return dropFn
@@ -194,7 +207,7 @@ $.widget 'ui.ItemUI',
     makeGroupDropFn = (self,container) ->
       currentItem = self.builder.data_criteria[self.item.id].children_criteria
       container = container
-      parent = self.item.parent
+      #parent = self.item.parent
       dropFn = (event,ui) ->
         console.log("---------starting dropFn--------------")
         console.log("self = ",self)
@@ -207,7 +220,7 @@ $.widget 'ui.ItemUI',
         console.log("origId=",origId)
         target = event.currentTarget
         dropY = event.pageY
-        child_items = $(@).children(".paramGroup")
+        child_items = $(@).children(".paramText")
         after = null
         before = child_items[0] if child_items.length
         pos = 0
@@ -217,9 +230,9 @@ $.widget 'ui.ItemUI',
           item_mid = item_top + Math.round(item_height/2)
           pos = i+1 if dropY > item_mid
         currentItem.splice(pos,0,origId) if origId?
-        #$(ui.helper).remove()
+        $(ui.helper).remove()
         scrollTop = Math.max($("html").scrollTop(),$("body").scrollTop())
-        #$(@).empty().closest(".paramGroup>.paramItem").OrContainerUI({builder:self.builder,container:parent})
+        $(@).parent(".paramGroup").empty().OrContainerUI({builder:self.builder,container:self.parent.container})
         $("body,html").scrollTop(scrollTop)
         droppedElem = self.element #.find(".paramItem[data-myid=#{currentItem.myid}]>.paramGroup").eq(pos)
         innerHeight = window.innerHeight
@@ -265,10 +278,23 @@ $.widget 'ui.ItemUI',
             over: @_overGroup
             tolerance:'pointer'
             greedy:true
-            accept:'label.ui-draggable'
+            accept:'label.ui-draggable, .paramText, .logicLeaf'
             out:  @_outGroup
             drop: makeGroupDropFn(@,child_criteria.children)
           )
+          ###
+          # This adds a drag handler to the entire Group
+          $itemUI.draggable(
+            helper:"clone"
+            revert:true
+            distance:3
+            handle:'.paramText'
+            opacity:1
+            zIndex:10000
+            start:
+              $(event.target).closest(".paramGroup").addClass("dragged")
+          )
+          ###
           $itemUI.append($div.children())
       else
         $itemUI.append(data_criteria.asHtml("data_criteria_logic"))
@@ -276,7 +302,7 @@ $.widget 'ui.ItemUI',
           over:  @_over
           tolerance:'pointer'
           greedy:true
-          accept:'label.ui-draggable'
+          accept:'label.ui-draggable, .paramText, .logicLeaf'
           out:  @_out 
           drop: makeDropFn(@)
         )
