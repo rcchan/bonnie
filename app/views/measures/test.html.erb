@@ -14,7 +14,13 @@
 <% end %>
 
 <% content_for :page_content do %>
-
+  <div class="pull-right" id="pageButtons">
+    <%= link_to "Generate Patients", generate_patients_measure_url(@measure), :method => :post, :class => "btn" %>
+    <a href="#downloadPatientsDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Download Patients</a>
+  </div>
+  
+  <%= render partial: 'download_patients' %>
+  
   <h3 class="measure-title">
     <span class="label">Testing:</span>
     <span class="title"><%= @measure.title %></span><br>

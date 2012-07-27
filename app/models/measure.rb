@@ -23,6 +23,7 @@ class Measure
   belongs_to :user
   embeds_many :publishings
   has_many :value_sets
+  has_many :records, dependent: :destroy
 
   scope :published, -> { where({'published'=>true}) }
   scope :by_measure_id, ->(id) { where({'measure_id'=>id }) }
@@ -137,13 +138,13 @@ class Measure
         'conjunction_code' => conjunction_mapping[data['conjunction']],
         'id' => data['precondition_id'],
         'negation' => data['negation'] == true || data['negation'] == 'true',
-        'preconditions' => if data['items'] != nil then data['items'].map {|k,v| create_hqmf_preconditions(v)} end,
+        'preconditions' => if !data['items'].blank? then data['items'].map {|k,v| create_hqmf_preconditions(v)} end,
         'reference' => data['id'],
       }
       if !data['id']
         data['id'] = data['precondition_id'] || BSON::ObjectId.new.to_s
-        if data['reference']
-          upsert_data_criteria(self['source_data_criteria'][data['reference']].merge({'id' => data['reference'] += '_' + data['id']}))
+        if data['reference'] && self['data_criteria'][data['reference']].nil?
+          upsert_data_criteria((self['source_data_criteria'][data['reference']]).merge({'id' => data['reference'] += '_' + data['id']}))
         end
       end
     end
@@ -176,7 +177,8 @@ class Measure
       element = {
         conjunction: conjunction_mapping[criteria["conjunction_code"]] || criteria["conjunction_code"],
         items: [],
-        negation: criteria["negation"]
+        negation: criteria["negation"],
+        precondition_id: criteria['id']
       }
       criteria["preconditions"].each do |precondition|
         if precondition["reference"] # We've hit a leaf node - This is a data criteria reference
@@ -190,7 +192,6 @@ class Measure
           precondition['conjunction_code'] = 'and' if precondition["reference"]
           element[:items] << parse_hqmf_preconditions(precondition, inline)
         end
-        element['precondition_id'] = precondition['id']
       end if criteria["preconditions"]
       return element
     end

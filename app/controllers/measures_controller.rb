@@ -51,29 +51,40 @@ class MeasuresController < ApplicationController
   end
 
   def create
-
     # Value sets
     value_set_file = params[:measure][:value_sets]
     value_set_path = value_set_file.tempfile.path
     value_set_format = HQMF::ValueSet::Parser.get_format(value_set_file.original_filename)
 
+    # Load the actual measure
     hqmf_path = params[:measure][:hqmf].tempfile.path
+    html_path = params[:measure][:html].tempfile.path
 
-    measure = Measures::Loader.load(hqmf_path, value_set_path, current_user, value_set_format)
+    measure = Measures::Loader.load(hqmf_path, value_set_path, current_user, value_set_format, html_path)
 
     redirect_to edit_measure_url(measure)
   end
 
   def upsert_criteria
     @measure = Measure.find(params[:id])
-    criteria = {"id" => params[:criteria_id], "type" => params['type']}
-    ["status", "display_name", "value", "standard_category", "qds_data_type"].each { |f| criteria[f] = params[f]}
-    ["title", "code_list_id", "property", "children_criteria", "description"].each { |f| criteria[f] = params[f] if params[f]}
+    criteria = {"id" => params[:criteria_id]  || BSON::ObjectId.new.to_s, "type" => params['type']}
+    ['negation'].each { |f| criteria[f] = params[f] if !params[f].nil?}
+    ["title", "code_list_id", "description", "qds_data_type", 'negation_code_list_id'].each { |f| criteria[f] = params[f] if !params[f].blank?}
+
+    # Do that HQMF Processing
+    criteria = {'id' => criteria['id'] }.merge JSON.parse(HQMF::DataCriteria.create_from_category(criteria['id'], criteria['title'], criteria['description'], criteria['code_list_id'], params['category'], params['subcategory'], criteria['negation'], criteria['negation_code_list_id']).to_json.to_json).flatten[1]
+
+    ["display_name", 'negation'].each { |f| criteria[f] = params[f] if !params[f].nil?}
+    ["property", "children_criteria"].each { |f| criteria[f] = params[f] if !params[f].blank?}
+
+    criteria['value'] = JSON.parse(params['value']).merge({'type' => params['value_type']}) if params['value'] && params['value_type']
     criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
     criteria['subset_operators'] = JSON.parse(params['subset_operators']) if params['subset_operators']
     criteria['field_values'] = JSON.parse(params['field_values']) if params['field_values']
+    criteria.delete('field_values') if criteria['field_values'].blank?
+
     @measure.upsert_data_criteria(criteria, params['source'])
-    render :json => criteria if @measure.save
+    render :json => @measure.data_criteria[criteria['id']] if @measure.save
   end
 
   def update
@@ -102,7 +113,6 @@ class MeasuresController < ApplicationController
   def validate_authorization!
     authorize! :manage, Measure
   end
-
 
   def definition
     measure = Measure.find(params[:id])
@@ -134,12 +144,33 @@ class MeasuresController < ApplicationController
 
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "measures.zip"
   end
+  
+  def generate_patients
+    measure = Measure.find(params[:id])
+    measure.records.destroy_all
+    
+    begin
+      generator = HQMF::Generator.new(measure.as_hqmf_model, measure.value_sets)
+      measure.records = generator.generate_patients
+      measure.save
+    rescue
+    end
+    
+    redirect_to :test_measure
+  end
+  
+  def download_patients
+    measure = Measure.find(params[:id])
+    zip = TPG::Exporter.zip(measure.records, "c32")
+    
+    send_file zip.path, :type => 'application/zip', :disposition => 'attachment', :filename => "patients.zip"
+  end
 
   def debug
     @measure = Measure.find(params[:id])
     @patient = Record.find(params[:record_id])
     @population = (params[:population] || 0).to_i
-    
+
     respond_to do |wants|
       wants.html do
         @js = Measures::Exporter.execution_logic(@measure, @population)
@@ -158,12 +189,12 @@ class MeasuresController < ApplicationController
       end
     end
   end
-  
+
 
   def test
     @population = params[:population] || 0
     @measure = Measure.find(params[:id])
-    @patient_names = Record.all.entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
+    @patient_names = @measure.records.entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
 
     # we need to manipulate params[:patients] but it's immutable?
     if params[:patients]
@@ -217,12 +248,28 @@ class MeasuresController < ApplicationController
   def update_population_criteria
     @measure = Measure.find(params[:id])
     @measure.create_hqmf_preconditions(params['data'])
-    render :json => @measure.save!
+    @measure.save!
+    render :json => {
+      'population_criteria' => {{
+        "IPP" => "population",
+        "DENOM" => "denominator",
+        "NUMER" => "numerator",
+        "EXCL" => "exclusions",
+        "DENEXCEP" => "exceptions"
+      }[params['data']['type']] => @measure.population_criteria_json(@measure.population_criteria[params['data']['type']])},
+      'data_criteria' => @measure.data_criteria
+    }
   end
 
   def name_precondition
     @measure = Measure.find(params[:id])
     @measure.name_precondition(params[:precondition_id], params[:name])
+    render :json => @measure.save!
+  end
+
+  def save_data_criteria
+    @measure = Measure.find(params[:id])
+    @measure.data_criteria[params[:criteria_id]]['saved'] = true
     render :json => @measure.save!
   end
 end
