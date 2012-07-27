@@ -1,9 +1,10 @@
 module Measures
-  
+
   # Utility class for loading measure definitions into the database
   class Loader
-    
-    def self.load(hqmf_path, value_set_path, user, value_set_format = nil, persist = true)
+
+    def self.load(hqmf_path, value_set_path, user, value_set_format=nil, persist = true, html_path=nil)
+
       measure = Measure.new
 
       # Meta data
@@ -37,13 +38,13 @@ module Measures
         hqmf = HQMF::Parser.parse(hqmf_contents, HQMF::Parser::HQMF_VERSION_1, codes_by_oid)
         # go into and out of json to make sure that we've converted all the symbols to strings, this will happen going to mongo anyway if persisted
         json = JSON.parse(hqmf.to_json.to_json,max_nesting: 250)
-        
+
         measure.measure_id = json["id"]
         measure.title = json["title"]
         measure.description = json["description"]
         measure.measure_attributes = json["attributes"]
         measure.populations = json['populations']
-        
+
         measure.category = 'Miscellaneous'
         #measure.endorser = params[:measure][:endorser]
         #measure.steward = params[:measure][:steward]
@@ -52,6 +53,13 @@ module Measures
         measure.data_criteria = json["data_criteria"]
         measure.source_data_criteria = json["source_data_criteria"]
         measure.measure_period = json["measure_period"]
+      end
+
+      html_out_path = File.join(".","tmp",'measures','html')
+      FileUtils.mkdir_p html_out_path
+
+      if html_path
+        FileUtils.cp(html_path, File.join(html_out_path,"#{measure._id}.html"))
       end
 
       measure.save! if persist

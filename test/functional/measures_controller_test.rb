@@ -82,7 +82,8 @@ class MeasuresControllerTest < ActionController::TestCase
 
     hqmf_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.xml", "text/xml"))
     value_set_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.xls", "application/vnd.ms-excel"))
-    post :create, { measure: { hqmf: hqmf_file, value_sets: value_set_file} }
+    html_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.html", "text/html"))
+    post :create, { measure: { hqmf: hqmf_file, value_sets: value_set_file, html: html_file} }
     created_measure = Measure.all.first
 
     assert_equal Measure.all.size, 1

@@ -187,7 +187,7 @@
 
       $('#workspace').on('click', '#subset_new',
         function(){
-          $('#bonnie_tmpl_data_criteria_subset_operator').tmpl().insertBefore('#subset_new_position');
+          $('#bonnie_tmpl_data_criteria_subset_operator').tmpl().insertBefore('#subset_new_position').find('input.subset_range_type[value=value]').click();
         }
       );
 
@@ -224,9 +224,10 @@
 
       $('#text_view').click(
         function(){
-          if (!$('#text_view_styles').length) $('head').append('<link id="text_view_styles" rel="stylesheet" type="text/css" href="/assets/text_view">');
+          if (!$('#text_view_styles').length) $('head').append('<link id="text_view_styles" rel="stylesheet" type="text/css" href="/assets/bonnie/text_view">');
           else $('#text_view_styles').prop('disabled', $('#text_view_styles').prop('disabled') ? null : 'disabled')
 
+          $("#measureDetailInformation, #measureDetailInformation .inner, #tabs").stop(false, true)
           if ($("#measureDetailInformation").css('left') != ($('#text_view_styles').prop('disabled') ? '0px' : '-285px')) $('#measureDetailBorder').trigger('click');
 
         }
@@ -243,6 +244,7 @@
         {{else precondition_id}}
           {{if bonnie.builder.preconditions[precondition_id]}}<div class="display_name">${bonnie.builder.preconditions[precondition_id]}</div>{{/if}}
         {{/if}}
+        {{if conjunction}}<span class='conjunction ${conjunction}'>${conjunction}</span>{{/if}}
       </div>
     </div>
   </script>

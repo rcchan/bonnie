@@ -14,7 +14,7 @@
   padding: inherit;
   border-radius: inherit;
   border: none;
-  margin: inherit;
+  margin: 0;
 }
 
 #measureEditContainer .paramGroup {
@@ -25,7 +25,7 @@
   border-radius: inherit;
   -moz-border-radius: inherit;
   -webkit-border-radius: inherit;
-  padding: inherit;
+  padding: 0;
 }
 
 #measureEditContainer .paramItem .paramText {
@@ -58,11 +58,26 @@
       display: inline;
     }
   }
+  .conjunction { float: left; clear: both;}
+  .paramGroup {
+    margin: 0;
+    display: inline-block;
 
-  .paramItem {
-    cursor: inherit;
+    float: left;
+    clear: left;
+
+    .paramItem {
+      cursor: inherit;
+
+      span.conjunction {
+        display: none;
+
+        &:first-of-type {
+          display: inline-block;
+        }
+      }
+    }
   }
-
   #workspace {
     display: none;
   }

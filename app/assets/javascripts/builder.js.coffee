@@ -261,10 +261,19 @@ class @bonnie.Builder
         subset_operators: JSON.stringify(subset_operators)
         field_values: JSON.stringify(field_values)
       }
-      success: (changes) =>
-        criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
-        $element = $('#' + changes.id)
-        $element.find('label').text(criteria.buildCategory())
+      success: (r) =>
+        @data_criteria[r.id] = new bonnie.DataCriteria(r.id, r, @measure_period)
+        @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems").empty())
+        @_bindClickHandler("#initialPopulationItems")
+        @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems").empty())
+        @_bindClickHandler("#eligibilityMeasureItems")
+        @addParamItems(@numeratorQuery.toJson(),$("#outcomeMeasureItems").empty())
+        @_bindClickHandler("#outcomeMeasureItems")
+        @addParamItems(@exclusionsQuery.toJson(),$("#exclusionMeasureItems").empty())
+        @_bindClickHandler("#exclusionMeasureItems")
+        @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems").empty())
+        @_bindClickHandler("#exceptionMeasureItems")
+
         @showSaved('#workspace')
     });
 
@@ -283,23 +292,23 @@ class @bonnie.Builder
       ).pop()
     )
       when @populationQuery.structure
-        @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems").empty())
+        $("#initialPopulationItems").empty()
         @saveTree(@populationQuery.toJson(), 'IPP', 'Initial Patient Population')
         @_bindClickHandler("#initialPopulationItems")
       when @denominatorQuery.structure
-        @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems").empty())
+        $("#eligibilityMeasureItems").empty()
         @saveTree(@denominatorQuery.toJson(), 'DENOM', 'Denominator')
         @_bindClickHandler("#eligibilityMeasureItems")
       when @numeratorQuery.structure
-        @addParamItems(@numeratorQuery.toJson(),$("#outcomeMeasureItems").empty())
+        $("#outcomeMeasureItems").empty()
         @saveTree(@numeratorQuery.toJson(), 'NUMER', 'Numerator')
         @_bindClickHandler("#outcomeMeasureItems")
       when @exclusionsQuery.structure
-        @addParamItems(@exclusionsQuery.toJson(),$("#exclusionMeasureItems").empty())
+        $("#exclusionMeasureItems").empty()
         @saveTree(@exclusionsQuery.toJson(), 'EXCL', 'Exclusions')
         @_bindClickHandler("#exclusionMeasureItems")
       when @exceptionsQuery.structure
-        @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems").empty())
+        $("#exceptionMeasureItems").empty()
         @saveTree(@exceptionsQuery.toJson(), 'DENEXCEP', 'Denominator Exceptions')
         @_bindClickHandler("#exceptionMeasureItems")
 
@@ -309,7 +318,11 @@ class @bonnie.Builder
       for k of o
         arguments.callee o[k]  if typeof o[k] is "object"
     ) query = query
-    $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}})
+    $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}}, (r) =>
+      for key in _.keys(r.data_criteria)
+        @data_criteria[key] = new bonnie.DataCriteria(key, r.data_criteria[key], @measure_period)
+      @renderMeasureJSON(r.population_criteria)
+    )
 
   addParamItems: (obj,elemParent,container) =>
     builder = bonnie.builder
@@ -391,7 +404,7 @@ class @bonnie.Builder
     builder = bonnie.builder
 
     if items.length > 1
-      elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
+      elemParent = bonnie.template('param_group', $.extend({}, obj, {conjunction: conjunction || items[0] && items[0].conjunction})).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
       $(elemParent).parent().find('.display_name').click((e)->
         $(this).toggleClass('collapsed')
         $(this).siblings().slideToggle();
@@ -408,7 +421,7 @@ class @bonnie.Builder
       if (i < items.length-1 and !node.temporal)
         next = items[i+1]
         conjunction = node.conjunction if !conjunction
-        $(elemParent).append("<span class='"+conjunction+"'>"+conjunction+"</span>")
+        $(elemParent).append("<span class='conjunction "+conjunction+"'>"+conjunction+"</span>")
     )
 
 
@@ -560,7 +573,7 @@ class @bonnie.DataCriteria
     text += if (
       switch(@value.type)
         when 'PQ' then @value.value
-        when 'IVL_PQ' then @value.low.value || @value.high.value
+        when 'IVL_PQ' then @value.low && @value.low.value || @value.high && @value.high.value
         when 'CD' then @value.code_list_id
     ) then "(result #{@value.text()})" else ""
 

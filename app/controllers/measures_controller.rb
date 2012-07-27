@@ -58,7 +58,9 @@ class MeasuresController < ApplicationController
 
     # Load the actual measure
     hqmf_path = params[:measure][:hqmf].tempfile.path
-    measure = Measures::Loader.load(hqmf_path, value_set_path, current_user, value_set_format)
+    html_path = params[:measure][:html].tempfile.path
+
+    measure = Measures::Loader.load(hqmf_path, value_set_path, current_user, value_set_format, html_path)
 
     redirect_to edit_measure_url(measure)
   end
@@ -82,7 +84,7 @@ class MeasuresController < ApplicationController
     criteria.delete('field_values') if criteria['field_values'].blank?
 
     @measure.upsert_data_criteria(criteria, params['source'])
-    render :json => criteria if @measure.save
+    render :json => @measure.data_criteria[criteria['id']] if @measure.save
   end
 
   def update
@@ -246,7 +248,17 @@ class MeasuresController < ApplicationController
   def update_population_criteria
     @measure = Measure.find(params[:id])
     @measure.create_hqmf_preconditions(params['data'])
-    render :json => @measure.save!
+    @measure.save!
+    render :json => {
+      'population_criteria' => {{
+        "IPP" => "population",
+        "DENOM" => "denominator",
+        "NUMER" => "numerator",
+        "EXCL" => "exclusions",
+        "DENEXCEP" => "exceptions"
+      }[params['data']['type']] => @measure.population_criteria_json(@measure.population_criteria[params['data']['type']])},
+      'data_criteria' => @measure.data_criteria
+    }
   end
 
   def name_precondition
