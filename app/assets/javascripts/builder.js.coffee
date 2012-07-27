@@ -116,6 +116,10 @@ class @bonnie.Builder
       ).filter('[value=' + (data_criteria.value && data_criteria.value.type || 'PQ') + ']').prop('checked', 'checked')
       element.find('select.data_criteria_oid').val(data_criteria.value && data_criteria.value.code_list_id)
 
+      element.find('select[name=negation]').val('true' if data_criteria.negation)
+      element.find('.negation_reason_oid').slideDown() if data_criteria.negation
+      element.find('select[name=negation_code_list_id]').val(data_criteria.negation_code_list_id)
+
       temporal_element = $(element).find('.temporal_reference')
       $.each(data_criteria.temporal_references, (i, e) ->
         $(temporal_element[i]).find('.temporal_type').val(e.type)
