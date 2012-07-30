@@ -32,12 +32,19 @@
 
     $('#patient_data_criteria').droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: function(e,obj){ return fillDrop(e,obj); } });
 
+    $('#savebutton').click(
+      function(){
+        $('form#save_patient_builder').trigger('submit');
+      }
+    );
+
   });
 
   var fillDrop = function(event, obj){
     var id = $(obj.draggable).data('criteria-id');
     var source_data_criteria = bonnie.patientBuilder.dataCriteria(id)
     var data_criteria = source_data_criteria.duplicate(id+'_'+bonnie.patientBuilder.nextDataCriteriaId())
+    data_criteria.source = id
     html = data_criteria.asHtml('data_criteria')
     $(event.target).append(html)
     bonnie.patientBuilder.registerDataCriteria(data_criteria);
@@ -238,8 +245,8 @@
 
       <div class="row">
         <div class="span4">
-          <a href="javascript:void(0)" class="btn" id="element_update">Update</a>
-          <a href="javascript:void(0)" class="btn close_edit" >Cancel</a>
+          <span class="btn" id="element_update">Update</span>
+          <span class="btn close_edit" >Cancel</span>
         </div>
       </div>
 
@@ -251,7 +258,7 @@
 <% content_for :page_content do %>
 
   <div class="pull-right" id="pageButtons">
-    <a href="#" class="btn">Save</a>
+    <a href="#" class="btn" id="savebutton">Save</a>
   </div>
 	<h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
 

@@ -161,6 +161,26 @@ class @bonnie.PatientBuilder
   selectedDataCriteria: (id) =>
     @selected_data_criteria[id]
 
+  save_patient_builder: (form)->
+    data_criteria = []
+    $('#patient_data_criteria .paramGroup').each((i,e)=>
+      data = bonnie.patientBuilder.selected_data_criteria[$(e).data('criteria-id')]
+      data_criteria.push({
+        id: data.source
+        start_date: data.start_date
+        end_date: data.end_date
+        value: data.value if data.value
+        value_unit: data.value_unit if data.value
+      })
+    );
+    $(form).ajaxSubmit({
+      data: {
+        measure_period_start: $('#measure_period_start').val()
+        measure_period_end: $('#measure_period_end').val()
+        data_criteria: data_criteria
+      }
+    });
+
 class PatientBuilderPage
   constructor: (data_criteria, value_sets) ->
     bonnie.patientBuilder = new bonnie.PatientBuilder(data_criteria, value_sets)
