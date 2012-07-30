@@ -92,20 +92,22 @@ class @bonnie.PatientBuilder
     element.css("top", top)
     element.animate({top: offset})
     $('.close_edit').click( -> $('#workspace').empty(); $('.paramItem').removeClass('editing') );
-    $('#element_start_date').val(data_criteria.start_date);
-    $('#element_end_date').val(data_criteria.end_date);
-    
-    $('#element_start_date').datepicker({
-      onSelect: (selectedDate) -> $( "#element_end_date" ).datepicker( "option", "minDate", selectedDate )
-    });
-    $('#element_end_date').datepicker({
-      onSelect: (selectedDate) -> $( "#element_start_date" ).datepicker( "option", "maxDate", selectedDate )
-    });
 
-    $('#element_start_time').timepicker();
-    $('#element_end_time').timepicker();
-    $('#element_start_time').val(data_criteria.start_time);
-    $('#element_end_time').val(data_criteria.end_time);
+    $('#element_start').datetimepicker({
+      onSelect: (selectedDate) -> $( "#element_end" ).datetimepicker('option', "minDate", new Date(selectedDate) )
+    }).datetimepicker('setDate', new Date(data_criteria.start_date));
+
+    $('#element_end').datetimepicker({
+      onSelect: (selectedDate) -> $( "#element_start" ).datetimepicker( "option", "maxDate", new Date(selectedDate) )
+    }).datetimepicker('setDate', new Date(data_criteria.end_date));
+
+    $('#element_start_time').timepicker()
+    $('#element_end_time').timepicker()
+    $('#element_start_time').val(data_criteria.start_time)
+    $('#element_end_time').val(data_criteria.end_time)
+    $('#element_value').val(data_criteria.value)
+    $('#element_value_unit').val(data_criteria.value_unit)
+
     $('#element_update').click(=>
       data_criteria = @selectedDataCriteria($('#element_id').val())
       data_criteria.start_date = new Date($('#element_start').val()).getTime()
