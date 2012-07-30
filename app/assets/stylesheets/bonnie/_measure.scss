@@ -37,7 +37,14 @@
   }
  }
 
-#measureEditContainer {
+#patient_data_criteria {
+  .paramItem {
+    min-width: 410px;
+  }
+}
+
+
+#measureEditContainer, #patient_data_criteria {
   border-top: 1px solid $measureBorderColor;
   clear: left;
   position: relative;
@@ -110,6 +117,7 @@
     &.paramItem {
       @include transition(background-color .2s linear);
     }
+    
   }
   .paramGroupToggle {
     margin: 0 0 0 20px;
@@ -127,6 +135,10 @@
     text-transform: lowercase;
     &.droppable {
       background-color:#fec;
+      @include transition(background-color .2s linear);
+    }
+    &.highlight {
+      background-color:#FFFFE5;
       @include transition(background-color .2s linear);
     }
     &.editing {
@@ -295,7 +307,7 @@
   }
 }
 
-#initialPopulation {
+#initialPopulation, #patient_data_criteria {
   .paramGroup, .display_name {
     background-color: #dcdcdc;
     .paramGroup, .display_name {

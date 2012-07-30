@@ -260,4 +260,9 @@ class MeasuresController < ApplicationController
     @measure.data_criteria[params[:criteria_id]]['saved'] = true
     render :json => @measure.save!
   end
+  
+  def patient_builder
+    @measure = Measure.find(params[:id])
+    
+  end
 end
