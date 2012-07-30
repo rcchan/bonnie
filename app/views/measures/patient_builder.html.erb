@@ -285,7 +285,7 @@
       <%= link_to 'Back', measures_path %>
 
       <div id="dataCriteria" style="overflow-y: auto; height: 650px;">
-        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria)}%>
+        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria.reject{|k,v| ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition']) }), patient_builder: true}%>
       </div>
     </div>
   </div>
