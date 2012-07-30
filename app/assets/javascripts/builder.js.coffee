@@ -25,12 +25,12 @@ class @bonnie.Builder
   renderMeasureJSON: (data) =>
     @query.rebuildFromJson(data)
     
-    $("#initialPopulationItems").ContainerUI({builder:bonnie.builder,container:bonnie.builder.query.population})
-    $("#eligibilityMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.denominator})
-    $("#outcomeMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.numerator})
-    $("#exclusionMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exclusions})
-    $("#exceptionsMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exceptions})
-    #@addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
+    #$("#initialPopulationItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.population})
+    #$("#eligibilityMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.denominator})
+    #$("#outcomeMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.numerator})
+    #$("#exclusionMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exclusions})
+    #$("#exceptionsMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exceptions})
+    @addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
     #@addParamItems(@query.denominator.toJson(),$("#eligibilityMeasureItems"))
     #@addParamItems(@query.numerator.toJson(),$("#outcomeMeasureItems"))
     #@addParamItems(@query.exclusions.toJson(),$("#exclusionMeasureItems"))
@@ -256,15 +256,15 @@ class @bonnie.Builder
       }
       success: (r) =>
         @data_criteria[r.id] = new bonnie.DataCriteria(r.id, r, @measure_period)
-        @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems").empty())
+        @addParamItems(@query.population.toJson(),$("#initialPopulationItems").empty())
         @_bindClickHandler("#initialPopulationItems")
-        @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems").empty())
+        @addParamItems(@query.denominator.toJson(),$("#eligibilityMeasureItems").empty())
         @_bindClickHandler("#eligibilityMeasureItems")
-        @addParamItems(@numeratorQuery.toJson(),$("#outcomeMeasureItems").empty())
+        @addParamItems(@query.numerator.toJson(),$("#outcomeMeasureItems").empty())
         @_bindClickHandler("#outcomeMeasureItems")
-        @addParamItems(@exclusionsQuery.toJson(),$("#exclusionMeasureItems").empty())
+        @addParamItems(@query.exclusions.toJson(),$("#exclusionMeasureItems").empty())
         @_bindClickHandler("#exclusionMeasureItems")
-        @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems").empty())
+        @addParamItems(@query.exceptions.toJson(),$("#exceptionMeasureItems").empty())
         @_bindClickHandler("#exceptionMeasureItems")
 
         @showSaved('#workspace')
@@ -284,25 +284,25 @@ class @bonnie.Builder
         finder = finder.parent
       ).pop()
     )
-      when @populationQuery.structure
+      when @query.population.structure
         $("#initialPopulationItems").empty()
-        @saveTree(@populationQuery.toJson(), 'IPP', 'Initial Patient Population')
+        @saveTree(@query.population.toJson(), 'IPP', 'Initial Patient Population')
         @_bindClickHandler("#initialPopulationItems")
-      when @denominatorQuery.structure
+      when @query.denominator.structure
         $("#eligibilityMeasureItems").empty()
-        @saveTree(@denominatorQuery.toJson(), 'DENOM', 'Denominator')
+        @saveTree(@query.denominator.toJson(), 'DENOM', 'Denominator')
         @_bindClickHandler("#eligibilityMeasureItems")
-      when @numeratorQuery.structure
+      when @query.numerator.structure
         $("#outcomeMeasureItems").empty()
-        @saveTree(@numeratorQuery.toJson(), 'NUMER', 'Numerator')
+        @saveTree(@query.numerator.toJson(), 'NUMER', 'Numerator')
         @_bindClickHandler("#outcomeMeasureItems")
-      when @exclusionsQuery.structure
+      when @query.exclusions.structure
         $("#exclusionMeasureItems").empty()
-        @saveTree(@exclusionsQuery.toJson(), 'EXCL', 'Exclusions')
+        @saveTree(@query.exclusions.toJson(), 'EXCL', 'Exclusions')
         @_bindClickHandler("#exclusionMeasureItems")
-      when @exceptionsQuery.structure
+      when @query.exceptions.structure
         $("#exceptionMeasureItems").empty()
-        @saveTree(@exceptionsQuery.toJson(), 'DENEXCEP', 'Denominator Exceptions')
+        @saveTree(@query.exceptions.toJson(), 'DENEXCEP', 'Denominator Exceptions')
         @_bindClickHandler("#exceptionMeasureItems")
 
   saveTree: (query, key, title) ->
@@ -319,17 +319,17 @@ class @bonnie.Builder
     )
     ###
     
-  addParamItems: (obj,elemParent,container) =>
+  addParamItems: (obj,elemParent) =>
     #console.log "obj",obj
     #console.log "elemParent",elemParent
-    #console.log "container",container
     builder = bonnie.builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
     parent = obj.parent
 
     makeDropFn = (self) ->
-      #console.log "making drop for ", obj
+      console.log "making drop for ", obj
+      console.log "elemParent",elemParent
       queryObj = parent ? obj
       dropFunction = (event,ui) ->
         target = event.currentTarget
@@ -352,7 +352,7 @@ class @bonnie.Builder
         $('#workspace').empty()
         bonnie.builder.pushTree(queryObj)
       return dropFunction
-
+    ###
     $(elemParent).data("query-struct",parent)
     elemParent.droppable(
         over:  @._over
@@ -361,8 +361,9 @@ class @bonnie.Builder
         accept:'label.ui-draggable'
         out:  @._out
         drop: makeDropFn(@)
-    )   
-    if $(elemParent).not(".droppable").hasClass('paramItem')
+    )  
+    ###
+    if $(elemParent).not(".ui-droppable").hasClass('paramItem')
       $(elemParent).data("query-struct",parent)
       elemParent.droppable(
           over:  @._over
