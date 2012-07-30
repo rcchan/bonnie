@@ -19,6 +19,15 @@
     });
     $('.timepicker-default').timepicker();
 
+    $('#tl').on('dragover', '.timeline-band', function(){
+      return false;
+    }).on('drop', '.timeline-band', function(e){
+      var date = bonnie.timeline.getBand($(this).attr('id').match(/\d+$/)[0]).pixelOffsetToDate(e.originalEvent.pageX - $(this).offset().left);
+      bonnie.patientBuilder.selected_data_criteria[e.originalEvent.dataTransfer.getData('text')].start_date = bonnie.patientBuilder.selected_data_criteria[e.originalEvent.dataTransfer.getData('text')].end_date = date.getTime();
+      bonnie.patientBuilder.updateTimeline();
+      bonnie.timeline.getBand(0).setCenterVisibleDate(date)
+    });
+
     onLoadTimeline();
 
     $(".paramChildren label").not('[data-criteria-id=MeasurePeriod] label').draggable({
@@ -61,13 +70,212 @@
 
   </script>
   <!-- Load the Timeline library after reseting the fonts, etc -->
-  <script src="http://static.simile.mit.edu/timeline/api-2.3.0/timeline-api.js?bundle=true" type="text/javascript"></script>
+  <script src="http://static.simile.mit.edu/timeline/api-2.3.0/timeline-api.js?bundle=false" type="text/javascript"></script>
 
 
   <script type="text/javascript">
        var tl;
-       function onLoadTimeline() {
 
+      Timeline.OriginalEventPainter.prototype.paintPreciseInstantEvent = function(evt, metrics, theme, highlightIndex) {
+        var doc = this._timeline.getDocument();
+        var text = evt.getText();
+
+        var startDate = evt.getStart();
+        var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
+        var iconRightEdge = Math.round(startPixel + metrics.iconWidth / 2);
+        var iconLeftEdge = Math.round(startPixel - metrics.iconWidth / 2);
+
+        var labelDivClassName = this._getLabelDivClassName(evt);
+        var labelSize = this._frc.computeSize(text, labelDivClassName);
+        var labelLeft = iconRightEdge + theme.event.label.offsetFromLine;
+        var labelRight = labelLeft + labelSize.width;
+
+        var rightEdge = labelRight;
+        var track = this._findFreeTrack(evt, rightEdge);
+
+        var labelTop = Math.round(
+            metrics.trackOffset + track * metrics.trackIncrement +
+            metrics.trackHeight / 2 - labelSize.height / 2);
+
+        var iconElmtData = this._paintEventIcon(evt, track, iconLeftEdge, metrics, theme, 0);
+        var labelElmtData = this._paintEventLabel(evt, text, labelLeft, labelTop, labelSize.width,
+            labelSize.height, theme, labelDivClassName, highlightIndex);
+        var els = [iconElmtData.elmt, labelElmtData.elmt];
+
+        var self = this;
+        var clickHandler = function(elmt, domEvt, target) {
+          console.log("INSTANT!")
+            return self._onClickInstantEvent(iconElmtData.elmt, domEvt, evt);
+        };
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "dragstart",
+          function(elmt, domEvt, target){
+            domEvt.dataTransfer.setData('text', evt._id);
+          }
+        );
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "mousedown",
+          function(elmt, domEvt){domEvt.stopPropagation();}
+        );
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "click", clickHandler);
+        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "click", clickHandler);
+
+        var hDiv = this._createHighlightDiv(highlightIndex, iconElmtData, theme, evt);
+        if (hDiv != null) {els.push(hDiv);}
+        this._fireEventPaintListeners('paintedEvent', evt, els);
+
+
+        this._eventIdToElmt[evt.getID()] = iconElmtData.elmt;
+        this._tracks[track] = iconLeftEdge;
+    };
+
+    Timeline.OriginalEventPainter.prototype.paintImpreciseInstantEvent = function(evt, metrics, theme, highlightIndex) {
+        var doc = this._timeline.getDocument();
+        var text = evt.getText();
+
+        var startDate = evt.getStart();
+        var endDate = evt.getEnd();
+        var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
+        var endPixel = Math.round(this._band.dateToPixelOffset(endDate));
+
+        var iconRightEdge = Math.round(startPixel + metrics.iconWidth / 2);
+        var iconLeftEdge = Math.round(startPixel - metrics.iconWidth / 2);
+
+        var labelDivClassName = this._getLabelDivClassName(evt);
+        var labelSize = this._frc.computeSize(text, labelDivClassName);
+        var labelLeft = iconRightEdge + theme.event.label.offsetFromLine;
+        var labelRight = labelLeft + labelSize.width;
+
+        var rightEdge = Math.max(labelRight, endPixel);
+        var track = this._findFreeTrack(evt, rightEdge);
+        var tapeHeight = theme.event.tape.height;
+        var labelTop = Math.round(
+            metrics.trackOffset + track * metrics.trackIncrement + tapeHeight);
+
+        var iconElmtData = this._paintEventIcon(evt, track, iconLeftEdge, metrics, theme, tapeHeight);
+        var labelElmtData = this._paintEventLabel(evt, text, labelLeft, labelTop, labelSize.width,
+                            labelSize.height, theme, labelDivClassName, highlightIndex);
+
+        var color = evt.getColor();
+        color = color != null ? color : theme.event.instant.impreciseColor;
+
+        var tapeElmtData = this._paintEventTape(evt, track, startPixel, endPixel,
+            color, theme.event.instant.impreciseOpacity, metrics, theme, 0);
+        var els = [iconElmtData.elmt, labelElmtData.elmt, tapeElmtData.elmt];
+
+        var self = this;
+        var clickHandler = function(elmt, domEvt, target) {
+            return self._onClickInstantEvent(iconElmtData.elmt, domEvt, evt);
+        };
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "mousedown", clickHandler);
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "mousedown", clickHandler);
+        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "mousedown", clickHandler);
+
+        var hDiv = this._createHighlightDiv(highlightIndex, iconElmtData, theme, evt);
+        if (hDiv != null) {els.push(hDiv);}
+        this._fireEventPaintListeners('paintedEvent', evt, els);
+
+        this._eventIdToElmt[evt.getID()] = iconElmtData.elmt;
+        this._tracks[track] = iconLeftEdge;
+    };
+
+    Timeline.OriginalEventPainter.prototype.paintPreciseDurationEvent = function(evt, metrics, theme, highlightIndex) {
+        var doc = this._timeline.getDocument();
+        var text = evt.getText();
+
+        var startDate = evt.getStart();
+        var endDate = evt.getEnd();
+        var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
+        var endPixel = Math.round(this._band.dateToPixelOffset(endDate));
+
+        var labelDivClassName = this._getLabelDivClassName(evt);
+        var labelSize = this._frc.computeSize(text, labelDivClassName);
+        var labelLeft = startPixel;
+        var labelRight = labelLeft + labelSize.width;
+
+        var rightEdge = Math.max(labelRight, endPixel);
+        var track = this._findFreeTrack(evt, rightEdge);
+        var labelTop = Math.round(
+            metrics.trackOffset + track * metrics.trackIncrement + theme.event.tape.height);
+
+        var color = evt.getColor();
+        color = color != null ? color : theme.event.duration.color;
+
+        var tapeElmtData = this._paintEventTape(evt, track, startPixel, endPixel, color, 100, metrics, theme, 0);
+        var labelElmtData = this._paintEventLabel(evt, text, labelLeft, labelTop, labelSize.width,
+          labelSize.height, theme, labelDivClassName, highlightIndex);
+        var els = [tapeElmtData.elmt, labelElmtData.elmt];
+
+        var self = this;
+        var clickHandler = function(elmt, domEvt, target) {
+            return self._onClickDurationEvent(tapeElmtData.elmt, domEvt, evt);
+        };
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "mousedown", clickHandler);
+        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "mousedown", clickHandler);
+
+        var hDiv = this._createHighlightDiv(highlightIndex, tapeElmtData, theme, evt);
+        if (hDiv != null) {els.push(hDiv);}
+        this._fireEventPaintListeners('paintedEvent', evt, els);
+
+        this._eventIdToElmt[evt.getID()] = tapeElmtData.elmt;
+        this._tracks[track] = startPixel;
+    };
+
+    Timeline.OriginalEventPainter.prototype.paintImpreciseDurationEvent = function(evt, metrics, theme, highlightIndex) {
+        var doc = this._timeline.getDocument();
+        var text = evt.getText();
+
+        var startDate = evt.getStart();
+        var latestStartDate = evt.getLatestStart();
+        var endDate = evt.getEnd();
+        var earliestEndDate = evt.getEarliestEnd();
+
+        var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
+        var latestStartPixel = Math.round(this._band.dateToPixelOffset(latestStartDate));
+        var endPixel = Math.round(this._band.dateToPixelOffset(endDate));
+        var earliestEndPixel = Math.round(this._band.dateToPixelOffset(earliestEndDate));
+
+        var labelDivClassName = this._getLabelDivClassName(evt);
+        var labelSize = this._frc.computeSize(text, labelDivClassName);
+        var labelLeft = latestStartPixel;
+        var labelRight = labelLeft + labelSize.width;
+
+        var rightEdge = Math.max(labelRight, endPixel);
+        var track = this._findFreeTrack(evt, rightEdge);
+        var labelTop = Math.round(
+            metrics.trackOffset + track * metrics.trackIncrement + theme.event.tape.height);
+
+        var color = evt.getColor();
+        color = color != null ? color : theme.event.duration.color;
+
+        // Imprecise events can have two event tapes
+        // The imprecise dates tape, uses opacity to be dimmer than precise dates
+        var impreciseTapeElmtData = this._paintEventTape(evt, track, startPixel, endPixel,
+            theme.event.duration.impreciseColor,
+            theme.event.duration.impreciseOpacity, metrics, theme, 0);
+        // The precise dates tape, regular (100%) opacity
+        var tapeElmtData = this._paintEventTape(evt, track, latestStartPixel,
+            earliestEndPixel, color, 100, metrics, theme, 1);
+
+        var labelElmtData = this._paintEventLabel(evt, text, labelLeft, labelTop,
+            labelSize.width, labelSize.height, theme, labelDivClassName, highlightIndex);
+        var els = [impreciseTapeElmtData.elmt, tapeElmtData.elmt, labelElmtData.elmt];
+
+        var self = this;
+        var clickHandler = function(elmt, domEvt, target) {
+            return self._onClickDurationEvent(tapeElmtData.elmt, domEvt, evt);
+        };
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "mousedown", clickHandler);
+        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "mousedown", clickHandler);
+
+        var hDiv = this._createHighlightDiv(highlightIndex, tapeElmtData, theme, evt);
+        if (hDiv != null) {els.push(hDiv);}
+        this._fireEventPaintListeners('paintedEvent', evt, els);
+
+        this._eventIdToElmt[evt.getID()] = tapeElmtData.elmt;
+        this._tracks[track] = startPixel;
+    };
+
+
+       function onLoadTimeline() {
            var timeline_data = {
            'dateTimeFormat': 'iso8601',
            'events' : []
