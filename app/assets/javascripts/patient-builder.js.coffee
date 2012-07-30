@@ -16,10 +16,10 @@ class @bonnie.PatientBuilder
     @data_criteria_counter = 0
     for key in _.keys(data_criteria)
       @data_criteria[key] = new bonnie.DataCriteria(key, data_criteria[key], @measure_period)
-  
+
   nextDataCriteriaId: =>
     @data_criteria_counter+=1
-    
+
   registerDataCriteria: (criteria) =>
     criteria.start_date = $('#measure_period_start').val()
     criteria.end_date = $('#measure_period_start').val()
@@ -27,25 +27,21 @@ class @bonnie.PatientBuilder
     criteria.end_time = '12:00 AM'
     @selected_data_criteria[criteria.id] = criteria
     @updateTimeline()
-    
+
   detachDataCriteria: (criteria) =>
     $('.paramGroup[data-criteria-id='+criteria.id+']').detach();
     delete @selected_data_criteria[criteria.id]
     $('#workspace').empty();
     @updateTimeline()
 
-  getDate: (date, time) =>
-    new Date(Date.parse("#{date} #{time}"))
-    
-  getDateString: (date, time) =>
-    d = @getDate(date, time)
+  getDateString: (date) =>
+    d = new Date(date)
     val = "#{d.getFullYear()}-#{@fillZeros(d.getMonth()+1)}-#{@fillZeros(d.getDate())}T#{@fillZeros(d.getHours())}:#{@fillZeros(d.getMinutes())}:#{@fillZeros(d.getSeconds())}Z"
-    val
-  
+
   fillZeros: (string) ->
     val = "0#{string}"
     val.substring(val.length-2)
-  
+
   toggleDataCriteriaTree: (element) =>
     $(element.currentTarget).closest(".paramGroup").find("i").toggleClass("icon-chevron-right").toggleClass("icon-chevron-down")
     category = $(element.currentTarget).data('category');
@@ -56,8 +52,8 @@ class @bonnie.PatientBuilder
       children.show("blind", { direction: "vertical" }, 500)
 
   timelineToDataCriteria: (data_criteria) =>
-    bonnie.timeline.getBand(0).setCenterVisibleDate(Timeline.DateTime.parseGregorianDateTime(@getDateString(data_criteria.start_date, data_criteria.start_time)))
-    
+    bonnie.timeline.getBand(0).setCenterVisibleDate(new Date(data_criteria.start_date))
+
   highlightSelectedDataCriteria: (minDate, maxDate) =>
     container = $('#patient_data_criteria');
     children = container.children("div");
@@ -65,13 +61,16 @@ class @bonnie.PatientBuilder
     $('.paramItem').removeClass('highlight')
     for child in children
       dc = @selectedDataCriteria($(child).data('criteria-id'))
-      dc_start = @getDate(dc.start_date, dc.start_time)
-      dc_end = @getDate(dc.end_date, dc.end_time)
+      dc_start = new Date(dc.start_date)
+      dc_end = new Date(dc.end_date)
       if ((dc_start <= maxDate and dc_end >= minDate ))
         $(child).children('.paramItem').addClass('highlight')
-      
+
 
   editDataCriteria: (element) =>
+
+
+
     leaf = $(element)
 
     $('.paramItem').removeClass('editing')
@@ -109,12 +108,12 @@ class @bonnie.PatientBuilder
     $('#element_end_time').val(data_criteria.end_time);
     $('#element_update').click(=>
       data_criteria = @selectedDataCriteria($('#element_id').val())
-      data_criteria.start_date = $('#element_start_date').val()
-      data_criteria.start_time = $('#element_start_time').val()
-      data_criteria.end_date = $('#element_end_date').val()
-      data_criteria.end_time = $('#element_end_time').val()
+      data_criteria.start_date = new Date($('#element_start').val()).getTime()
+      data_criteria.end_date = new Date($('#element_end').val()).getTime()
+      data_criteria.value = $('#element_value').val()
+      data_criteria.value_unit = $('#element_value_unit').val()
       @updateTimeline()
-      @timelineToDataCriteria(data_criteria);
+      @timelineToDataCriteria(data_criteria)
       $('#workspace').empty()
       $('.paramItem').removeClass('editing')
       )
@@ -126,34 +125,34 @@ class @bonnie.PatientBuilder
     children.detach().sort((left, right) =>
       left_dc = @selectedDataCriteria($(left).data('criteria-id'))
       right_dc = @selectedDataCriteria($(right).data('criteria-id'))
-      @getDateString(left_dc.start_date, left_dc.start_time) > @getDateString(right_dc.start_date, right_dc.start_time) ? 1 : -1;
+      @getDateString(left_dc.start_date) > @getDateString(right_dc.start_date) ? 1 : -1;
       );
     container.append(children);
 
-    
+
 
   updateTimeline: =>
-    
+
     @sortSelectedDataCriteria()
-    
+
     timelineData = {
     'dateTimeFormat': 'iso8601',
     'events' : []
     }
-    
+
     for key in _.keys(@selected_data_criteria)
       criteria = @selectedDataCriteria(key)
-      start = @getDateString(criteria.start_date, criteria.start_time)
-      end = @getDateString(criteria.end_date, criteria.end_time)
-      event = {'start': start, 'title': "#{criteria.category} #{criteria.status}: #{criteria.title}", 'description': "#{criteria.category} #{criteria.status}: criteria.title"}
+      start = @getDateString(criteria.start_date)
+      end = @getDateString(criteria.end_date)
+      event = {'start': start, 'title': "#{criteria.category} #{criteria.status}: #{criteria.title}", 'description': "#{criteria.category} #{criteria.status}: #{criteria.title}", 'id': "#{criteria.id}"}
       event['end'] = end if start != end
       timelineData.events.push(event)
-    
+
     bonnie.timelineEvents.clear();
-    bonnie.timelineEvents.loadJSON(timelineData, '.'); 
+    bonnie.timelineEvents.loadJSON(timelineData, '.');
     bonnie.timeline.layout()
-    
-  
+
+
 
   dataCriteria: (id) =>
     @data_criteria[id]

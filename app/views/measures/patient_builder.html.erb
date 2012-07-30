@@ -8,6 +8,7 @@
 
   $(document).ready(function() {
     page.initialize();
+
     $('#birthdate').datepicker();
 
     $('#measure_period_start').datepicker({
@@ -84,7 +85,7 @@
            }
            var bandInfos = [
                Timeline.createBandInfo({
-                   width:          "100%",
+                   width:          '100%',
                    intervalUnit:   Timeline.DateTime.DAY,
                    intervalPixels: 80,
                    eventSource:    eventSource1,
@@ -195,8 +196,7 @@
           Event Start
         </div>
         <div class="span3">
-          <input type="text" style="width: 90px;" value="01/01/2000" data-date-format="mm/dd/yyyy" id="element_start_date" >
-          <input type="text" style="width: 60px;" value="05:00 AM" class="input-small" id="element_start_time">
+          <input type="text" style="width: 150px;" value="01/01/2000 05:00 AM" data-date-format="mm/dd/yyyy" id="element_start" >
         </div>
       </div>
 
@@ -205,8 +205,7 @@
           Event End
         </div>
         <div class="span3">
-          <input type="text" style="width: 90px;" value="01/01/2000" data-date-format="mm/dd/yyyy" id="element_end_date" >
-          <input type="text" style="width: 60px;" value="05:00 AM" class="input-small" id="element_end_time">
+          <input type="text" style="width: 150px;" value="01/01/2000 05:00 AM" data-date-format="mm/dd/yyyy" id="element_end" >
         </div>
       </div>
 
@@ -299,71 +298,72 @@
     </div>
 
     <div class="tab-content" id="measureEditContainer">
-      <div style="margin: 5px 0 0 30px;">
-        <div class="row">
-          <div class="span4">
-            First Name:
+      <%= form_tag({:action => nil}, {:onsubmit => 'bonnie.patientBuilder.save_patient_builder(this); return false', :id => 'save_patient_builder'}) do %>
+        <div style="margin: 5px 0 0 30px;">
+          <div class="row">
+            <div class="span4">
+              First Name:
+            </div>
+            <div class="span4">
+              <input type="text" name="first">
+            </div>
           </div>
-          <div class="span4">
-            <input type="text" name="first">
+          <div class="row">
+            <div class="span4">
+              Last Name:
+            </div>
+            <div class="span4">
+              <input type="text" name="last">
+            </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="span4">
-            Last Name:
+          <div class="row">
+            <div class="span4">
+              Gender:
+            </div>
+            <div class="span4">
+              <select id="gender" name="gender">
+                <option value="M" selected="selected">Male</option>
+                <option value="F">Female</option>
+              </select>
+            </div>
           </div>
-          <div class="span4">
-            <input type="text" name="last">
+          <div class="row">
+            <div class="span4">
+              Expired:
+            </div>
+            <div class="span4">
+              <input type="radio" name="expired" checked="true" value="false" id="alive_radio" style="float:left;"/>
+              <label for="alive_radio" style="float:left;">&nbsp;Alive&nbsp;</label>
+              <input type="radio" name="expired" value="true" id="deceased_radio" style="float:left;"/>
+              <label for="deceased_radio" style="float:left;">&nbsp;Deceased&nbsp;</label>
+            </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="span4">
-            Gender:
-          </div>
-          <div class="span4">
-            <select id="gender" name="gender">
-              <option value="M" selected="selected">Male</option>
-              <option value="F">Female</option>
-            </select>
-          </div>
-        </div>
-        <div class="row">
-          <div class="span4">
-            Expired:
-          </div>
-          <div class="span4">
-            <input type="radio" name="expired" checked="true" value="false" id="alive_radio" style="float:left;"/>
-            <label for="alive_radio" style="float:left;">&nbsp;Alive&nbsp;</label>
-            <input type="radio" name="expired" value="true" id="deceased_radio" style="float:left;"/>
-            <label for="deceased_radio" style="float:left;">&nbsp;Deceased&nbsp;</label>
-          </div>
-        </div>
-        <div class="row">
-          <div class="span4">
-            Birthdate:
-          </div>
-          <div class="span4">
-            <div class="row">
-              <div class="span2">
-                <input type="text" class="span2" value="01/01/2000" data-date-format="mm/dd/yyyy" id="birthdate" >
-              </div>
-              <div class="span2">
-                <input type="text" class="timepicker-default input-small">
+          <div class="row">
+            <div class="span4">
+              Birthdate:
+            </div>
+            <div class="span4">
+              <div class="row">
+                <div class="span2">
+                  <input type="text" class="span2" value="01/01/2000" data-date-format="mm/dd/yyyy" id="birthdate" >
+                </div>
+                <div class="span2">
+                  <input type="text" class="timepicker-default input-small">
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="span4" style="font-weight: bold">
-            Clinical Attributes
+          <div class="row">
+            <div class="span4" style="font-weight: bold">
+              Clinical Attributes
+            </div>
+            <div class="span6" style="margin: 5px 0 0 40px; min-height: 300px; padding-left: 5px; border: 1px #CCC solid;" id="patient_data_criteria">
+              &nbsp;
+            </div>
           </div>
-          <div class="span6" style="margin: 5px 0 0 40px; min-height: 300px; padding-left: 5px; border: 1px #CCC solid;" id="patient_data_criteria">
-            &nbsp;
-          </div>
+
         </div>
-
-      </div>
-
+      <% end %>
     </div>
 
   </div><!-- end #tabs -->
