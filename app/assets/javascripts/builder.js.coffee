@@ -326,29 +326,71 @@ class @bonnie.Builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
     parent = obj.parent
-
+    console.log "parent = ",parent
     makeDropFn = (self) ->
       console.log "making drop for ", obj
       console.log "elemParent",elemParent
-      queryObj = parent ? obj
+      if (!obj.parent? ) 
+        console.log("HEY NO PARENT ON THIS OBJ!")
+      queryObj = obj.parent ? obj
+      console.log "queryObj",queryObj
       dropFunction = (event,ui) ->
-        target = event.currentTarget
-        drop_Y = event.pageY
+        #console.log "in Drop, ui=",ui
+        #console.log("queryObj is ",queryObj)
+        #console.log("obj is ",obj)
+
+        target = event.target
+        console.log "target = ",target
+        console.log "this = ",this    # Should be the same as target
+        
+        orig = ui.draggable.data('item-ui') ? {} 
+
+        dropY = event.pageY
         child_items = $(@).children(".paramGroup")
-        for item in child_items
+        after = null
+        before = child_items[0] if child_items.length
+        pos = 0
+        for item,i in child_items
           item_top = $(item).offset().top;
           item_height = $(item).height();
+          console.log($(item))
           item_mid = item_top + Math.round(item_height/2)
-        # tgt = queryObj.parent ? queryObj
+          if item_mid > dropY
+            break
+        if i > 0
+          after  = queryObj.children[i-1] 
+        else 
+          after = null
+        if i < child_items.length
+          before   = queryObj.children[i]
+        else 
+          before = null
+        pos = i
+        id = $(ui.draggable).data('criteria-id')
+        #console.log("id=",id)
+        console.log("after is " ,after)
+        console.log("before is ",before)
+        console.log("pos = ",pos)
+
         if queryObj instanceof queryStructure.Container
           tgt = queryObj
         else
           console.log "item", @
           tgt = queryObj.parent
-        tgt?.add(
-          id: $(ui.draggable).data('criteria-id')
-        )
-        $(@).removeClass('droppable').removeClass('droppable2')
+        if (orig.parent? && orig.parent is tgt)
+          console.log("Dropped on my own box")
+        else
+          if (orig.parent? && orig.parent isnt tgt)
+            console.log("dropped on different box")
+          else 
+            console.log("dropped from outside")
+            tgt.add(
+              id: id
+              data_criteria: self.data_criteria[id]
+            after
+            )
+        $(ui.helper).remove();
+        _.bind(self._out,@)()
         $('#workspace').empty()
         bonnie.builder.pushTree(queryObj)
       return dropFunction
