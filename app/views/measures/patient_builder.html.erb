@@ -9,7 +9,7 @@
   $(document).ready(function() {
     page.initialize();
     $('#birthdate').datepicker();
-    
+
     $('#measure_period_start').datepicker({
       onSelect: function(selectedDate) {$( "#measure_period_end" ).datepicker( "option", "minDate", selectedDate );onLoadTimeline();}
     });
@@ -17,15 +17,8 @@
       onSelect: function(selectedDate) {$( "#measure_period_start" ).datepicker( "option", "maxDate", selectedDate );onLoadTimeline();}
     });
     $('.timepicker-default').timepicker();
-    
+
     onLoadTimeline();
-    
-    $(document.body).on('dragover',
-      function(e){
-        //e.preventDefault();
-        // if (!$('.dragged').hasClass('temporal_drop_zone_element') ^ !($.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1)) e.preventDefault();
-      }
-    );
 
     $(".paramChildren label").not('[data-criteria-id=MeasurePeriod] label').draggable({
       helper: "clone",
@@ -35,9 +28,9 @@
       distance: 3,
       opacity: "1",
     });
-    
+
     $('#patient_data_criteria').droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: function(e,obj){ return fillDrop(e,obj); } });
-  
+
   });
 
   var fillDrop = function(event, obj){
@@ -57,24 +50,24 @@
       event.stopPropagation();
     });
   }
-  
+
   </script>
   <!-- Load the Timeline library after reseting the fonts, etc -->
-  <script src="http://static.simile.mit.edu/timeline/api-2.3.0/timeline-api.js?bundle=true" type="text/javascript"></script>  
+  <script src="http://static.simile.mit.edu/timeline/api-2.3.0/timeline-api.js?bundle=true" type="text/javascript"></script>
 
 
-  <script type="text/javascript">        
+  <script type="text/javascript">
        var tl;
        function onLoadTimeline() {
-         
+
            var timeline_data = {
            'dateTimeFormat': 'iso8601',
            'events' : []
            }
-         
+
            var tl_el = document.getElementById("tl");
            var eventSource1 = new Timeline.DefaultEventSource();
-           
+
            var theme = Timeline.ClassicTheme.create();
            theme.event.bubble.width = 250;
            theme.autoWidth = true; // Set the Timeline's "width" automatically.
@@ -82,17 +75,17 @@
                                     // will affect all bands.
            theme.timeline_start = new Date(Date.UTC(1995, 0, 1));
            theme.timeline_stop  = new Date(Date.UTC(2015, 0, 1));
-           
-           
-           
+
+
+
            var date = "2011-01-01T05:00:00Z"
            if (bonnie.timeline) {
              date = bonnie.timeline.getBand(0).getCenterVisibleDate().toString();
            }
            var bandInfos = [
                Timeline.createBandInfo({
-                   width:          "100%", 
-                   intervalUnit:   Timeline.DateTime.DAY, 
+                   width:          "100%",
+                   intervalUnit:   Timeline.DateTime.DAY,
                    intervalPixels: 80,
                    eventSource:    eventSource1,
                    date:           date,
@@ -100,8 +93,8 @@
                    theme:          theme
                }),
                Timeline.createBandInfo({
-                   width:          "100%", 
-                   intervalUnit:   Timeline.DateTime.MONTH, 
+                   width:          "100%",
+                   intervalUnit:   Timeline.DateTime.MONTH,
                    intervalPixels: 200,
                    overview:       true,
                    eventSource:    eventSource1,
@@ -110,11 +103,11 @@
                    theme:          theme
                }),
                Timeline.createBandInfo({
-                   width:          "100%", 
-                   intervalUnit:   Timeline.DateTime.YEAR, 
+                   width:          "100%",
+                   intervalUnit:   Timeline.DateTime.YEAR,
                    intervalPixels: 300,
                    eventSource:    eventSource1,
-                   date:           date, 
+                   date:           date,
                    timeZone:       0,
                    overview:       true,
                    theme:          theme
@@ -125,7 +118,7 @@
            bandInfos[1].highlight = true;
            bandInfos[2].syncWith = 0;
            bandInfos[2].highlight = true;
-           
+
            for (var i = 0; i < bandInfos.length; i++) {
                bandInfos[i].decorators = [
                    new Timeline.SpanHighlightDecorator({
@@ -139,29 +132,29 @@
                 ];
            }
 
-                                                           
+
            // create the Timeline
            tl = Timeline.create(tl_el, bandInfos, Timeline.HORIZONTAL);
-           
+
            var url = '.'; // The base url for image, icon and background image
                           // references in the data
-                          
-           eventSource1.loadJSON(timeline_data, url); // The data was stored into the 
+
+           eventSource1.loadJSON(timeline_data, url); // The data was stored into the
                                                      // timeline_data variable.
-           
+
            tl.layout(); // display the Timeline
-           
+
            bonnie.timeline = tl;
            bonnie.timelineEvents = eventSource1
-           
+
            bonnie.timeline.getBand(0).addOnScrollListener(function(band) {
              minDate = band.getMinVisibleDate();
              maxDate = band.getMaxVisibleDate();
              bonnie.patientBuilder.highlightSelectedDataCriteria(minDate,maxDate);
            });
-            
+
        }
-       
+
        var resizeTimerID = null;
        function onResize() {
            if (resizeTimerID == null) {
@@ -171,8 +164,10 @@
                }, 500);
            }
        }
+
+
   </script>
-  
+
 
   <script type="text/html" id="bonnie_tmpl_data_criteria">
     <div class="paramGroup population" {{if id}}data-criteria-id='${id}'{{/if}}>
@@ -194,10 +189,10 @@
     <div style="width: 0px; height: 0px;"><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
       <h4>${title}</h4>
       <input type="hidden" value="${id}" id="element_id"/>
-      
+
       <div class="row">
         <div class="span1">
-          Event Start 
+          Event Start
         </div>
         <div class="span3">
           <input type="text" style="width: 90px;" value="01/01/2000" data-date-format="mm/dd/yyyy" id="element_start_date" >
@@ -207,7 +202,7 @@
 
       <div class="row">
         <div class="span1">
-          Event End 
+          Event End
         </div>
         <div class="span3">
           <input type="text" style="width: 90px;" value="01/01/2000" data-date-format="mm/dd/yyyy" id="element_end_date" >
@@ -217,7 +212,7 @@
 
       <div class="row">
         <div class="span1">
-          &nbsp; 
+          &nbsp;
         </div>
         <div class="span3">
           <div class="span1" style="margin:0">
@@ -249,38 +244,38 @@
           <a href="javascript:void(0)" class="btn close_edit" >Cancel</a>
         </div>
       </div>
-      
+
   </div>
   </script>
-  
+
 <% end %>
 
 <% content_for :page_content do %>
 
   <div class="pull-right" id="pageButtons">
-    <a href="#" class="btn" >Save</a>
+    <a href="#" class="btn">Save</a>
   </div>
 	<h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
 
 
   <div id="measureDetailInformation" style="padding-top: 60px;">
     <div style="position:relative; margin:5px 20px 5px 15px;">
-      
+
       <div>
         <div>
-          Measure Period Start: 
+          Measure Period Start:
         </div>
         <div>
           <input type="text" value="01/01/2011" data-date-format="mm/dd/yyyy" id="measure_period_start" >
         </div>
         <div>
-          Measure Period End: 
+          Measure Period End:
         </div>
         <div>
           <input type="text" value="12/31/2011" data-date-format="mm/dd/yyyy" id="measure_period_end" >
         </div>
       </div>
-      
+
       <%= link_to 'Measure Definition', measure_path(@measure), :target => "_blank" %> |
       <%= link_to 'Back', measures_path %>
 
@@ -302,28 +297,28 @@
     <div id="workspace" style="padding:10px;border-radius:12px;margin:10px;border:1px solid #aaa;background-color:#f5f5f5;float:right;width:340px;min-height:700px">
       <p>Workspace edit controls</p>
     </div>
-    
+
     <div class="tab-content" id="measureEditContainer">
       <div style="margin: 5px 0 0 30px;">
         <div class="row">
           <div class="span4">
-            First Name: 
+            First Name:
           </div>
           <div class="span4">
-            <input type="text" name="first"> 
-          </div>
-        </div>
-        <div class="row">
-          <div class="span4">
-            Last Name: 
-          </div>
-          <div class="span4">
-            <input type="text" name="last"> 
+            <input type="text" name="first">
           </div>
         </div>
         <div class="row">
           <div class="span4">
-            Gender: 
+            Last Name:
+          </div>
+          <div class="span4">
+            <input type="text" name="last">
+          </div>
+        </div>
+        <div class="row">
+          <div class="span4">
+            Gender:
           </div>
           <div class="span4">
             <select id="gender" name="gender">
@@ -334,7 +329,7 @@
         </div>
         <div class="row">
           <div class="span4">
-            Expired: 
+            Expired:
           </div>
           <div class="span4">
             <input type="radio" name="expired" checked="true" value="false" id="alive_radio" style="float:left;"/>
@@ -345,7 +340,7 @@
         </div>
         <div class="row">
           <div class="span4">
-            Birthdate: 
+            Birthdate:
           </div>
           <div class="span4">
             <div class="row">
@@ -366,15 +361,15 @@
             &nbsp;
           </div>
         </div>
-        
+
       </div>
-      
+
     </div>
 
   </div><!-- end #tabs -->
-  
+
   <div style="width: 630px; margin-left: 310px; margin-top: 20px;">
   <div id='tl'></div>
   </div>
-  
+
 <% end -%>
