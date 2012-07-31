@@ -416,6 +416,101 @@ class @bonnie.Builder
         bonnie.builder.pushTree(queryObj)
       return dropFunction
 
+    makeItemDropFn = (self) ->
+      #console.log "making drop for ", obj
+      #console.log "elemParent",elemParent
+      #if (!obj.parent? ) 
+        #console.log("HEY NO PARENT ON THIS OBJ!")
+      queryObj = obj
+      #console.log "queryObj",queryObj
+      dropFunction = (event,ui) ->
+        #console.log "in Drop, ui=",ui
+        #console.log("queryObj is ",queryObj)
+        #console.log("obj is ",obj)
+
+        target = event.target
+        console.log "target = ",target
+        console.log "this = ",this    # Should be the same as target
+        
+        orig = ui.draggable.data('logic-id') ? {} 
+        console.log $(ui.draggable).data()
+        console.log "@.data = ",$(@).data()
+        console.log("orig=",orig)
+        dropY = event.pageY
+        child_items = $(@).children(".paramGroup")
+        after = null
+        before = child_items[0] if child_items.length
+        pos = 0
+        for item,i in child_items
+          item_top = $(item).offset().top;
+          item_height = $(item).height();
+          item_mid = item_top + Math.round(item_height/2)
+          if item_mid > dropY
+            break
+        if i > 0
+          after  = queryObj.children[i-1] 
+        else 
+          after = null
+        if i < child_items.length
+          before   = queryObj.children[i]
+        else 
+          before = null
+        pos = i
+        id = $(ui.draggable).data('criteria-id')
+        #console.log("id=",id)
+        console.log("after is " ,after)
+        console.log("before is ",before)
+        console.log("pos = ",pos)
+
+        tgt = obj
+        parent = obj.parent
+        if (orig.parent? && orig.parent is tgt)
+          console.log("Dropped on my own box")
+          g = tgt.childIndexByKey(orig,'precondition_id')
+          console.log g
+          c1 = tgt.removeAtIndex(g)
+          console.log("c1=",c1)
+          #c1 = tgt.removeChild(orig)
+          if c1
+            tgt.add(c1[0],after)
+          #else
+            # could we still add the object if the remove fails?
+            #tgt.add(orig,after)
+          $(ui.draggable).remove()
+        else
+          if (orig.parent? && orig.parent isnt tgt)
+            console.log("dropped on different box")
+            g = orig.parent.childIndexByKey(orig,'precondition_id')
+            c1 = orig.parent.removeAtIndex(g)
+            console.log "dragged item = ", c1
+            if c1
+              tgt.add(c1[0], after)
+            #else
+              # what to do if we don't pull the item off the original container?
+              # tgt.add(orig,after)
+            $(ui.draggable).remove()
+          else 
+            console.log("dropped from outside")
+            g = parent.childIndexByKey(obj,'precondition_id')
+            c1 = parent.removeAtIndex(g)
+            if c1
+              child = new queryStructure.AND()
+              child.parent = parent
+              child.add(c1[0])
+              child.add(
+                id: id
+                data_criteria: self.data_criteria[id]
+              )
+              parent.children.splice(g,0,child)
+            #else
+              # what to do if the object remove fails?
+              
+        $(ui.helper).remove();
+        _.bind(self._out,@)()
+        $('#workspace').empty()
+        bonnie.builder.pushTree(queryObj)
+      return dropFunction
+
      
     if $(elemParent).not(".ui-droppable").hasClass('paramItem')
       $(elemParent).data("query-struct",parent)
@@ -453,7 +548,7 @@ class @bonnie.Builder
           greedy:true
           accept:'label.ui-draggable, .paramText, .logicLeaf'
           out:  @._out
-          drop: makeDropFn(@)
+          drop: makeItemDropFn(@)
         )
         $item = data_criteria.asHtml('data_criteria_logic')
         
