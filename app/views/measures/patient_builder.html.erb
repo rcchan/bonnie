@@ -26,6 +26,10 @@
       var data_criteria = bonnie.patientBuilder.selected_data_criteria[e.originalEvent.dataTransfer.getData('text')];
       data_criteria.end_date += date.getTime() -  data_criteria.start_date;
       data_criteria.start_date = date.getTime();
+
+      $('#element_start').datetimepicker('setDate', new Date(data_criteria.start_date));
+      $('#element_end').datetimepicker('setDate', new Date(data_criteria.end_date));
+
       bonnie.patientBuilder.updateTimeline();
       bonnie.timeline.getBand(0).setCenterVisibleDate(date)
     }).on('selectstart', function(e){ e.preventDefault(); });
