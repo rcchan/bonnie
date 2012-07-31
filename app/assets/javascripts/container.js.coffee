@@ -76,6 +76,14 @@ class queryStructure.Container
     if @parent
       @parent.removeChild(this)
 
+  removeAtIndex: (index) ->
+    if index > -1 && index < @children.length
+      @children.splice(index,1)
+
+  childIndexByKey: (e, key) ->
+    for k of @children
+      return Number(k) if e[key] == @children[k][key]
+       
   removeChild: (victim) ->
     index = @childIndex(victim)
     if index != -1

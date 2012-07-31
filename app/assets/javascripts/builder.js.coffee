@@ -31,7 +31,7 @@ class @bonnie.Builder
     #$("#exclusionMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exclusions})
     #$("#exceptionsMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exceptions})
     @addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
-    #@addParamItems(@query.denominator.toJson(),$("#eligibilityMeasureItems"))
+    @addParamItems(@query.denominator.toJson(),$("#eligibilityMeasureItems"))
     #@addParamItems(@query.numerator.toJson(),$("#outcomeMeasureItems"))
     #@addParamItems(@query.exclusions.toJson(),$("#exclusionMeasureItems"))
     #@addParamItems(@query.exceptions.toJson(),$("#exceptionMeasureItems"))
@@ -326,14 +326,14 @@ class @bonnie.Builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
     parent = obj.parent
-    console.log "parent = ",parent
+    #console.log "parent = ",parent
     makeDropFn = (self) ->
-      console.log "making drop for ", obj
-      console.log "elemParent",elemParent
-      if (!obj.parent? ) 
-        console.log("HEY NO PARENT ON THIS OBJ!")
+      #console.log "making drop for ", obj
+      #console.log "elemParent",elemParent
+      #if (!obj.parent? ) 
+        #console.log("HEY NO PARENT ON THIS OBJ!")
       queryObj = obj.parent ? obj
-      console.log "queryObj",queryObj
+      #console.log "queryObj",queryObj
       dropFunction = (event,ui) ->
         #console.log "in Drop, ui=",ui
         #console.log("queryObj is ",queryObj)
@@ -343,8 +343,10 @@ class @bonnie.Builder
         console.log "target = ",target
         console.log "this = ",this    # Should be the same as target
         
-        orig = ui.draggable.data('item-ui') ? {} 
-
+        orig = ui.draggable.data('logic-id') ? {} 
+        console.log $(ui.draggable).data()
+        console.log "@.data = ",$(@).data()
+        console.log("orig=",orig)
         dropY = event.pageY
         child_items = $(@).children(".paramGroup")
         after = null
@@ -353,7 +355,6 @@ class @bonnie.Builder
         for item,i in child_items
           item_top = $(item).offset().top;
           item_height = $(item).height();
-          console.log($(item))
           item_mid = item_top + Math.round(item_height/2)
           if item_mid > dropY
             break
@@ -379,9 +380,29 @@ class @bonnie.Builder
           tgt = queryObj.parent
         if (orig.parent? && orig.parent is tgt)
           console.log("Dropped on my own box")
+          g = tgt.childIndexByKey(orig,'precondition_id')
+          console.log g
+          c1 = tgt.removeAtIndex(g)
+          console.log("c1=",c1)
+          #c1 = tgt.removeChild(orig)
+          if c1
+            tgt.add(c1[0],after)
+          #else
+            # could we still add the object if the remove fails?
+            #tgt.add(orig,after)
+          $(ui.draggable).remove()
         else
           if (orig.parent? && orig.parent isnt tgt)
             console.log("dropped on different box")
+            g = orig.parent.childIndexByKey(orig,'precondition_id')
+            c1 = orig.parent.removeAtIndex(g)
+            console.log "dragged item = ", c1
+            if c1
+              tgt.add(c1[0], after)
+            #else
+              # what to do if we don't pull the item off the original container?
+              # tgt.add(orig,after)
+            $(ui.draggable).remove()
           else 
             console.log("dropped from outside")
             tgt.add(
@@ -394,27 +415,20 @@ class @bonnie.Builder
         $('#workspace').empty()
         bonnie.builder.pushTree(queryObj)
       return dropFunction
-    ###
-    $(elemParent).data("query-struct",parent)
-    elemParent.droppable(
-        over:  @._over
-        tolerance:'pointer'
-        greedy:true
-        accept:'label.ui-draggable'
-        out:  @._out
-        drop: makeDropFn(@)
-    )  
-    ###
+
+     
     if $(elemParent).not(".ui-droppable").hasClass('paramItem')
       $(elemParent).data("query-struct",parent)
+      
       elemParent.droppable(
           over:  @._over
           tolerance:'pointer'
           greedy: true
-          accept:'label.ui-draggable'
+          accept:'label.ui-draggable, .paramText, .logicLeaf'
           out:  @._out
           drop: makeDropFn(@)
       )
+      
     if (data_criteria?)
       if (data_criteria.subset_operators?)
         for subset_operator in data_criteria.subset_operators
@@ -422,6 +436,7 @@ class @bonnie.Builder
 
       if (data_criteria.children_criteria?)
         items = data_criteria.childrenCriteriaItems()
+
       else
         # we dont have a nested measure clause, add the item to the bottom of the list
         # if (!elemParent.hasClass("paramItem"))
@@ -433,15 +448,37 @@ class @bonnie.Builder
           e.stopPropagation()
         )
         elemParent.droppable(
-          over:  @._over2
+          over:  @._overItem
           tolerance:'pointer'
           greedy:true
-          accept:'label.ui-draggable'
+          accept:'label.ui-draggable, .paramText, .logicLeaf'
           out:  @._out
           drop: makeDropFn(@)
         )
-        data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
-
+        $item = data_criteria.asHtml('data_criteria_logic')
+        
+        #console.log("elemParent = ",elemParent)            
+        $item.appendTo(elemParent)
+        
+        ###
+        here we need to decide if we are dragging the .paramItem or the parent .paramGroup
+        The parent .paramGroup has the thicker left border, and looks like it should all be
+        part of the same draggable 'item' on the screen.
+        ###
+        elemParent.draggable(
+          helper:"clone"
+          revert:true
+          distance:3
+          xhandle: ".paramGroup"
+          opacity:1
+          zIndex:10000
+          start: (event,ui) ->
+            $(event.target).closest(".paramGroup").addClass("dragged")
+            $(ui.helper).find('.paramText').siblings().hide()
+            $(ui.helper).width($(@).closest('.paramItem').width()+12)
+          stop: (event,ui) ->
+            $(event.target).closest(".paramGroup").removeClass("dragged")
+        )
     else if obj == 'DENOMINATOR_PLACEHOLDER'
       bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last").data('logic-id', obj).append(bonnie.template('data_criteria_logic', {title: 'Denominator consists only of IPP', category: 'initial patient population'}));
 
@@ -452,8 +489,11 @@ class @bonnie.Builder
   _over: ->
     $(@).parents('.paramItem').removeClass('droppable')
     $(@).addClass('droppable')
-
-  _over2: ->
+  _overGroup: ->
+    $(@).toggleClass('droppable3',true)
+  _outGroup: ->
+    $(@).toggleClass('droppable3',false)
+  _overItem: ->
     $(@).parents('.paramItem').removeClass('droppable2')
     $(@).addClass('droppable2')
     
@@ -463,15 +503,58 @@ class @bonnie.Builder
   renderParamItems: (conjunction, items, elemParent, obj) =>
     neg = (obj.negation || false) && obj.negation != 'false'
     builder = bonnie.builder
+    console.log("render items = ",items)
+    data_criteria = @dataCriteria(obj.id) if (obj.id)
 
+    makeGroupDropFn = (self) ->
+      queryObj = obj.parent ? obj
+      currentItem = data_criteria.children_criteria
+      console.log("in makeGroupDrop, data_criteria = ",data_criteria)
+      dropFn = (event,ui) ->
+        origId = ui.draggable.data('criteria-id') ? null
+        target = event.currentTarget
+        dropY = event.pageY
+        child_items = $(@).children(".paramGroup")
+        after = null
+        before = child_items[0] if child_items.length
+        pos = 0
+        for item,i in child_items
+          item_top = $(item).offset().top;
+          item_height = $(item).height();
+          item_mid = item_top + Math.round(item_height/2)
+          if item_mid > dropY
+            break
+        pos = i
+        currentItem.splice(pos,0,origId) if origId?
+        $(ui.helper).remove()
+        _.bind(self._outGroup,@)()
+        $('#workspace').empty()
+        bonnie.builder.pushTree(queryObj)
+      return dropFn
+      
     if items.length > 1
       elemParent = bonnie.template('param_group', $.extend({}, obj, {conjunction: conjunction || items[0] && items[0].conjunction})).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
+      # here is where we check for subset group criteria, and add droppable handler
+      # subset groups have children array with an id on each item
+      if items[0]?.children?[0]?.id?
+        console.log("we're inside a group")
+        elemParent.droppable(
+          greedy:true
+          over: @._overGroup
+          out: @._outGroup
+          tolerance: 'pointer'
+          accept: 'label.ui-draggable, .paramText, .logicLeaf'
+          drop: makeGroupDropFn(@)
+        )
+
       $(elemParent).parent().find('.display_name').click((e)->
         $(this).toggleClass('collapsed')
         $(this).siblings().slideToggle();
         e.stopPropagation()
       );
 
+
+      
     $.each(items, (i,node) ->
       $(elemParent).append("<span class='not'>not</span>") if neg
 
