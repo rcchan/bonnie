@@ -104,7 +104,6 @@
 
         var self = this;
         var clickHandler = function(elmt, domEvt, target) {
-          console.log("INSTANT!")
             return self._onClickInstantEvent(iconElmtData.elmt, domEvt, evt);
         };
         SimileAjax.DOM.registerEvent(iconElmtData.elmt, "dragstart",
