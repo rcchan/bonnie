@@ -74,7 +74,7 @@
         }
       );
       bonnie.timeline.paint();
-    });
+    }).trigger('click');
     $('.paramGroup[data-criteria-id='+data_criteria.id+'] .removeDataCriteria').click(function(event) {
       bonnie.patientBuilder.detachDataCriteria(data_criteria);
       event.stopPropagation();
