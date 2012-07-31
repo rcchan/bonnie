@@ -106,7 +106,7 @@
 
         var self = this;
         var clickHandler = function(elmt, domEvt, target) {
-            return self._onClickInstantEvent(iconElmtData.elmt, domEvt, evt);
+            $('[data-criteria-id=' + evt._id + ']').trigger('click');
         };
         SimileAjax.DOM.registerEvent(iconElmtData.elmt, "dragstart",
           function(elmt, domEvt, target){
@@ -164,7 +164,7 @@
 
         var self = this;
         var clickHandler = function(elmt, domEvt, target) {
-            return self._onClickInstantEvent(iconElmtData.elmt, domEvt, evt);
+            $('[data-criteria-id=' + evt._id + ']').trigger('click');
         };
         SimileAjax.DOM.registerEvent(iconElmtData.elmt, "dragstart",
           function(elmt, domEvt, target){
@@ -215,7 +215,7 @@
 
         var self = this;
         var clickHandler = function(elmt, domEvt, target) {
-            return self._onClickDurationEvent(tapeElmtData.elmt, domEvt, evt);
+            $('[data-criteria-id=' + evt._id + ']').trigger('click');
         };
         $(tapeElmtData.elmt).prop('draggable', true);
         SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "dragstart",
@@ -279,7 +279,7 @@
 
         var self = this;
         var clickHandler = function(elmt, domEvt, target) {
-            return self._onClickDurationEvent(tapeElmtData.elmt, domEvt, evt);
+            $('[data-criteria-id=' + evt._id + ']').trigger('click');
         };
         $(tapeElmtData.elmt).prop('draggable', true);
         SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "dragstart",
