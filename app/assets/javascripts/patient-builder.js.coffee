@@ -165,6 +165,10 @@ class @bonnie.PatientBuilder
       })
     );
     $(form).ajaxSubmit({
+      beforeSubmit: (v) -> v.map((e) ->
+        e.value = new Date(e.value).getTime() if e.name == 'birthdate'
+        e
+      )
       data: {
         measure_period_start: new Date($('#measure_period_start').val()).getTime()
         measure_period_end: new Date($('#measure_period_end').val()).getTime()
