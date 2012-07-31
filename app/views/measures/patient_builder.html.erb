@@ -28,7 +28,7 @@
       data_criteria.start_date = date.getTime();
       bonnie.patientBuilder.updateTimeline();
       bonnie.timeline.getBand(0).setCenterVisibleDate(date)
-    });
+    }).on('selectstart', function(e){ e.preventDefault(); });
 
     onLoadTimeline();
 
