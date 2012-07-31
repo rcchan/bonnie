@@ -9,7 +9,7 @@
   $(document).ready(function() {
     page.initialize();
 
-    $('#birthdate').datepicker();
+    $('#birthdate').datetimepicker();
 
     $('#measure_period_start').datepicker({
       onSelect: function(selectedDate) {$( "#measure_period_end" ).datepicker( "option", "minDate", selectedDate );onLoadTimeline();}
@@ -593,14 +593,7 @@
               Birthdate:
             </div>
             <div class="span4">
-              <div class="row">
-                <div class="span2">
-                  <input type="text" class="span2" value="01/01/2000" data-date-format="mm/dd/yyyy" id="birthdate" >
-                </div>
-                <div class="span2">
-                  <input type="text" class="timepicker-default input-small">
-                </div>
-              </div>
+              <input type="text" class="span3" value="01/01/2000 02:30" id="birthdate" style="z-index:5000; position: relative;" >
             </div>
           </div>
           <div class="row">

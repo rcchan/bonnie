@@ -166,8 +166,8 @@ class @bonnie.PatientBuilder
     );
     $(form).ajaxSubmit({
       data: {
-        measure_period_start: $('#measure_period_start').val()
-        measure_period_end: $('#measure_period_end').val()
+        measure_period_start: new Date($('#measure_period_start').val()).getTime()
+        measure_period_end: new Date($('#measure_period_end').val()).getTime()
         data_criteria: data_criteria
       }
     });
