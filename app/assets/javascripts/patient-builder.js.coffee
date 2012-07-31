@@ -99,10 +99,6 @@ class @bonnie.PatientBuilder
       onSelect: (selectedDate) -> $( "#element_start" ).datetimepicker( "option", "maxDate", new Date(selectedDate) )
     }).datetimepicker('setDate', new Date(data_criteria.end_date));
 
-    $('#element_start_time').timepicker()
-    $('#element_end_time').timepicker()
-    $('#element_start_time').val(data_criteria.start_time)
-    $('#element_end_time').val(data_criteria.end_time)
     $('#element_value').val(data_criteria.value)
     $('#element_value_unit').val(data_criteria.value_unit)
 
