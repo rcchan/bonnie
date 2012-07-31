@@ -278,6 +278,8 @@ class @bonnie.Builder
     ), 3000
 
   pushTree: (queryObj) =>
+    bonnie.builder.addParamItems(bonnie.builder.query.denominator.toJson(),$("#eligibilityMeasureItems").empty())
+    @_bindClickHandler("#eligibilityMeasureItems")
     finder = queryObj
     switch (
       (while finder.parent
@@ -480,21 +482,33 @@ class @bonnie.Builder
         else
           if (orig.parent? && orig.parent isnt tgt)
             console.log("dropped on different box")
-            g = orig.parent.childIndexByKey(orig,'precondition_id')
+            g = parent.childIndexByKey(orig,'precondition_id')
             c1 = orig.parent.removeAtIndex(g)
+            g = parent.childIndexByKey(obj,'precondition_id')
+            c2 = parent.removeAtIndex(g)
             console.log "dragged item = ", c1
-            if c1
-              tgt.add(c1[0], after)
+            console.log "dropped item = ", c2
+            if c1 && c2
+              if parent.conjunction ==  'or'
+                child = new queryStructure.AND() 
+              else
+                child = new queryStructure.OR()
+              child.parent = parent
+              child.add(c1[0])
+              child.add(c2[0])
+              parent.children.splice(g,0,child)
             #else
-              # what to do if we don't pull the item off the original container?
-              # tgt.add(orig,after)
+              # what to do if the object remove fails?
             $(ui.draggable).remove()
           else 
             console.log("dropped from outside")
             g = parent.childIndexByKey(obj,'precondition_id')
             c1 = parent.removeAtIndex(g)
             if c1
-              child = new queryStructure.AND()
+              if parent.conjunction ==  'or'
+                child = new queryStructure.AND() 
+              else
+                child = new queryStructure.OR()
               child.parent = parent
               child.add(c1[0])
               child.add(
