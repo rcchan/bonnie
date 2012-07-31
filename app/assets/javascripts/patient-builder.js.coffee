@@ -21,10 +21,8 @@ class @bonnie.PatientBuilder
     @data_criteria_counter+=1
 
   registerDataCriteria: (criteria) =>
-    criteria.start_date = $('#measure_period_start').val()
-    criteria.end_date = $('#measure_period_start').val()
-    criteria.start_time = '12:00 AM'
-    criteria.end_time = '12:00 AM'
+    criteria.start_date = new Date($('#measure_period_start').val()).getTime()
+    criteria.end_date = new Date($('#measure_period_start').val()).getTime()
     @selected_data_criteria[criteria.id] = criteria
     @updateTimeline()
 
