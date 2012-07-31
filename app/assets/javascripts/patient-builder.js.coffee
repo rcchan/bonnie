@@ -66,9 +66,6 @@ class @bonnie.PatientBuilder
 
 
   editDataCriteria: (element) =>
-
-
-
     leaf = $(element)
 
     $('.paramItem').removeClass('editing')

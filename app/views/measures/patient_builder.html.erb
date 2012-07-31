@@ -67,6 +67,13 @@
       bonnie.patientBuilder.editDataCriteria(event.currentTarget);
       data_criteria = bonnie.patientBuilder.selectedDataCriteria($(event.currentTarget).data('criteria-id'))
       bonnie.patientBuilder.timelineToDataCriteria(data_criteria);
+
+      bonnie.timeline.getBand(0).getEventPainter().setHighlightMatcher(
+        function(evt){
+          return evt._id == $(event.currentTarget).data('criteria-id') ? 2 : -1;
+        }
+      );
+      bonnie.timeline.paint();
     });
     $('.paramGroup[data-criteria-id='+data_criteria.id+'] .removeDataCriteria').click(function(event) {
       bonnie.patientBuilder.detachDataCriteria(data_criteria);
