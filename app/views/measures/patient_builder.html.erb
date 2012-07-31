@@ -23,7 +23,9 @@
       return false;
     }).on('drop', '.timeline-band', function(e){
       var date = bonnie.timeline.getBand($(this).attr('id').match(/\d+$/)[0]).pixelOffsetToDate(e.originalEvent.pageX - $(this).offset().left);
-      bonnie.patientBuilder.selected_data_criteria[e.originalEvent.dataTransfer.getData('text')].start_date = bonnie.patientBuilder.selected_data_criteria[e.originalEvent.dataTransfer.getData('text')].end_date = date.getTime();
+      var data_criteria = bonnie.patientBuilder.selected_data_criteria[e.originalEvent.dataTransfer.getData('text')];
+      data_criteria.end_date += date.getTime() -  data_criteria.start_date;
+      data_criteria.start_date = date.getTime();
       bonnie.patientBuilder.updateTimeline();
       bonnie.timeline.getBand(0).setCenterVisibleDate(date)
     });
@@ -164,9 +166,17 @@
         var clickHandler = function(elmt, domEvt, target) {
             return self._onClickInstantEvent(iconElmtData.elmt, domEvt, evt);
         };
-        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "mousedown", clickHandler);
-        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "mousedown", clickHandler);
-        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "mousedown", clickHandler);
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "dragstart",
+          function(elmt, domEvt, target){
+            domEvt.dataTransfer.setData('text', evt._id);
+          }
+        );
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "mousedown",
+          function(elmt, domEvt){domEvt.stopPropagation();}
+        );
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "click", clickHandler);
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "click", clickHandler);
+        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "click", clickHandler);
 
         var hDiv = this._createHighlightDiv(highlightIndex, iconElmtData, theme, evt);
         if (hDiv != null) {els.push(hDiv);}
@@ -207,8 +217,17 @@
         var clickHandler = function(elmt, domEvt, target) {
             return self._onClickDurationEvent(tapeElmtData.elmt, domEvt, evt);
         };
-        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "mousedown", clickHandler);
-        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "mousedown", clickHandler);
+        $(tapeElmtData.elmt).prop('draggable', true);
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "dragstart",
+          function(elmt, domEvt, target){
+            domEvt.dataTransfer.setData('text', evt._id);
+          }
+        );
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "mousedown",
+          function(elmt, domEvt){domEvt.stopPropagation();}
+        );
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "click", clickHandler);
+        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "click", clickHandler);
 
         var hDiv = this._createHighlightDiv(highlightIndex, tapeElmtData, theme, evt);
         if (hDiv != null) {els.push(hDiv);}
@@ -262,8 +281,17 @@
         var clickHandler = function(elmt, domEvt, target) {
             return self._onClickDurationEvent(tapeElmtData.elmt, domEvt, evt);
         };
-        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "mousedown", clickHandler);
-        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "mousedown", clickHandler);
+        $(tapeElmtData.elmt).prop('draggable', true);
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "dragstart",
+          function(elmt, domEvt, target){
+            domEvt.dataTransfer.setData('text', evt._id);
+          }
+        );
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "mousedown",
+          function(elmt, domEvt){domEvt.stopPropagation();}
+        );
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "click", clickHandler);
+        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "click", clickHandler);
 
         var hDiv = this._createHighlightDiv(highlightIndex, tapeElmtData, theme, evt);
         if (hDiv != null) {els.push(hDiv);}
@@ -379,8 +407,6 @@
                }, 500);
            }
        }
-
-
   </script>
 
 
