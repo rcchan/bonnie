@@ -293,4 +293,10 @@ class MeasuresController < ApplicationController
     @measure.records.push(patient)
     render :json => @measure.save!
   end
+
+  def delete_patient
+    @measure = Measure.find(params[:id])
+    @measure.records = @measure.records.reject{|v| v['_id'].to_s == params['victim']}
+    render :json => @measure.save!
+  end
 end

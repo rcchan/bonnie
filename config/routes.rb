@@ -21,6 +21,7 @@ Bonnie::Application.routes.draw do
       post :save_data_criteria
       get :patient_builder
       post :make_patient
+      post :delete_patient
     end
     collection do
       get :published
