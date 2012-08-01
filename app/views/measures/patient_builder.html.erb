@@ -548,7 +548,7 @@
     </div>
 
     <div class="tab-content" id="measureEditContainer">
-      <%= form_tag({:action => nil}, {:onsubmit => 'bonnie.patientBuilder.save_patient_builder(this); return false', :id => 'save_patient_builder'}) do %>
+      <%= form_tag({:action => 'make_patient'}, {:onsubmit => 'bonnie.patientBuilder.save_patient_builder(this); return false', :id => 'save_patient_builder'}) do %>
         <div style="margin: 5px 0 0 30px;">
           <div class="row">
             <div class="span4">

@@ -20,6 +20,7 @@ Bonnie::Application.routes.draw do
       post :name_precondition
       post :save_data_criteria
       get :patient_builder
+      post :make_patient
     end
     collection do
       get :published
