@@ -281,6 +281,7 @@ class MeasuresController < ApplicationController
   def make_patient
     @measure = Measure.find(params[:id])
     values = Hash[@measure.value_sets.map{|v| [v['oid'], v]}]
+    params['birthdate'] = params['birthdate'].to_i / 1000
     patient = HQMF::Generator.create_base_patient(params.select{|k| ['first', 'last', 'gender', 'expired', 'birthdate'].include?k })
     JSON.parse(params['data_criteria']).each {|v|
       data_criteria = HQMF::DataCriteria.from_json(v['id'], @measure.source_data_criteria[v['id']])
