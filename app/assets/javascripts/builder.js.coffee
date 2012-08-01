@@ -320,7 +320,7 @@ class @bonnie.Builder
     )
     ###
     
-  addParamItems: (obj,elemParent) =>
+  addParamItems: (obj,elemParent,parent_obj) =>
     #console.log "obj",obj
     #console.log "elemParent",elemParent
     builder = bonnie.builder
@@ -529,6 +529,8 @@ class @bonnie.Builder
         # we dont have a nested measure clause, add the item to the bottom of the list
         # if (!elemParent.hasClass("paramItem"))
         items = data_criteria.temporalReferenceItems()
+        if items && !parent_obj?
+          parent_obj = obj
         elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
         $(elemParent).parent().find('.display_name').click((e)->
           $(this).toggleClass('collapsed')
@@ -572,7 +574,7 @@ class @bonnie.Builder
 
     if ($.isArray(items))
       conjunction = obj['conjunction']
-      builder.renderParamItems(conjunction, items, elemParent, obj)
+      builder.renderParamItems(conjunction, items, elemParent, obj,parent_obj)
 
   _over: ->
     $(@).parents('.paramItem').removeClass('droppable')
@@ -588,7 +590,7 @@ class @bonnie.Builder
   _out: ->
     $(@).removeClass('droppable').removeClass('droppable2')
 
-  renderParamItems: (conjunction, items, elemParent, obj) =>
+  renderParamItems: (conjunction, items, elemParent, obj,parent_obj) =>
     neg = (obj.negation || false) && obj.negation != 'false'
     builder = bonnie.builder
     console.log("render items = ",items)
@@ -598,6 +600,7 @@ class @bonnie.Builder
       queryObj = obj.parent ? obj
       currentItem = data_criteria.children_criteria
       console.log("in makeGroupDrop, data_criteria = ",data_criteria)
+      parent_obj = parent_obj
       dropFn = (event,ui) ->
         origId = ui.draggable.data('criteria-id') ? null
         target = event.currentTarget
@@ -617,7 +620,7 @@ class @bonnie.Builder
         $(ui.helper).remove()
         _.bind(self._outGroup,@)()
         $('#workspace').empty()
-        bonnie.builder.pushTree(queryObj)
+        bonnie.builder.pushTree(parent_obj)
       return dropFn
       
     if items.length > 1
@@ -649,7 +652,7 @@ class @bonnie.Builder
       if (node.temporal)
         $(elemParent).append("<span class='#{node.conjunction} temporal-operator'>#{node.title}</span><span class='block-down-arrow'></span>")
 
-      builder.addParamItems(node,elemParent)
+      builder.addParamItems(node,elemParent,parent_obj)
       if (i < items.length-1 and !node.temporal)
         next = items[i+1]
         conjunction = node.conjunction if !conjunction
