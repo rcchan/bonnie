@@ -81,8 +81,8 @@ class queryStructure.Container
       @children.splice(index,1)
 
   childIndexByKey: (e, key) ->
-    for k of @children
-      return Number(k) if e[key] == @children[k][key]
+    for j,k in @children
+      return k if e[key] == j[key]
        
   removeChild: (victim) ->
     index = @childIndex(victim)
