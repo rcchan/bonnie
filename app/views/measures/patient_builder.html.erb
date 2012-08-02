@@ -576,8 +576,8 @@
             </div>
             <div class="span4">
               <select id="gender" name="gender">
-                <option value="M" selected="selected">Male</option>
-                <option value="F">Female</option>
+                <option value="M"<%= 'selected="selected"' if @record['gender'] == 'M' %>>Male</option>
+                <option value="F"<%= 'selected="selected"' if @record['gender'] == 'F' %>>Female</option>
               </select>
             </div>
           </div>
@@ -586,9 +586,9 @@
               Expired:
             </div>
             <div class="span4">
-              <input type="radio" name="expired" checked="true" value="false" id="alive_radio" style="float:left;"/>
+              <input type="radio" name="expired"<%= ' checked="checked"' if !@record['expired'] %> value="false" id="alive_radio" style="float:left;"/>
               <label for="alive_radio" style="float:left;">&nbsp;Alive&nbsp;</label>
-              <input type="radio" name="expired" value="true" id="deceased_radio" style="float:left;"/>
+              <input type="radio" name="expired"<%= ' checked="checked"' if @record['expired'] %> value="true" id="deceased_radio" style="float:left;"/>
               <label for="deceased_radio" style="float:left;">&nbsp;Deceased&nbsp;</label>
             </div>
           </div>
