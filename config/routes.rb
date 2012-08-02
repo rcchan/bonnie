@@ -20,6 +20,7 @@ Bonnie::Application.routes.draw do
       post :name_precondition
       post :save_data_criteria
       get :patient_builder
+      get 'patient_builder/:patient_id' => 'Measures#patient_builder', :as => 'edit_patient'
       post :make_patient
       post :delete_patient
     end

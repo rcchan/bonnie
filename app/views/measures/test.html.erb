@@ -89,11 +89,14 @@
           <div class="span2 denom">&nbsp;</div>
           <div class="span2 num"> &nbsp;</div>
           <div class="span2 excl">&nbsp;</div>
-          <div class="span2">
-            <span class="span1 inspect"><a href='/measures/<%= "#{@measure._id}/debug/#{p[1]}?population=#@population" %>'>inspect</a></span>
+          <div class="span3">
+            <span class="span1 inspect"><%= link_to 'inspect', debug_measure_measure_path(:record_id => p[1]) %></span>
             <span class="span1 delete">
               <input type="hidden" name="victim" value="<%= p[1] %>" />
               <a href="javascript:void(0);" class="delete_patient">delete</a>
+            </span>
+            <span class="span1 edit">
+              <%= link_to 'Edit', edit_patient_measure_path(:patient_id => p[1]) %>
             </span>
           </div>
         </div>

@@ -3,7 +3,8 @@
 
   var page = new PatientBuilderPage(
     <%= @measure.all_data_criteria.to_json.html_safe %>,
-    <%= @measure.value_sets.to_json.html_safe %>
+    <%= @measure.value_sets.to_json.html_safe %>,
+    <%= if params['patient_id'] then @measure.records.select{|v| v['_id'].to_s == params['patient_id']}[0]['source_data_criteria'] end .to_json.html_safe %>
   );
 
   $(document).ready(function() {
@@ -88,7 +89,7 @@
 
   <script type="text/javascript">
        var tl;
-
+      SimileAjax.History.enabled = false;
       Timeline.OriginalEventPainter.prototype.paintPreciseInstantEvent = function(evt, metrics, theme, highlightIndex) {
         var doc = this._timeline.getDocument();
         var text = evt.getText();
@@ -549,13 +550,15 @@
 
     <div class="tab-content" id="measureEditContainer">
       <%= form_tag({:action => 'make_patient'}, {:onsubmit => 'bonnie.patientBuilder.save_patient_builder(this); return false', :id => 'save_patient_builder'}) do %>
+        <input type="hidden" name="record_id" value="<%= @record['_id'] %>"} />
+        <input type="hidden" class="redirect_url" value="<%= url_for :action => 'test' %>"} />
         <div style="margin: 5px 0 0 30px;">
           <div class="row">
             <div class="span4">
               First Name:
             </div>
             <div class="span4">
-              <input type="text" name="first">
+              <input type="text" name="first" value="<%= @record['first'] %>">
             </div>
           </div>
           <div class="row">
@@ -563,7 +566,7 @@
               Last Name:
             </div>
             <div class="span4">
-              <input type="text" name="last">
+              <input type="text" name="last" value="<%= @record['last'] %>">
             </div>
           </div>
           <div class="row">
@@ -593,7 +596,7 @@
               Birthdate:
             </div>
             <div class="span4">
-              <input type="text" class="span3" value="01/01/2000 02:30" name="birthdate" id="birthdate" style="z-index:5000; position: relative;" >
+              <input type="text" class="span3" value="<%= Time.at(@record['birthdate'] || 946715400).strftime('%m/%d/%Y') %>" name="birthdate" id="birthdate" style="z-index:5000; position: relative;" >
             </div>
           </div>
           <div class="row">

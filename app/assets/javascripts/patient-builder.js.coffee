@@ -175,7 +175,7 @@ class @bonnie.PatientBuilder
         data_criteria: JSON.stringify(data_criteria)
       },
       success: (r)->
-        document.location.href = 'test' if r
+        document.location.href = $(form).find('input.redirect_url[type=hidden]').val() if r
     });
 
 class PatientBuilderPage
