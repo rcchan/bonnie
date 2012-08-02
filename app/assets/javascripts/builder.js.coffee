@@ -23,6 +23,7 @@ class @bonnie.Builder
     alert "updating display: " + @data_criteria
 
   renderMeasureJSON: (data) =>
+    console.log "data=", data
     @query.rebuildFromJson(data)
     
     #$("#initialPopulationItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.population})
@@ -30,11 +31,11 @@ class @bonnie.Builder
     #$("#outcomeMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.numerator})
     #$("#exclusionMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exclusions})
     #$("#exceptionsMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exceptions})
-    #@addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
-    #@addParamItems(@query.denominator.toJson(),$("#eligibilityMeasureItems"))
+    @addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
+    @addParamItems(@query.denominator.toJson(),$("#eligibilityMeasureItems"))
     @addParamItems(@query.numerator.toJson(),$("#outcomeMeasureItems"))
-    #@addParamItems(@query.exclusions.toJson(),$("#exclusionMeasureItems"))
-    #@addParamItems(@query.exceptions.toJson(),$("#exceptionMeasureItems"))
+    @addParamItems(@query.exclusions.toJson(),$("#exclusionMeasureItems"))
+    @addParamItems(@query.exceptions.toJson(),$("#exceptionMeasureItems"))
 
     @._bindClickHandler()
 
@@ -294,7 +295,7 @@ class @bonnie.Builder
         @_bindClickHandler("#eligibilityMeasureItems")
       when @query.numerator
         $("#outcomeMeasureItems").empty()
-        bonnie.builder.addParamItems(bonnie.builder.query.numerator.toJson(),$("#outcomeMeasureItems").empty())
+        #bonnie.builder.addParamItems(bonnie.builder.query.numerator.toJson(),$("#outcomeMeasureItems").empty())
         @saveTree(@query.numerator.toJson(), 'NUMER', 'Numerator')
         @_bindClickHandler("#outcomeMeasureItems")
       when @query.exclusions
@@ -312,13 +313,13 @@ class @bonnie.Builder
       for k of o
         arguments.callee o[k]  if typeof o[k] is "object"
     ) query = query
-    ###
+    console.log query
     $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}}, (r) =>
       for key in _.keys(r.data_criteria)
         @data_criteria[key] = new bonnie.DataCriteria(key, r.data_criteria[key], @measure_period)
       @renderMeasureJSON(r.population_criteria)
     )
-    ###
+    
     
   addParamItems: (obj,elemParent,parent_obj) =>
     #console.log "obj",obj
@@ -450,53 +451,56 @@ class @bonnie.Builder
 
         tgt = obj
         parent = obj.parent
-
-        if (orig.parent? && orig.parent isnt tgt)
-          console.log("item was dropped on a different container")
-          g = orig.parent.childIndexByKey(orig,'precondition_id')
-          c1 = orig.parent.removeAtIndex(g)
-          g = parent.childIndexByKey(obj,'precondition_id')
-          c2 = parent.removeAtIndex(g)
-          console.log "dragged item = ", c1
-          console.log "dropped item = ", c2
-          if c1 && c2
-            if parent.conjunction ==  'or'
-              child = new queryStructure.AND() 
-            else
-              child = new queryStructure.OR()
-            child.parent = parent
-            child.add(c1[0])
-            child.add(c2[0])
-            parent.children.splice(g,0,child)
-          #else
-            # what to do if the object remove fails?
-          # now we need to clean up the orig.parent - we do not want to leave an empty AND or OR container there
-          if orig.parent.children.length < 2
-            console.log "HEY! There's only 1 child left in my container", orig.parent
-            lastChild = orig.parent.removeAtIndex(0).pop()
-            p = orig.parent.parent.childIndexByKey(orig.parent,'myid')
-            orig.parent.parent.removeAtIndex(p)
-            lastChild.parent = orig.parent.parent
-            orig.parent.parent.children.splice(p,0,lastChild)
-          $(ui.draggable).remove()
-        else 
-          console.log("dropped from outside")
-          g = parent.childIndexByKey(obj,'precondition_id')
-          c1 = parent.removeAtIndex(g)
-          if c1
-            if parent.conjunction ==  'or'
-              child = new queryStructure.AND() 
-            else
-              child = new queryStructure.OR()
-            child.parent = parent
-            child.add(c1[0])
-            child.add(
-              id: id
-              data_criteria: self.data_criteria[id]
-            )
-            parent.children.splice(g,0,child)
-          #else
-            # what to do if the object remove fails?
+        # if you are dropping on an item that is a temporal reference, the item has no parent attribute so just skip entirely for now
+        if parent 
+          if (orig.parent? && orig.parent isnt tgt)
+            console.log("item was dropped on a different container")
+            g = orig.parent.childIndexByKey(orig,'precondition_id')
+            c1 = orig.parent.removeAtIndex(g)
+            g = parent.childIndexByKey(obj,'precondition_id')
+            c2 = parent.removeAtIndex(g)
+            console.log "dragged item = ", c1
+            console.log "dropped item = ", c2
+            if c1 && c2
+              if parent.conjunction ==  'or'
+                child = new queryStructure.AND() 
+              else
+                child = new queryStructure.OR()
+              child.parent = parent
+              child.add(c1[0])
+              child.add(c2[0])
+              parent.children.splice(g,0,child)
+            #else
+              # what to do if the object remove fails?
+            # now we need to clean up the orig.parent - we do not want to leave an empty AND or OR container there
+            if orig.parent.children.length < 2
+              console.log "HEY! There's only 1 child left in my container", orig.parent
+              lastChild = orig.parent.removeAtIndex(0).pop()
+              p = orig.parent.parent.childIndexByKey(orig.parent,'myid')
+              orig.parent.parent.removeAtIndex(p)
+              lastChild.parent = orig.parent.parent
+              orig.parent.parent.children.splice(p,0,lastChild)
+            $(ui.draggable).remove()
+          else 
+            console.log("dropped from outside")
+            g = parent.childIndexByKey(obj,'precondition_id')
+            c1 = parent.removeAtIndex(g)
+            if c1
+              if parent.conjunction ==  'or'
+                child = new queryStructure.AND() 
+              else
+                child = new queryStructure.OR()
+              child.parent = parent
+              child.add(c1[0])
+              child.add(
+                id: id
+                data_criteria: self.data_criteria[id]
+              )
+              parent.children.splice(g,0,child)
+            #else
+              # what to do if the object remove fails?
+        else
+          alert("No parent on this item. Can't add data criteria")
               
         $(ui.helper).remove();
         _.bind(self._out,@)()
@@ -814,7 +818,7 @@ class @bonnie.DataCriteria
     text
   valueText: =>
     text = ''
-    text += if (
+    text += if (@value &&
       switch(@value.type)
         when 'PQ' then @value.value
         when 'IVL_PQ' then @value.low && @value.low.value || @value.high && @value.high.value
@@ -848,7 +852,7 @@ class @bonnie.DataCriteria
 
   childrenCriteriaItems: =>
     items = []
-    if @children_criteria.length > 0
+    if @children_criteria && @children_criteria.length > 0
       conjunction = 'or'
       conjunction = 'and' if @derivation_operator == 'XPRODUCT'
       for child in @children_criteria
@@ -916,7 +920,8 @@ class @bonnie.Value
     else
       ''
   equals: (other) ->
-    return @type == other.type && @value == other.value && @unit == other.unit && @inclusive == other.inclusive
+    if other
+      return @type == other.type && @value == other.value && @unit == other.unit && @inclusive == other.inclusive
 
 class @bonnie.Coded
   constructor: (value) ->
