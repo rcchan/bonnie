@@ -179,8 +179,22 @@ class @bonnie.PatientBuilder
     });
 
 class PatientBuilderPage
-  constructor: (data_criteria, value_sets) ->
+  constructor: (data_criteria, value_sets, patient) ->
     bonnie.patientBuilder = new bonnie.PatientBuilder(data_criteria, value_sets)
+    if patient
+      $(window).load(->
+        for data_criteria in patient
+          if data_criteria.id == 'MeasurePeriod'
+            $('#measure_period_start').datetimepicker('setDate', new Date(data_criteria.start_date));
+            $('#measure_period_end').datetimepicker('setDate', new Date(data_criteria.end_date));
+          else
+            criteria = fillDrop({target: $('#patient_data_criteria')}, {draggable: $('[data-criteria-id=' + data_criteria.id + ']')});
+            criteria.start_date = data_criteria.start_date
+            criteria.end_date = data_criteria.end_date
+            criteria.value = data_criteria.value
+            criteria.value_unit = data_criteria.value_unit
+        $('#workspace .close_edit').click()
+      )
 
   initialize: () =>
     $(document).on('click', '#dataCriteria .paramGroup', bonnie.patientBuilder.toggleDataCriteriaTree)
