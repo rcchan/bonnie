@@ -569,6 +569,7 @@ class @bonnie.Builder
           stop: (event,ui) ->
             $(event.target).closest(".paramGroup").removeClass("dragged")
         )
+        elemParent.data('group_id',obj.group_id) if obj.group_id
     else if obj == 'DENOMINATOR_PLACEHOLDER'
       bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last").data('logic-id', obj).append(bonnie.template('data_criteria_logic', {title: 'Denominator consists only of IPP', category: 'initial patient population'}));
 
@@ -595,7 +596,8 @@ class @bonnie.Builder
     builder = bonnie.builder
     console.log("render items = ",items)
     data_criteria = @dataCriteria(obj.id) if (obj.id)
-
+    group_id = obj.group_id
+    
     makeGroupDropFn = (self) ->
       queryObj = obj.parent ? obj
       currentItem = data_criteria.children_criteria
@@ -609,26 +611,33 @@ class @bonnie.Builder
         after = null
         before = child_items[0] if child_items.length
         pos = 0
+        group_id = $(ui.draggable).data('group_id')    
         for item,i in child_items
           item_top = $(item).offset().top;
-          item_height = $(item).height();
+          item_height = $(item).height()
           item_mid = item_top + Math.round(item_height/2)
           if item_mid > dropY
             break
         pos = i
+        if queryObj.id == group_id
+          console.log "Moving within my own box"
+          k = _.indexOf(currentItem,origId)
+          c1 = currentItem.splice(k,1) if k > -1
+          pos = pos - 1 if k < pos
         currentItem.splice(pos,0,origId) if origId?
         $(ui.helper).remove()
         _.bind(self._outGroup,@)()
         $('#workspace').empty()
         bonnie.builder.pushTree(parent_obj)
       return dropFn
-      
+
     if items.length > 1
       elemParent = bonnie.template('param_group', $.extend({}, obj, {conjunction: conjunction || items[0] && items[0].conjunction})).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
       # here is where we check for subset group criteria, and add droppable handler
       # subset groups have children array with an id on each item
       if items[0]?.children?[0]?.id?
         console.log("we're inside a group")
+        group_id = obj.id
         elemParent.droppable(
           greedy:true
           over: @._overGroup
@@ -651,7 +660,7 @@ class @bonnie.Builder
 
       if (node.temporal)
         $(elemParent).append("<span class='#{node.conjunction} temporal-operator'>#{node.title}</span><span class='block-down-arrow'></span>")
-
+      node.group_id = group_id ? null
       builder.addParamItems(node,elemParent,parent_obj)
       if (i < items.length-1 and !node.temporal)
         next = items[i+1]
