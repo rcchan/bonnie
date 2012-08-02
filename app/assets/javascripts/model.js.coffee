@@ -86,7 +86,7 @@ class @bonnie.DataCriteria
     text += if (
       switch(@value.type)
         when 'PQ' then @value.value
-        when 'IVL_PQ' then @value.low.value || @value.high.value
+        when 'IVL_PQ' then @value.low && @value.low.value || @value.high && @value.high.value
         when 'CD' then @value.code_list_id
     ) then "(result #{@value.text()})" else ""
 
