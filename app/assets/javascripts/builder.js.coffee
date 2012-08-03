@@ -23,14 +23,8 @@ class @bonnie.Builder
     alert "updating display: " + @data_criteria
 
   renderMeasureJSON: (data) =>
-    console.log "data=", data
     @query.rebuildFromJson(data)
     
-    #$("#initialPopulationItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.population})
-    #$("#eligibilityMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.denominator})
-    #$("#outcomeMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.numerator})
-    #$("#exclusionMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exclusions})
-    #$("#exceptionsMeasureItems").AndContainerUI({builder:bonnie.builder,container:bonnie.builder.query.exceptions})
     @addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
     @addParamItems(@query.denominator.toJson(),$("#eligibilityMeasureItems"))
     @addParamItems(@query.numerator.toJson(),$("#outcomeMeasureItems"))
@@ -287,15 +281,17 @@ class @bonnie.Builder
     switch f
       when @query.population
         $("#initialPopulationItems").empty()
+        bonnie.builder.addParamItems(bonnie.builder.query.population.toJson(),$("#initialPopulationItems").empty())
         @saveTree(@query.population.toJson(), 'IPP', 'Initial Patient Population')
         @_bindClickHandler("#initialPopulationItems")
       when @query.denominator
         $("#eligibilityMeasureItems").empty()
+        bonnie.builder.addParamItems(bonnie.builder.query.denominator.toJson(),$("#eligibilityMeasureItems").empty())
         @saveTree(@query.denominator.toJson(), 'DENOM', 'Denominator')
         @_bindClickHandler("#eligibilityMeasureItems")
       when @query.numerator
         $("#outcomeMeasureItems").empty()
-        #bonnie.builder.addParamItems(bonnie.builder.query.numerator.toJson(),$("#outcomeMeasureItems").empty())
+        bonnie.builder.addParamItems(bonnie.builder.query.numerator.toJson(),$("#outcomeMeasureItems").empty())
         @saveTree(@query.numerator.toJson(), 'NUMER', 'Numerator')
         @_bindClickHandler("#outcomeMeasureItems")
       when @query.exclusions
@@ -313,7 +309,6 @@ class @bonnie.Builder
       for k of o
         arguments.callee o[k]  if typeof o[k] is "object"
     ) query = query
-    console.log query
     $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}}, (r) =>
       for key in _.keys(r.data_criteria)
         @data_criteria[key] = new bonnie.DataCriteria(key, r.data_criteria[key], @measure_period)
@@ -322,33 +317,17 @@ class @bonnie.Builder
     
     
   addParamItems: (obj,elemParent,parent_obj) =>
-    #console.log "obj",obj
-    #console.log "elemParent",elemParent
     builder = bonnie.builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
     parent = obj.parent
-    #console.log "parent = ",parent
     makeDropFn = (self) ->
-      #console.log "making drop for ", obj
-      #console.log "elemParent",elemParent
-      #if (!obj.parent? ) 
-        #console.log("HEY NO PARENT ON THIS OBJ!")
       queryObj = obj.parent ? obj
-      #console.log "queryObj",queryObj
       dropFunction = (event,ui) ->
-        #console.log "in Drop, ui=",ui
-        #console.log("queryObj is ",queryObj)
-        #console.log("obj is ",obj)
 
         target = event.target
-        console.log "target = ",target
-        console.log "this = ",this    # Should be the same as target
         
         orig = ui.draggable.data('logic-id') ? {} 
-        console.log $(ui.draggable).data()
-        console.log "@.data = ",$(@).data()
-        console.log("orig=",orig)
         dropY = event.pageY
         child_items = $(@).children(".paramGroup")
         after = null
@@ -370,23 +349,15 @@ class @bonnie.Builder
           before = null
         pos = i
         id = $(ui.draggable).data('criteria-id')
-        #console.log("id=",id)
-        console.log("after is " ,after)
-        console.log("before is ",before)
-        console.log("pos = ",pos)
 
         if queryObj instanceof queryStructure.Container
           tgt = queryObj
         else
-          console.log "item", @
           tgt = queryObj.parent
         if (orig.parent? && orig.parent is tgt)
-          console.log("Dropped on my own box")
+          # Dropped on my own box
           g = tgt.childIndexByKey(orig,'precondition_id')
-          console.log g
           c1 = tgt.removeAtIndex(g)
-          console.log("c1=",c1)
-          #c1 = tgt.removeChild(orig)
           if c1
             tgt.add(c1[0],after)
           #else
@@ -395,17 +366,17 @@ class @bonnie.Builder
           $(ui.draggable).remove()
         else
           if (orig.parent? && orig.parent isnt tgt)
-            console.log("dropped on different box")
+            # dropped on different box
             g = orig.parent.childIndexByKey(orig,'precondition_id')
             c1 = orig.parent.removeAtIndex(g)
-            console.log "dragged item = ", c1
             if c1
               tgt.add(c1[0], after)
             #else
               # what to do if we don't pull the item off the original container?
               # tgt.add(orig,after)
             if orig.parent.children.length < 2
-              console.log "HEY! There's only 1 child left in my container", orig.parent
+              # there is only 1 child left in my container
+              # remove and push the child to the grandparent
               lastChild = orig.parent.removeAtIndex(0).pop()
               p = orig.parent.parent.childIndexByKey(orig.parent,'myid')
               orig.parent.parent.removeAtIndex(p)
@@ -414,7 +385,7 @@ class @bonnie.Builder
               
             $(ui.draggable).remove()
           else 
-            console.log("dropped from outside")
+            # dropped from outside / left sidebar
             tgt.add(
               id: id
               data_criteria: self.data_criteria[id]
@@ -427,25 +398,11 @@ class @bonnie.Builder
       return dropFunction
 
     makeItemDropFn = (self) ->
-      #console.log "making drop for ", obj
-      #console.log "elemParent",elemParent
-      #if (!obj.parent? ) 
-        #console.log("HEY NO PARENT ON THIS OBJ!")
       queryObj = obj
-      #console.log "queryObj",queryObj
       dropFunction = (event,ui) ->
-        #console.log "in Drop, ui=",ui
-        #console.log("queryObj is ",queryObj)
-        #console.log("obj is ",obj)
 
         target = event.target
-        console.log "target = ",target
-        console.log "this = ",this    # Should be the same as target
-        
         orig = ui.draggable.data('logic-id') ? {} 
-        console.log "ui.draggable.data() = ", $(ui.draggable).data()
-        console.log "@.data = ",$(@).data()
-        console.log "orig=",orig
 
         id = $(ui.draggable).data('criteria-id')
 
@@ -454,13 +411,11 @@ class @bonnie.Builder
         # if you are dropping on an item that is a temporal reference, the item has no parent attribute so just skip entirely for now
         if parent 
           if (orig.parent? && orig.parent isnt tgt)
-            console.log("item was dropped on a different container")
+            # item was dropped on a different container
             g = orig.parent.childIndexByKey(orig,'precondition_id')
             c1 = orig.parent.removeAtIndex(g)
             g = parent.childIndexByKey(obj,'precondition_id')
             c2 = parent.removeAtIndex(g)
-            console.log "dragged item = ", c1
-            console.log "dropped item = ", c2
             if c1 && c2
               if parent.conjunction ==  'or'
                 child = new queryStructure.AND() 
@@ -474,7 +429,7 @@ class @bonnie.Builder
               # what to do if the object remove fails?
             # now we need to clean up the orig.parent - we do not want to leave an empty AND or OR container there
             if orig.parent.children.length < 2
-              console.log "HEY! There's only 1 child left in my container", orig.parent
+              # there is only 1 child left in my container
               lastChild = orig.parent.removeAtIndex(0).pop()
               p = orig.parent.parent.childIndexByKey(orig.parent,'myid')
               orig.parent.parent.removeAtIndex(p)
@@ -482,7 +437,7 @@ class @bonnie.Builder
               orig.parent.parent.children.splice(p,0,lastChild)
             $(ui.draggable).remove()
           else 
-            console.log("dropped from outside")
+            # dropped from outside / left sidebar
             g = parent.childIndexByKey(obj,'precondition_id')
             c1 = parent.removeAtIndex(g)
             if c1
@@ -525,6 +480,7 @@ class @bonnie.Builder
       if (data_criteria.subset_operators?)
         for subset_operator in data_criteria.subset_operators
           $(elemParent).append("<span class='#{subset_operator.type} subset-operator'>#{subset_operator.title()}</span>")
+        parent_obj = obj
 
       if (data_criteria.children_criteria?)
         items = data_criteria.childrenCriteriaItems()
@@ -551,7 +507,6 @@ class @bonnie.Builder
         )
         $item = data_criteria.asHtml('data_criteria_logic')
         
-        #console.log("elemParent = ",elemParent)            
         $item.appendTo(elemParent)
         
         ###
@@ -598,14 +553,12 @@ class @bonnie.Builder
   renderParamItems: (conjunction, items, elemParent, obj,parent_obj) =>
     neg = (obj.negation || false) && obj.negation != 'false'
     builder = bonnie.builder
-    console.log("render items = ",items)
     data_criteria = @dataCriteria(obj.id) if (obj.id)
     group_id = obj.group_id
     
     makeGroupDropFn = (self) ->
       queryObj = obj.parent ? obj
       currentItem = data_criteria.children_criteria
-      console.log("in makeGroupDrop, data_criteria = ",data_criteria)
       parent_obj = parent_obj
       dropFn = (event,ui) ->
         origId = ui.draggable.data('criteria-id') ? null
@@ -623,10 +576,11 @@ class @bonnie.Builder
           if item_mid > dropY
             break
         pos = i
-        if queryObj.id == group_id
-          console.log "Moving within my own box"
+        if group_id? && queryObj?.id == group_id
+          # Moving within my own box
           k = _.indexOf(currentItem,origId)
           c1 = currentItem.splice(k,1) if k > -1
+          # need to readjust the drop position because we've remove a previous element
           pos = pos - 1 if k < pos
         currentItem.splice(pos,0,origId) if origId?
         $(ui.helper).remove()
@@ -640,7 +594,7 @@ class @bonnie.Builder
       # here is where we check for subset group criteria, and add droppable handler
       # subset groups have children array with an id on each item
       if items[0]?.children?[0]?.id?
-        console.log("we're inside a group")
+        # we're inside a group data criteria
         group_id = obj.id
         elemParent.droppable(
           greedy:true
