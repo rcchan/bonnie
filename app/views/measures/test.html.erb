@@ -85,7 +85,7 @@
           <div class="span2 num"> &nbsp;</div>
           <div class="span2 excl">&nbsp;</div>
           <div class="span2 inspect">
-            <a href='/measures/<%= "#{@measure._id}/debug/#{p[1]}?population=#@population" %>'>inspect</a>
+            <a href='/measures/<%= "#{@measure._id}/debug/#{p[1]}?population=#{@population}" %>'>inspect</a>
           </div>
         </div>
         <% end %>
@@ -94,7 +94,7 @@
   </div>
   
   <% if @patients_posted %>
-    <% @js = include_js_debug(@measure.id, @patients_posted, params[:population_criteria].to_i) %>
+    <% @js = include_js_debug(@measure.id, @patients_posted, @population) %>
     <%= javascript_tag do %>
       <%= raw(@js) %>
       <%= raw(include_js_libs(['map_reduce_utils'])) %>
