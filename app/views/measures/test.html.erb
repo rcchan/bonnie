@@ -98,6 +98,10 @@
             <span class="span1 edit">
               <%= link_to 'Edit', edit_patient_measure_path(:patient_id => p[1]) %>
             </span>
+            <span class="span1 clone">
+              <%= link_to 'Clone', edit_patient_measure_path(:patient_id => p[1], :clone => true) %>
+            </span>
+
           </div>
         </div>
         <% end %>
