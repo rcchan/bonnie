@@ -14,6 +14,7 @@
           $.post('<%= url_for :action => 'delete_patient' %>', {authenticity_token: $('meta[name=csrf-token]').val(), victim: $(this).siblings('input[name=victim]').val()}, $.proxy(function(r){if (r) $(this).parentsUntil('.row').parent().remove(); }, this));
         }
       );
+      $('.patient_info.icon-info-sign').popover()
     });
   </script>
 <% end %>
@@ -85,6 +86,10 @@
           <div class="span2 name">
             <%= f.check_box(p[1], :label => p.first, :checked => true) -%>
             <%= p.first %>
+            <%= '<span class="patient_info icon-info-sign" rel="popover" data-original-title="'.html_safe + (p[2]['category'] || '') +
+              '" data-content="('.html_safe + Time.at(p[3]['start']/1000).strftime('%m/%d/%Y') + ' - '  + Time.at(p[3]['end']/1000).strftime('%m/%d/%Y') + ')<br /><br />' +
+              (p[2]['description'] || '') + '"></span>'.html_safe unless p[2]['description'].blank? && p[2]['category'].blank?
+            %>
           </div>
           <!-- &nbsp; entity needed to keep the columns from smashing left -->
           <div class="span2 pop">&nbsp;</div>

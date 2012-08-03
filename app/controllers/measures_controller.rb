@@ -194,7 +194,12 @@ class MeasuresController < ApplicationController
   def test
     @population = params[:population] || 0
     @measure = Measure.find(params[:id])
-    @patient_names = @measure.records.entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
+    @patient_names = @measure.records.entries.collect {|r| [
+      "#{r[:first]} #{r[:last]}",
+      r[:_id].to_s,
+      {'description' => r['description'], 'category' => r['description_category']},
+      {'start' => r['measure_period_start'], 'end' => r['measure_period_end']}
+    ]}
 
     # we need to manipulate params[:patients] but it's immutable?
     if params[:patients]
@@ -284,6 +289,10 @@ class MeasuresController < ApplicationController
     params['birthdate'] = params['birthdate'].to_i / 1000
     patient = HQMF::Generator.create_base_patient(params.select{|k| ['first', 'last', 'gender', 'expired', 'birthdate'].include?k })
     patient['source_data_criteria'] = JSON.parse(params['data_criteria'])
+    patient['description'] = params['description']
+    patient['description_category'] = params['description_category']
+    patient['measure_period_start'] = params['measure_period_start'].to_i
+    patient['measure_period_end'] = params['measure_period_end'].to_i
     JSON.parse(params['data_criteria']).each {|v|
       data_criteria = HQMF::DataCriteria.from_json(v['id'], @measure.source_data_criteria[v['id']])
       data_criteria.modify_patient(patient, HQMF::Range.from_json({
