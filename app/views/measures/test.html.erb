@@ -66,6 +66,7 @@
           <div id="denominator-total" class="span2 denom">&nbsp;</div>
           <div id="numerator-total" class="span2 num">&nbsp;</div>
           <div id="exclusions-total" class="span2 excl">&nbsp;</div>
+          <div id="exceptions-total" class="span2 excep">&nbsp;</div>
           <div id="inspect-links" class="span2 inspect">&nbsp;</div>
         </div>
 
@@ -75,6 +76,7 @@
           <div class="span2 denom"><b>Denominator</b></div>
           <div class="span2 num"><b>Numerator</b></div>
           <div class="span2 excl"><b>Exclusions</b></div>
+          <div class="span2 excep"><b>Exceptions</b></div>
           <div class="span2 inspect">&nbsp;</div>
         </div>
 
@@ -89,7 +91,8 @@
           <div class="span2 denom">&nbsp;</div>
           <div class="span2 num"> &nbsp;</div>
           <div class="span2 excl">&nbsp;</div>
-          <div class="span3">
+          <div class="span2 excep">&nbsp;</div>
+          <div class="span4">
             <span class="span1 inspect"><%= link_to 'inspect', debug_measure_measure_path(:record_id => p[1]) %></span>
             <span class="span1 delete">
               <input type="hidden" name="victim" value="<%= p[1] %>" />

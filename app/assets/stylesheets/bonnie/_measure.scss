@@ -117,7 +117,7 @@
     &.paramItem {
       @include transition(background-color .2s linear);
     }
-    
+
   }
   .paramGroupToggle {
     margin: 0 0 0 20px;
@@ -701,6 +701,10 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
 
 #patients #exclusions-total {
   background: #FFCC99;
+}
+
+#patients #exceptions-total {
+  background: #EEE;
 }
 
 #test-submit-button {
