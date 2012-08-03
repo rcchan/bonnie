@@ -313,12 +313,14 @@ class @bonnie.Builder
       for k of o
         arguments.callee o[k]  if typeof o[k] is "object"
     ) query = query
+    ###
     $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}}, (r) =>
       for key in _.keys(r.data_criteria)
         @data_criteria[key] = new bonnie.DataCriteria(key, r.data_criteria[key], @measure_period)
       @renderMeasureJSON(r.population_criteria)
     )
-
+    ###
+    
   addParamItems: (obj,elemParent,parent_obj) =>
     builder = bonnie.builder
     items = obj["items"]
