@@ -53,7 +53,7 @@ class @bonnie.Builder
     $(selector || '#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems').find('.paramItem[data-precondition-id], .paramItem[data-criteria-id]').click((event) =>
       $('.paramItem').removeClass('editing')
       return if $('#text_view_styles').prop('disabled')-1
-      $(event.currentTarget).closest('.paramItem').addClass('editing')
+      $('.paramItem[data-criteria-id=' + $(event.currentTarget).data('criteria-id') + '], .paramItem[data-precondition-id=' + $(event.currentTarget).data('precondition-id') + ']').addClass('editing')
       @editDataCriteria(event.currentTarget)
       event.stopPropagation()
     )
@@ -279,6 +279,10 @@ class @bonnie.Builder
         @_bindClickHandler("#exceptionMeasureItems")
 
         @showSaved('#workspace')
+
+        $('.paramItem[data-criteria-id=' + $('#workspace form > input[name=criteria_id]').val() + ']').stop(true).css('background-color', '#AAD9FF').animate({'background-color': '#DDF0FF'}, 1200, ->
+            $(@).css('background-color', '').addClass('editing')
+        );
     });
 
   showSaved: (e) =>
