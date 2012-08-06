@@ -651,7 +651,7 @@
               Birthdate:
             </div>
             <div class="span4">
-              <input type="text" class="span3" value="<%= Time.at(@record['birthdate'] || 946715400).strftime('%m/%d/%Y') %>" name="birthdate" id="birthdate" style="z-index:5000; position: relative;" >
+              <input type="text" class="span3" value="<%= Time.at(@record['birthdate'] || 946715400).strftime('%m/%d/%Y %M:%S') %>" name="birthdate" id="birthdate" style="z-index:5000; position: relative;" >
             </div>
           </div>
           <div class="row">
