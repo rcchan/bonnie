@@ -13,7 +13,14 @@
     $('#birthdate').datetimepicker();
 
     $('#measure_period_start').datepicker({
-      onSelect: function(selectedDate) {$( "#measure_period_end" ).datepicker( "option", "minDate", selectedDate ); onLoadTimeline(); datechange.call(this)}
+      onSelect: function(selectedDate) {
+        $( "#measure_period_end" ).datepicker( "option", "minDate", null );
+        datechange.call(this, $.Deferred().done(
+          function(){
+            $( "#measure_period_end" ).datepicker( "option", "minDate", selectedDate ); onLoadTimeline();
+          }
+        ));
+      }
     }).focus(function(){bonnie.patientBuilder.measurePeriodOrig = new Date($(this).val());});
     $('#measure_period_end').datepicker({
       onSelect: function(selectedDate) {$( "#measure_period_start" ).datepicker( "option", "maxDate", selectedDate ); onLoadTimeline();}
@@ -83,7 +90,7 @@
     return data_criteria;
   }
 
-  var datechange = function(){
+  var datechange = function(deferred){
     var prev = bonnie.patientBuilder.measurePeriodOrig, next = new Date($(this).val()), offsetstring = 'forward by ';
     if (prev.getTime() == next.getTime()) return;
     $(this).blur();
@@ -92,6 +99,7 @@
       next = prev;
       prev = temp;
       offsetstring = 'backward by ';
+      var reversed = true;
     }
     var offset = [
       next.getFullYear() - prev.getFullYear(),
@@ -110,8 +118,11 @@
       (offset[1] ? offset[1] + ' month' + (offset[1] == 1 ? '' : 's') + ' ' : '') +
       (offset[2] ? offset[2] + ' day' + (offset[2] == 1 ? '' : 's') + ' ' : '')
 
+    if (reversed) offset = offset.map(function(e){ return -e; });
+
     $('#bonnie_tmpl_confirm_shift').tmpl({offsetstring: offsetstring}).appendTo(document.body).modal().on('hidden',
       function(){
+        if (deferred) deferred.resolve();
         $(this).remove();
       }
     ).find('.btn.btn-primary').click(
@@ -119,7 +130,7 @@
         var old_date = new Date($('#birthdate').val());
         $('#birthdate').datetimepicker('setDate', new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()));
         old_date = new Date($('#measure_period_end').val());
-        $('#measure_period_end').datetimepicker('setDate', new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()));
+        $('#measure_period_end').datetimepicker('setDate', new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2]));
 
         $.each(bonnie.patientBuilder.selected_data_criteria,
           function(i, e){
