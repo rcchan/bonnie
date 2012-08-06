@@ -118,6 +118,9 @@
       function(){
         var old_date = new Date($('#birthdate').val());
         $('#birthdate').datetimepicker('setDate', new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()));
+        old_date = new Date($('#measure_period_end').val());
+        $('#measure_period_end').datetimepicker('setDate', new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()));
+
         $.each(bonnie.patientBuilder.selected_data_criteria,
           function(i, e){
             var old_date = new Date(e.start_date);
