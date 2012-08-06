@@ -13,10 +13,10 @@
     $('#birthdate').datetimepicker();
 
     $('#measure_period_start').datepicker({
-      onSelect: function(selectedDate) {$( "#measure_period_end" ).datepicker( "option", "minDate", selectedDate );onLoadTimeline();}
-    });
+      onSelect: function(selectedDate) {$( "#measure_period_end" ).datepicker( "option", "minDate", selectedDate ); onLoadTimeline(); datechange.call(this)}
+    }).focus(function(){bonnie.patientBuilder.measurePeriodOrig = new Date($(this).val());});
     $('#measure_period_end').datepicker({
-      onSelect: function(selectedDate) {$( "#measure_period_start" ).datepicker( "option", "maxDate", selectedDate );onLoadTimeline();}
+      onSelect: function(selectedDate) {$( "#measure_period_start" ).datepicker( "option", "maxDate", selectedDate ); onLoadTimeline();}
     });
     $('.timepicker-default').timepicker();
 
@@ -81,6 +81,45 @@
       event.stopPropagation();
     });
     return data_criteria;
+  }
+
+  var datechange = function(){
+    var prev = bonnie.patientBuilder.measurePeriodOrig, next = new Date($(this).val()), offsetstring = 'forward by ';
+    if (prev.getTime() == next.getTime()) return;
+    if (prev > next){
+      var temp = next;
+      next = prev;
+      prev = temp;
+      offsetstring = 'backward by ';
+    }
+    var offset = [
+      next.getFullYear() - prev.getFullYear(),
+      next.getMonth() - prev.getMonth(),
+      next.getDate() - prev.getDate()
+    ];
+
+    if (offset[2] < 0) offset[1]--;
+    if (offset[1] < 0){
+      offset[0]--;
+      offset[1] += 12;
+    }
+    if (offset[2] < 0) offset[2] += 32 - new Date(next.getFullYear() - ((next.getMonth() - prev.getMonth()) < 0 ? 1 : 0), (next.getMonth() + 11) % 12, 32).getDate()
+
+    offsetstring += (offset[0] ? offset[0] + ' year' + (offset[0] == 1 ? '' : 's') + ' ' : '') +
+      (offset[1] ? offset[1] + ' month' + (offset[1] == 1 ? '' : 's') + ' ' : '') +
+      (offset[2] ? offset[2] + ' day' + (offset[2] == 1 ? '' : 's') + ' ' : '')
+
+    $('#bonnie_tmpl_confirm_shift').tmpl({offsetstring: offsetstring}).appendTo(document.body).modal().on('hidden',
+      function(){
+        $(this).remove();
+      }
+    ).find('.btn.btn-primary').click(
+      function(){
+        var old_date = new Date($('#birthdate').val());
+        $('#birthdate').datetimepicker('setDate', new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2]));
+        $(this).parent().parent().modal('hide');
+      }
+    );
   }
 
   </script>
@@ -423,6 +462,21 @@
   </script>
 
 
+  <script type="text/html" id="bonnie_tmpl_confirm_shift">
+    <div class="modal hide fade in">
+      <div class="modal-header">
+        <h3>Confirm Date Shift</h3>
+      </div>
+      <div class="modal-body">
+        <p>You have shifted the measurement period ${offsetstring}</p>
+        <p>Would you like to shift this record ${offsetstring}?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="close btn" data-dismiss="modal">No</button>
+        <button class="btn btn-primary">Yes</button>
+      </div>
+    </div>
+  </script>
   <script type="text/html" id="bonnie_tmpl_data_criteria">
     <div class="paramGroup population" {{if id}}data-criteria-id='${id}'{{/if}}>
       <div class='paramItem logicLeaf'>
