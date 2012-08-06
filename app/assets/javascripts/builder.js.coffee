@@ -24,6 +24,7 @@ class @bonnie.Builder
 
   renderMeasureJSON: (data) =>
     @query.rebuildFromJson(data)
+
     @addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
     @addParamItems((if data.denominator.items.length then @query.denominator.toJson() else 'DENOMINATOR_PLACEHOLDER'),$("#eligibilityMeasureItems"))
     @addParamItems(@query.numerator.toJson(),$("#outcomeMeasureItems"))
@@ -279,21 +280,18 @@ class @bonnie.Builder
     f = (while finder.parent
       finder = finder.parent
     ).pop()
-    
+
     switch f
       when @query.population
         $("#initialPopulationItems").empty()
-        bonnie.builder.addParamItems(bonnie.builder.query.population.toJson(),$("#initialPopulationItems").empty())
         @saveTree(@query.population.toJson(), 'IPP', 'Initial Patient Population')
         @_bindClickHandler("#initialPopulationItems")
       when @query.denominator
         $("#eligibilityMeasureItems").empty()
-        bonnie.builder.addParamItems(bonnie.builder.query.denominator.toJson(),$("#eligibilityMeasureItems").empty())
         @saveTree(@query.denominator.toJson(), 'DENOM', 'Denominator')
         @_bindClickHandler("#eligibilityMeasureItems")
       when @query.numerator
         $("#outcomeMeasureItems").empty()
-        bonnie.builder.addParamItems(bonnie.builder.query.numerator.toJson(),$("#outcomeMeasureItems").empty())
         @saveTree(@query.numerator.toJson(), 'NUMER', 'Numerator')
         @_bindClickHandler("#outcomeMeasureItems")
       when @query.exclusions
@@ -311,14 +309,13 @@ class @bonnie.Builder
       for k of o
         arguments.callee o[k]  if typeof o[k] is "object"
     ) query = query
-    ###
+
     $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}}, (r) =>
       for key in _.keys(r.data_criteria)
         @data_criteria[key] = new bonnie.DataCriteria(key, r.data_criteria[key], @measure_period)
       @renderMeasureJSON(r.population_criteria)
     )
-    ###
-    
+
   addParamItems: (obj,elemParent,parent_obj) =>
     builder = bonnie.builder
     items = obj["items"]
@@ -329,8 +326,8 @@ class @bonnie.Builder
       dropFunction = (event,ui) ->
 
         target = event.target
-        
-        orig = ui.draggable.data('logic-id') ? {} 
+
+        orig = ui.draggable.data('logic-id') ? {}
         dropY = event.pageY
         child_items = $(@).children(".paramGroup")
         after = null
@@ -343,12 +340,12 @@ class @bonnie.Builder
           if item_mid > dropY
             break
         if i > 0
-          after  = queryObj.children[i-1] 
-        else 
+          after  = queryObj.children[i-1]
+        else
           after = null
         if i < child_items.length
           before   = queryObj.children[i]
-        else 
+        else
           before = null
         pos = i
         id = $(ui.draggable).data('criteria-id')
@@ -385,9 +382,9 @@ class @bonnie.Builder
               orig.parent.parent.removeAtIndex(p)
               lastChild.parent = orig.parent.parent
               orig.parent.parent.children.splice(p,0,lastChild)
-              
+
             $(ui.draggable).remove()
-          else 
+          else
             # dropped from outside / left sidebar
             tgt.add(
               id: id
@@ -405,14 +402,14 @@ class @bonnie.Builder
       dropFunction = (event,ui) ->
 
         target = event.target
-        orig = ui.draggable.data('logic-id') ? {} 
+        orig = ui.draggable.data('logic-id') ? {}
 
         id = $(ui.draggable).data('criteria-id')
 
         tgt = obj
         parent = obj.parent
         # if you are dropping on an item that is a temporal reference, the item has no parent attribute so just skip entirely for now
-        if parent 
+        if parent
           if (orig.parent? && orig.parent isnt tgt)
             # item was dropped on a different container
             g = orig.parent.childIndexByKey(orig,'precondition_id')
@@ -421,7 +418,7 @@ class @bonnie.Builder
             c2 = parent.removeAtIndex(g)
             if c1 && c2
               if parent.conjunction ==  'or'
-                child = new queryStructure.AND() 
+                child = new queryStructure.AND()
               else
                 child = new queryStructure.OR()
               child.parent = parent
@@ -439,13 +436,13 @@ class @bonnie.Builder
               lastChild.parent = orig.parent.parent
               orig.parent.parent.children.splice(p,0,lastChild)
             $(ui.draggable).remove()
-          else 
+          else
             # dropped from outside / left sidebar
             g = parent.childIndexByKey(obj,'precondition_id')
             c1 = parent.removeAtIndex(g)
             if c1
               if parent.conjunction ==  'or'
-                child = new queryStructure.AND() 
+                child = new queryStructure.AND()
               else
                 child = new queryStructure.OR()
               child.parent = parent
@@ -459,17 +456,17 @@ class @bonnie.Builder
               # what to do if the object remove fails?
         else
           alert("No parent on this item. Can't add data criteria")
-              
+
         $(ui.helper).remove();
         _.bind(self._out,@)()
         $('#workspace').empty()
         bonnie.builder.pushTree(queryObj)
       return dropFunction
 
-     
+
     if $(elemParent).not(".ui-droppable").hasClass('paramItem')
       $(elemParent).data("query-struct",parent)
-      
+
       elemParent.droppable(
           over:  @._over
           tolerance:'pointer'
@@ -478,7 +475,7 @@ class @bonnie.Builder
           out:  @._out
           drop: makeDropFn(@)
       )
-      
+
     if (data_criteria?)
       if (data_criteria.subset_operators?)
         for subset_operator in data_criteria.subset_operators
@@ -509,9 +506,9 @@ class @bonnie.Builder
           drop: makeItemDropFn(@)
         )
         $item = data_criteria.asHtml('data_criteria_logic')
-        
+
         $item.appendTo(elemParent)
-        
+
         ###
         here we need to decide if we are dragging the .paramItem or the parent .paramGroup
         The parent .paramGroup has the thicker left border, and looks like it should all be
@@ -549,7 +546,7 @@ class @bonnie.Builder
   _overItem: ->
     $(@).parents('.paramItem').removeClass('droppable2')
     $(@).addClass('droppable2')
-    
+
   _out: ->
     $(@).removeClass('droppable').removeClass('droppable2')
 
@@ -558,7 +555,7 @@ class @bonnie.Builder
     builder = bonnie.builder
     data_criteria = @dataCriteria(obj.id) if (obj.id)
     group_id = obj.group_id
-    
+
     makeGroupDropFn = (self) ->
       queryObj = obj.parent ? obj
       currentItem = data_criteria.children_criteria
@@ -571,7 +568,7 @@ class @bonnie.Builder
         after = null
         before = child_items[0] if child_items.length
         pos = 0
-        group_id = $(ui.draggable).data('group_id')    
+        group_id = $(ui.draggable).data('group_id')
         for item,i in child_items
           item_top = $(item).offset().top;
           item_height = $(item).height()
@@ -615,7 +612,7 @@ class @bonnie.Builder
       );
 
 
-      
+
     $.each(items, (i,node) ->
       $(elemParent).append("<span class='not'>not</span>") if neg
 
