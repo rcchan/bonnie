@@ -40,6 +40,9 @@
 
       bonnie.patientBuilder.updateTimeline();
       bonnie.timeline.getBand(0).setCenterVisibleDate(date)
+
+      // Fixes FF redirect bug
+      e.preventDefault();
     }).on('selectstart', function(e){ e.preventDefault(); });
 
     onLoadTimeline();
