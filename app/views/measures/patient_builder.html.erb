@@ -86,6 +86,7 @@
   var datechange = function(){
     var prev = bonnie.patientBuilder.measurePeriodOrig, next = new Date($(this).val()), offsetstring = 'forward by ';
     if (prev.getTime() == next.getTime()) return;
+    $(this).blur();
     if (prev > next){
       var temp = next;
       next = prev;
