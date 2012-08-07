@@ -595,7 +595,7 @@
           <tr class="negation_reason_oid" style="display: none">
             <td>Negation Reason</td>
             <td>
-              <select name="negation_code_list_id">
+              <select>
                 <% @measure.value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.each {|v|%>
                   <option value="<%= v['oid'] %>"><%= v['concept'] %> - <%= v['oid'] %></option>
                 <% } %>
