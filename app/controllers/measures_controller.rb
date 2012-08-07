@@ -68,11 +68,10 @@ class MeasuresController < ApplicationController
   def upsert_criteria
     @measure = Measure.find(params[:id])
     criteria = {"id" => params[:criteria_id]  || BSON::ObjectId.new.to_s, "type" => params['type']}
-    ['negation'].each { |f| criteria[f] = params[f] if !params[f].nil?}
     ["title", "code_list_id", "description", "qds_data_type", 'negation_code_list_id'].each { |f| criteria[f] = params[f] if !params[f].blank?}
 
     # Do that HQMF Processing
-    criteria = {'id' => criteria['id'] }.merge JSON.parse(HQMF::DataCriteria.create_from_category(criteria['id'], criteria['title'], criteria['description'], criteria['code_list_id'], params['category'], params['subcategory'], criteria['negation'], criteria['negation_code_list_id']).to_json.to_json).flatten[1]
+    criteria = {'id' => criteria['id'] }.merge JSON.parse(HQMF::DataCriteria.create_from_category(criteria['id'], criteria['title'], criteria['description'], criteria['code_list_id'], params['category'], params['subcategory'], !criteria['negation'].blank?, criteria['negation_code_list_id']).to_json.to_json).flatten[1]
 
     ["display_name", 'negation'].each { |f| criteria[f] = params[f] if !params[f].nil?}
     ["property", "children_criteria"].each { |f| criteria[f] = params[f] if !params[f].blank?}

@@ -220,6 +220,7 @@ class @bonnie.Builder
     )
     !$(form).ajaxSubmit({
       data: {
+        negation_code_list_id: $(form).find('.negation_reason_oid select').val() if $(form).find('select[name=negation]').val()
         value: JSON.stringify(
           switch $(form).find('.criteria_value input.value_type[type=radio]:checked').val()
             when 'PQ'
