@@ -179,7 +179,7 @@ class @bonnie.Builder
             }) && id
           else $(e).find('.temporal_reference_value').val()
         )
-      })
+      }) if $(e).find('.temporal_type').val() && $(e).find('.temporal_reference_value').first().val()
     )
     $(form).find('.subset_operator').each((i, e) ->
       subset_operators.push({
