@@ -145,6 +145,10 @@
             e.end_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds());
           }
         );
+
+        old_date = bonnie.timeline.getBand(0).getCenterVisibleDate();
+        bonnie.timeline.getBand(0).setCenterVisibleDate(new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()));
+
         $(this).parent().parent().modal('hide');
       }
     );
