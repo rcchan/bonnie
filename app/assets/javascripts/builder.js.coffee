@@ -80,7 +80,7 @@ class @bonnie.Builder
         obj
 
       element.find('select[name=status]').val(data_criteria.status)
-      element.find('select[name=category]').val(data_criteria.category).on('change', ->
+      element.find('select[name=category]').val(data_criteria.definition).on('change', ->
         $(this).parents('form').find('select[name=subcategory]').empty().append(
           bonnie.builder.statuses_by_definition[$(this).val()].map( (e)->
             $(document.createElement('option')).val(e).text(e).get(0)
