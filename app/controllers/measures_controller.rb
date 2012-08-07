@@ -77,11 +77,10 @@ class MeasuresController < ApplicationController
     ["display_name", 'negation'].each { |f| criteria[f] = params[f] if !params[f].nil?}
     ["property", "children_criteria"].each { |f| criteria[f] = params[f] if !params[f].blank?}
 
-    criteria['value'] = JSON.parse(params['value']).merge({'type' => params['value_type']}) if params['value'] && params['value_type']
-    criteria['temporal_references'] = JSON.parse(params['temporal_references']) if params['temporal_references']
-    criteria['subset_operators'] = JSON.parse(params['subset_operators']) if params['subset_operators']
-    criteria['field_values'] = JSON.parse(params['field_values']) if params['field_values']
-    criteria.delete('field_values') if criteria['field_values'].blank?
+    criteria['value'] = if params['value'] then JSON.parse(params['value']) else nil end
+    criteria['temporal_references'] = if params['temporal_references'] then JSON.parse(params['temporal_references']) else nil end
+    criteria['subset_operators'] = if params['subset_operators'] then JSON.parse(params['subset_operators']) else nil end
+    criteria['field_values'] = if params['field_values'] then JSON.parse(params['field_values']) else nil end
 
     @measure.upsert_data_criteria(criteria, params['source'])
     render :json => @measure.data_criteria[criteria['id']] if @measure.save

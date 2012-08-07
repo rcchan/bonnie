@@ -86,8 +86,9 @@ class @bonnie.Builder
           )
         )
       ).trigger('change');
-      element.find('input[type=radio][name=value_type]').change(
+      element.find('input.value_type[type=radio]').change(
         ( ->
+          element.find('input.value_type[type=radio]').not(@).prop('checked', null)
           element.find('.criteria_value_value').children().show().not('.' +
             switch(if @ instanceof String then @toString() else $(@).val())
               when 'PQ' then 'data_criteria_value'
@@ -166,7 +167,7 @@ class @bonnie.Builder
             unit: $(e).find('.temporal_range_low_unit').val()
             'inclusive?': $(e).find('.temporal_range_low_relation').val().indexOf('e') > -1
           } if $(e).find('.temporal_range_low_value').val()
-        }
+        } if $(e).find('.temporal_range_high_value').val() || $(e).find('.temporal_range_low_value').val()
         reference: (
           if $(e).find('.temporal_reference_value').length > 1
             $.post('/measures/' + $(form).find('input[type=hidden][name=id]').val() + '/upsert_criteria', {
@@ -177,7 +178,7 @@ class @bonnie.Builder
             }) && id
           else $(e).find('.temporal_reference_value').val()
         )
-      })
+      }) if $(e).find('.temporal_type').val() && $(e).find('.temporal_reference_value').first().val()
     )
     $(form).find('.subset_operator').each((i, e) ->
       subset_operators.push({
@@ -206,7 +207,7 @@ class @bonnie.Builder
             unit: $(e).find('.data_criteria_range_low_unit').val()
             'inclusive?': $(e).find('.data_criteria_range_low_relation').val().indexOf('e') > -1
           } if $(e).find('.data_criteria_range_low_value').val()
-        }
+        } if (if $(e).find('.subset_range_type:checked').val() == 'value' then $(e).find('.data_criteria_value_value').val() else $(e).find('.data_criteria_range_high_value').val() || $(e).find('.data_criteria_range_low_value').val())
       })
     )
     $(form).find('.field_value').each((i, e) =>
@@ -214,19 +215,21 @@ class @bonnie.Builder
         code_list_id: oid = $(e).find('.data_criteria_oid').val()
         title: @value_sets[oid].concept
         type: 'CD'
-      }
+      } if @value_sets[$(e).find('.data_criteria_oid').val()]
     )
     !$(form).ajaxSubmit({
       data: {
         value: JSON.stringify(
-          switch $(form).find('.criteria_value input[type=radio][name=value_type]:checked').val()
+          switch $(form).find('.criteria_value input.value_type[type=radio]:checked').val()
             when 'PQ'
               {
+                type: 'PQ'
                 value: $(form).find('.criteria_value .data_criteria_value_value').val()
                 unit: $(form).find('.criteria_value .data_criteria_value_unit').val()
-              }
+              } if $(form).find('.criteria_value .data_criteria_value_value').val()
             when 'IVL_PQ'
               {
+                type: 'IVL_PQ'
                 low: {
                   type: 'PQ'
                   value: $(form).find('.criteria_value .data_criteria_range_low_value').val()
@@ -237,16 +240,18 @@ class @bonnie.Builder
                   value: $(form).find('.criteria_value .data_criteria_range_high_value').val()
                   unit: $(form).find('.criteria_value .data_criteria_range_high_unit').val()
                 } if $(form).find('.criteria_value .data_criteria_range_high_value').val()
-              }
+              } if $(form).find('.criteria_value .data_criteria_range_low_value').val() || $(form).find('.criteria_value .data_criteria_range_high_value').val()
             when 'CD'
               {
+                type: 'CD'
                 code_list_id: $(form).find('.criteria_value .data_criteria_oid').val()
                 title: $(form).find('.criteria_value .data_criteria_oid > option:selected').text()
-              }
+              } if $(form).find('.criteria_value .data_criteria_oid').val()
         )
-        temporal_references: JSON.stringify(temporal_references)
-        subset_operators: JSON.stringify(subset_operators)
-        field_values: JSON.stringify(field_values)
+
+        temporal_references: JSON.stringify(temporal_references) if !$.isEmptyObject(temporal_references)
+        subset_operators: JSON.stringify(subset_operators) if !$.isEmptyObject(subset_operators)
+        field_values: JSON.stringify(field_values) if !$.isEmptyObject(field_values)
       }
       success: (r) =>
         @data_criteria[r.id] = new bonnie.DataCriteria(r.id, r, @measure_period)
