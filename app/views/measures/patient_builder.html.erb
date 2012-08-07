@@ -17,7 +17,9 @@
         $( "#measure_period_end" ).datepicker( "option", "minDate", null );
         datechange.call(this, $.Deferred().done(
           function(){
-            $( "#measure_period_end" ).datepicker( "option", "minDate", selectedDate ); onLoadTimeline();
+            $( "#measure_period_end" ).datepicker( "option", "minDate", selectedDate );
+            onLoadTimeline();
+            bonnie.patientBuilder.updateTimeline();
           }
         ));
       }
