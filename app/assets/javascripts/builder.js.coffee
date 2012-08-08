@@ -26,13 +26,12 @@ class @bonnie.Builder
     @query.rebuildFromJson(data)
 
     @addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
-    @addParamItems(@query.denominator.toJson(),$("#eligibilityMeasureItems"))
+    @addParamItems((if data.denominator.items.length then @query.denominator.toJson() else 'DENOMINATOR_PLACEHOLDER'),$("#eligibilityMeasureItems"))
     @addParamItems(@query.numerator.toJson(),$("#outcomeMeasureItems"))
     @addParamItems(@query.exclusions.toJson(),$("#exclusionMeasureItems"))
     @addParamItems(@query.exceptions.toJson(),$("#exceptionMeasureItems"))
-
     @._bindClickHandler()
-
+    
   _bindClickHandler: (selector) ->
     $(selector || '#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems').find('.paramItem[data-precondition-id], .paramItem[data-criteria-id]').click((event) =>
       $('.paramItem').removeClass('editing')
