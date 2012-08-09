@@ -315,6 +315,9 @@ class MeasuresController < ApplicationController
     render :json => @measure.save!
   end
 
+  def matrix
+  end
+
   def generate_matrix
     Measure.all.to_a.each{|m|
       (m['populations'].length > 1 ? ('a'..'z').to_a.first(m['populations'].length) : [nil]).each{|sub_id|
@@ -323,5 +326,11 @@ class MeasuresController < ApplicationController
         qr.calculate(false) unless qr.calculated?
       }
     }
+    render :action => :matrix
   end
+
+  def matrix_data
+
+  end
+
 end

@@ -30,6 +30,7 @@ Bonnie::Application.routes.draw do
       get :export_all
       get :debug_libraries
       get :generate_matrix
+      get :matrix
     end
   end
 
