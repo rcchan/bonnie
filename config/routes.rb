@@ -28,6 +28,7 @@ Bonnie::Application.routes.draw do
       get :published
       get :export_all
       get :debug_libraries
+      get :generate_matrix
     end
   end
 

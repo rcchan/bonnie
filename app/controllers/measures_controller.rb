@@ -73,7 +73,7 @@ class MeasuresController < ApplicationController
 
     # Do that HQMF Processing
     criteria = {'id' => criteria['id'] }.merge JSON.parse(HQMF::DataCriteria.create_from_category(criteria['id'], criteria['title'], criteria['description'], criteria['code_list_id'], params['category'], params['subcategory'], !criteria['negation'].blank?, criteria['negation_code_list_id']).to_json.to_json).flatten[1]
-    
+
     ["display_name"].each { |f| criteria[f] = params[f] if !params[f].nil?}
     ["property", "children_criteria"].each { |f| criteria[f] = params[f] if !params[f].blank?}
 
@@ -312,5 +312,15 @@ class MeasuresController < ApplicationController
     @measure = Measure.find(params[:id])
     @measure.records = @measure.records.reject{|v| v['_id'].to_s == params['victim']}
     render :json => @measure.save!
+  end
+
+  def generate_matrix
+    Measure.all.to_a.each{|m|
+      (m['populations'].length > 1 ? ('a'..'z').to_a.first(m['populations'].length) : [nil]).each{|sub_id|
+        p 'Calculating measure ' + m['measure_id'] + (sub_id || '')
+        qr = QME::QualityReport.new(m['measure_id'], sub_id, {'effective_date' => params['effective_date'].to_i || 1262322000}.merge(params['providers'] ? {'filters' => {'providers' => params['providers']}} : {}))
+        qr.calculate(false) unless qr.calculated?
+      }
+    }
   end
 end
