@@ -31,6 +31,7 @@ Bonnie::Application.routes.draw do
       get :debug_libraries
       get :generate_matrix
       get :matrix
+      get :matrix_data
     end
   end
 
