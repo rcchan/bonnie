@@ -16,25 +16,6 @@
   <script type="text/javascript">
   $(document).ready(
     function(){
-      var margin = {top: 120, right: 0, bottom: 10, left: 150},
-          width = $('#pageContent').width() - 300 - margin.left - margin.right,
-          height = $('#pageContent').height() - 100 - margin.top - margin.bottom;
-
-      var x = d3.scale.ordinal().rangeBands([0, width]),
-          y = d3.scale.ordinal().rangeBands([0, height]),
-          z = d3.scale.linear().domain([0, 4]).clamp(true),
-          c = d3.scale.category10().domain(d3.range(10)),
-          colors = ['#eeeeee', '#cccccc', '#cccccc', '#40b3bc', '#9cc45e', '#eda039'];
-
-      d3.range(6).forEach(function(i){d3.select('#key').append('div').style('background', colors[i]).text(['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i])});
-
-      var svg = d3.select("#pageContent").append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .style("margin-left", 'auto')
-        .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
       d3.json("<%= url_for :action => 'matrix_data' %>", function(raw_data) {
 
         var headers = [], data = {};
@@ -48,10 +29,9 @@
               })
           }
         );
-        var count = 0;
+
         var matrix = [], nodes = [];
         for (key in data){
-          if (count++ > 50) break;
           var i = nodes.push(key);
           data[key].forEach(function(e){
             e.y = i - 1;
@@ -59,6 +39,25 @@
           matrix.push(data[key]);
         }
         n = matrix.length;
+
+        var margin = {top: 120, right: 0, bottom: 10, left: 150},
+            width = $('#pageContent').width() - 300 - margin.left - margin.right,
+            height = n * 20 + margin.top + margin.bottom + 100;
+
+        var x = d3.scale.ordinal().rangeBands([0, width]),
+            y = d3.scale.ordinal().rangeBands([0, height]),
+            z = d3.scale.linear().domain([0, 4]).clamp(true),
+            c = d3.scale.category10().domain(d3.range(10)),
+            colors = ['#eeeeee', '#cccccc', '#cccccc', '#40b3bc', '#9cc45e', '#eda039'];
+
+        d3.range(6).forEach(function(i){d3.select('#key').append('div').style('background', colors[i]).text(['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i])});
+
+        var svg = d3.select("#pageContent").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .style("margin-left", 'auto')
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         // Precompute the orders.
         var orders = {
