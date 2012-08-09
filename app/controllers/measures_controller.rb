@@ -193,11 +193,12 @@ class MeasuresController < ApplicationController
   def test
     @population = params[:population] || 0
     @measure = Measure.find(params[:id])
-    @patient_names = @measure.records.entries.collect {|r| [
+    @patient_names = Record.all.collect {|r| [
       "#{r[:first]} #{r[:last]}",
       r[:_id].to_s,
       {'description' => r['description'], 'category' => r['description_category']},
-      {'start' => r['measure_period_start'], 'end' => r['measure_period_end']}
+      {'start' => r['measure_period_start'], 'end' => r['measure_period_end']},
+      r['measure_id']
     ]}
 
     # we need to manipulate params[:patients] but it's immutable?
