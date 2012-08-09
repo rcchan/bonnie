@@ -16,137 +16,141 @@
   <script type="text/javascript">
   $(document).ready(
     function(){
-      d3.json("<%= url_for :action => 'matrix_data' %>", function(raw_data) {
+      $('#loadingModal').modal();
+      $('#loading_image').load(
+        function(){
+          d3.json("<%= url_for :action => 'matrix_data' %>", function(raw_data) {
+          $('#loadingModal').modal('hide');
+          var headers = [], data = {};
+          raw_data.forEach(
+            function(e){
+              var index = headers.indexOf(e.value.measure_id);
+              (data[e.value.last+', '+e.value.first] = data[e.value.last+', '+e.value.first] || []).push ({
+                x: index > -1 ? index : headers.push(e.value.measure_id) - 1,
+                z: 4,
+                category: e.value.exclusions ? 5 : e.value.numerator ? 4 : e.value.denominator ? 3 : e.value.denexcep ? 2 : e.value.population ? 1 : 0
+                })
+            }
+          );
 
-        var headers = [], data = {};
-        raw_data.forEach(
-          function(e){
-            var index = headers.indexOf(e.value.measure_id);
-            (data[e.value.last+', '+e.value.first] = data[e.value.last+', '+e.value.first] || []).push ({
-              x: index > -1 ? index : headers.push(e.value.measure_id) - 1,
-              z: 4,
-              category: e.value.exclusions ? 5 : e.value.numerator ? 4 : e.value.denominator ? 3 : e.value.denexcep ? 2 : e.value.population ? 1 : 0
-              })
+          var matrix = [], nodes = [];
+          for (key in data){
+            var i = nodes.push(key);
+            data[key].forEach(function(e){
+              e.y = i - 1;
+            });
+            matrix.push(data[key]);
           }
-        );
+          n = matrix.length;
 
-        var matrix = [], nodes = [];
-        for (key in data){
-          var i = nodes.push(key);
-          data[key].forEach(function(e){
-            e.y = i - 1;
-          });
-          matrix.push(data[key]);
-        }
-        n = matrix.length;
+          var margin = {top: 120, right: 0, bottom: 10, left: 150},
+              width = $('#pageContent').width() - 300 - margin.left - margin.right,
+              height = n * 20 + margin.top + margin.bottom + 100;
 
-        var margin = {top: 120, right: 0, bottom: 10, left: 150},
-            width = $('#pageContent').width() - 300 - margin.left - margin.right,
-            height = n * 20 + margin.top + margin.bottom + 100;
+          var x = d3.scale.ordinal().rangeBands([0, width]),
+              y = d3.scale.ordinal().rangeBands([0, height]),
+              z = d3.scale.linear().domain([0, 4]).clamp(true),
+              c = d3.scale.category10().domain(d3.range(10)),
+              colors = ['#eeeeee', '#cccccc', '#cccccc', '#40b3bc', '#9cc45e', '#eda039'];
 
-        var x = d3.scale.ordinal().rangeBands([0, width]),
-            y = d3.scale.ordinal().rangeBands([0, height]),
-            z = d3.scale.linear().domain([0, 4]).clamp(true),
-            c = d3.scale.category10().domain(d3.range(10)),
-            colors = ['#eeeeee', '#cccccc', '#cccccc', '#40b3bc', '#9cc45e', '#eda039'];
+          d3.range(6).forEach(function(i){d3.select('#key').append('div').style('background', colors[i]).text(['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i])});
 
-        d3.range(6).forEach(function(i){d3.select('#key').append('div').style('background', colors[i]).text(['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i])});
+          var svg = d3.select("#pageContent").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .style("margin-left", 'auto')
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        var svg = d3.select("#pageContent").append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .style("margin-left", 'auto')
-        .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+          // Precompute the orders.
+          var orders = {
+            name: {y: d3.range(n).sort(function(a, b) { return d3.ascending(nodes[a], nodes[b]); })},
+            measure: {x: d3.range(headers.length).sort(function(a, b) { return d3.ascending(headers[a], headers[b]); })}
+          };
+          x.domain(orders.measure.x);
+          y.domain(orders.name.y);
 
-        // Precompute the orders.
-        var orders = {
-          name: {y: d3.range(n).sort(function(a, b) { return d3.ascending(nodes[a], nodes[b]); })},
-          measure: {x: d3.range(headers.length).sort(function(a, b) { return d3.ascending(headers[a], headers[b]); })}
-        };
-        x.domain(orders.measure.x);
-        y.domain(orders.name.y);
+          svg.append("rect")
+              .attr("class", "background")
+              .attr("width", width)
+              .attr("height", height);
 
-        svg.append("rect")
-            .attr("class", "background")
-            .attr("width", width)
-            .attr("height", height);
-
-        var row = svg.selectAll(".row")
-            .data(matrix)
-          .enter().append("g")
-            .attr("class", "row")
-            .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
-            .each(row);
-
-        row.append("line")
-            .attr("x2", width);
-
-        row.append("text")
-            .attr("x", -6)
-            .attr("y", x.rangeBand() / 2)
-            .attr("dy", ".32em")
-            .attr("text-anchor", "end")
-            .text(function(d, i) { return nodes[i]; });
-
-        var column = svg.selectAll(".column")
-            .data(headers)
-          .enter().append("g")
-            .attr("class", "column")
-            .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
-
-        column.append("line")
-            .attr("x1", -width);
-
-        column.append("text")
-            .attr("x", 6)
-            .attr("y", x.rangeBand() / 2)
-            .attr("dy", ".32em")
-            .attr("text-anchor", "start")
-            .text(function(d, i) { return headers[i]; });
-
-        function row(row) {
-          var cell = d3.select(this).selectAll(".cell")
-              .data(row.filter(function(d) { return d.z; }))
-            .enter().append("rect")
-              .attr("class", "cell")
-              .attr("x", function(d) { return x(d.x); })
-              .attr("width", x.rangeBand())
-              .attr("height", y.rangeBand())
-              .style("fill-opacity", function(d) { return z(d.z); })
-              .style("fill", function(d){return colors[d.category] })//.style("fill", function(d) { return nodes[d.x].group == nodes[d.y].group ? c(nodes[d.x].group) : null; })
-              .on("mouseover", mouseover)
-              .on("mouseout", mouseout);
-        }
-
-        function mouseover(p) {
-          d3.selectAll(".row text").classed("active", function(d, i) { return i == p.y; });
-          d3.selectAll(".column text").classed("active", function(d, i) { return i == p.x; });
-        }
-
-        function mouseout() {
-          d3.selectAll("text").classed("active", false);
-        }
-
-        d3.select("#order").on("change", function() {
-          clearTimeout(timeout);
-          order(this.value);
-        });
-        function order(value) {
-
-          var t = svg.transition().duration(2500);
-
-          t.selectAll(".row")
-              .delay(function(d, i) { return x(i) * 4; })
+          var row = svg.selectAll(".row")
+              .data(matrix)
+            .enter().append("g")
+              .attr("class", "row")
               .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
-            .selectAll(".cell")
-              .delay(function(d) { return x(d.x) * 4; })
-              .attr("x", function(d) { return x(d.x); });
+              .each(row);
 
-          t.selectAll(".column")
-              .delay(function(d, i) { return x(i) * 4; })
+          row.append("line")
+              .attr("x2", width);
+
+          row.append("text")
+              .attr("x", -6)
+              .attr("y", x.rangeBand() / 2)
+              .attr("dy", ".32em")
+              .attr("text-anchor", "end")
+              .text(function(d, i) { return nodes[i]; });
+
+          var column = svg.selectAll(".column")
+              .data(headers)
+            .enter().append("g")
+              .attr("class", "column")
               .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
-        }
+
+          column.append("line")
+              .attr("x1", -width);
+
+          column.append("text")
+              .attr("x", 6)
+              .attr("y", x.rangeBand() / 2)
+              .attr("dy", ".32em")
+              .attr("text-anchor", "start")
+              .text(function(d, i) { return headers[i]; });
+
+          function row(row) {
+            var cell = d3.select(this).selectAll(".cell")
+                .data(row.filter(function(d) { return d.z; }))
+              .enter().append("rect")
+                .attr("class", "cell")
+                .attr("x", function(d) { return x(d.x); })
+                .attr("width", x.rangeBand())
+                .attr("height", y.rangeBand())
+                .style("fill-opacity", function(d) { return z(d.z); })
+                .style("fill", function(d){return colors[d.category] })//.style("fill", function(d) { return nodes[d.x].group == nodes[d.y].group ? c(nodes[d.x].group) : null; })
+                .on("mouseover", mouseover)
+                .on("mouseout", mouseout);
+          }
+
+          function mouseover(p) {
+            d3.selectAll(".row text").classed("active", function(d, i) { return i == p.y; });
+            d3.selectAll(".column text").classed("active", function(d, i) { return i == p.x; });
+          }
+
+          function mouseout() {
+            d3.selectAll("text").classed("active", false);
+          }
+
+          d3.select("#order").on("change", function() {
+            clearTimeout(timeout);
+            order(this.value);
+          });
+          function order(value) {
+
+            var t = svg.transition().duration(2500);
+
+            t.selectAll(".row")
+                .delay(function(d, i) { return x(i) * 4; })
+                .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
+              .selectAll(".cell")
+                .delay(function(d) { return x(d.x) * 4; })
+                .attr("x", function(d) { return x(d.x); });
+
+            t.selectAll(".column")
+                .delay(function(d, i) { return x(i) * 4; })
+                .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+          }
+        });
       });
     }
   );
@@ -164,6 +168,10 @@
 
   <p id="key"></p>
   </aside>
-
+  <div class="modal hide fade in" id="loadingModal">
+    <div class="modal-body" style="text-align: center;">
+      <img id="loading_image" src="/assets/loading.gif" />
+    </div>
+  </div>
 <% end %>
 
