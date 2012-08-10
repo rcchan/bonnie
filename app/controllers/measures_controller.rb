@@ -193,8 +193,8 @@ class MeasuresController < ApplicationController
   def test
     @population = params[:population] || 0
     @measure = Measure.find(params[:id])
-    @patient_names = Record.all.collect {|r| [
-      "#{r[:first]} #{r[:last]}",
+    @patient_names = (Record.all.sort {|left, right| left.last <=> right.last }).collect {|r| [
+      "#{r[:last]}, #{r[:first]}",
       r[:_id].to_s,
       {'description' => r['description'], 'category' => r['description_category']},
       {'start' => r['measure_period_start'], 'end' => r['measure_period_end']},
