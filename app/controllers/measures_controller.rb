@@ -321,7 +321,7 @@ class MeasuresController < ApplicationController
   def generate_matrix
     Measure.all.to_a.each{|m|
       next if ['0385', '0712'].include? m['measure_id']
-      (m['populations'].length > 1 ? ('a'..'z').to_a.first(m['populations'].length) : [nil]).each{|sub_id|
+      (m['populations'].length > 1 ? ('a'..'zz').to_a.first(m['populations'].length) : [nil]).each{|sub_id|
         p 'Calculating measure ' + m['measure_id'] + (sub_id || '')
         qr = QME::QualityReport.new(m['measure_id'], sub_id, {'effective_date' => params['effective_date'].to_i || 1262322000}.merge(params['providers'] ? {'filters' => {'providers' => params['providers']}} : {}))
         qr.calculate(false) unless qr.calculated?
@@ -333,7 +333,7 @@ class MeasuresController < ApplicationController
   def matrix_data
     determine_connection_information('bonnie-development')
     @db = get_db
-    render :json => @db['patient_cache'].find({}, :fields => ['population', 'denominator', 'numerator', 'denexcep', 'exclusions', 'first', 'last', 'gender', 'measure_id', 'birthdate', 'patient_id'].map{|k| 'value.'+k } )
+    render :json => @db['patient_cache'].find({}, :fields => ['population', 'denominator', 'numerator', 'denexcep', 'exclusions', 'first', 'last', 'gender', 'measure_id', 'birthdate', 'patient_id', 'sub_id'].map{|k| 'value.'+k } )
   end
 
 end

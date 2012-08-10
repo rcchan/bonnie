@@ -24,9 +24,9 @@
           var headers = [], data = {};
           raw_data.forEach(
             function(e){
-              var index = headers.indexOf(e.value.measure_id);
+              var index = headers.indexOf(e.value.measure_id + (e.value.sub_id || ''));
               (data[e.value.last+', '+e.value.first] = data[e.value.last+', '+e.value.first] || []).push ({
-                x: index > -1 ? index : headers.push(e.value.measure_id) - 1,
+                x: index > -1 ? index : headers.push(e.value.measure_id + (e.value.sub_id || '')) - 1,
                 z: 4,
                 category: e.value.exclusions ? 5 : e.value.numerator ? 4 : e.value.denominator ? 3 : e.value.denexcep ? 2 : e.value.population ? 1 : 0
                 })
@@ -43,9 +43,9 @@
           }
           n = matrix.length;
 
-          var margin = {top: 120, right: 0, bottom: 10, left: 150},
+          var margin = {top: 150, right: 0, bottom: 10, left: 150},
               width = $('#pageContent').width() - 300 - margin.left - margin.right,
-              height = n * 20 + margin.top + margin.bottom + 100;
+              height = n * 15 + margin.top + margin.bottom + 100;
 
           var x = d3.scale.ordinal().rangeBands([0, width]),
               y = d3.scale.ordinal().rangeBands([0, height]),
