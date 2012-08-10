@@ -21,30 +21,24 @@
         function(){
           d3.json("<%= url_for :action => 'matrix_data' %>", function(raw_data) {
           $('#loadingModal').modal('hide');
-          var headers = [], data = {};
+          var headers = [], matrix = [], nodes = [], row_info = {};
           raw_data.forEach(
             function(e){
               var index = headers.indexOf(e.value.measure_id + (e.value.sub_id || ''));
-              (data[e.value.patient_id] = data[e.value.patient_id] || []).push ({
-                _id: e._id,
-                id: e.value.patient_id,
+              row_info[e.value.patient_id] = {
                 first: e.value.first,
-                last: e.value.last,
+                last: e.value.last
+              };
+              var indey = nodes.indexOf(e.value.patient_id);
+              (matrix[indey] || matrix[matrix.push([]) - 1]).push ({
                 x: index > -1 ? index : headers.push(e.value.measure_id + (e.value.sub_id || '')) - 1,
+                y: indey > -1 ? indey : nodes.push(e.value.patient_id) - 1,
                 z: 4,
                 category: e.value.exclusions ? 5 : e.value.numerator ? 4 : e.value.denominator ? 3 : e.value.denexcep ? 2 : e.value.population ? 1 : 0
               })
             }
           );
 
-          var matrix = [], nodes = [];
-          for (key in data){
-            var i = nodes.push(data[key][0].last+', '+data[key][0].first);
-            data[key].forEach(function(e){
-              e.y = i - 1;
-            });
-            matrix.push(data[key]);
-          }
           n = matrix.length;
 
           var margin = {top: 120, right: 0, bottom: 10, left: 150},
@@ -68,10 +62,12 @@
 
           // Precompute the orders.
           var orders = {
-            name: {y: d3.range(n).sort(function(a, b) { return d3.ascending(nodes[a], nodes[b]); })},
-            measure: {x: d3.range(headers.length).sort(function(a, b) { return d3.ascending(headers[a], headers[b]); })}
+            name: {
+              x: d3.range(headers.length).sort(function(a, b) { return d3.ascending(headers[a], headers[b]); }),
+              y: d3.range(n).sort(function(a, b) { return d3.ascending(row_info[nodes[a]].last+row_info[nodes[a]].first, row_info[nodes[b]].last+row_info[nodes[b]].first); })
+            }
           };
-          x.domain(orders.measure.x);
+          x.domain(orders.name.x);
           y.domain(orders.name.y);
 
           svg.append("rect")
@@ -94,7 +90,7 @@
               .attr("y", x.rangeBand() / 2)
               .attr("dy", ".32em")
               .attr("text-anchor", "end")
-              .text(function(d, i) { return nodes[i]; });
+              .text(function(d, i) { return row_info[nodes[i]].last+', '+row_info[nodes[i]].first; });
 
           var column = svg.selectAll(".column")
               .data(headers)
