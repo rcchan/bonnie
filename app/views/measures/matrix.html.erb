@@ -25,17 +25,21 @@
           raw_data.forEach(
             function(e){
               var index = headers.indexOf(e.value.measure_id + (e.value.sub_id || ''));
-              (data[e.value.last+', '+e.value.first] = data[e.value.last+', '+e.value.first] || []).push ({
+              (data[e.value.patient_id] = data[e.value.patient_id] || []).push ({
+                _id: e._id,
+                id: e.value.patient_id,
+                first: e.value.first,
+                last: e.value.last,
                 x: index > -1 ? index : headers.push(e.value.measure_id + (e.value.sub_id || '')) - 1,
                 z: 4,
                 category: e.value.exclusions ? 5 : e.value.numerator ? 4 : e.value.denominator ? 3 : e.value.denexcep ? 2 : e.value.population ? 1 : 0
-                })
+              })
             }
           );
 
           var matrix = [], nodes = [];
           for (key in data){
-            var i = nodes.push(key);
+            var i = nodes.push(data[key][0].last+', '+data[key][0].first);
             data[key].forEach(function(e){
               e.y = i - 1;
             });
@@ -43,7 +47,7 @@
           }
           n = matrix.length;
 
-          var margin = {top: 150, right: 0, bottom: 10, left: 150},
+          var margin = {top: 120, right: 0, bottom: 10, left: 150},
               width = $('#pageContent').width() - 300 - margin.left - margin.right,
               height = n * 15 + margin.top + margin.bottom + 100;
 
