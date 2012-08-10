@@ -17,7 +17,7 @@ class MeasuresController < ApplicationController
   end
 
   def show
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
   end
 
   def show_nqf
