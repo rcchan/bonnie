@@ -21,7 +21,7 @@ gem 'foreman'
 gem 'cancan'
 gem 'factory_girl'
 
-gem "mongo"
+gem "mongo", '1.6.2'
 gem "mongoid"
 gem "bson"
 gem 'bson_ext'
