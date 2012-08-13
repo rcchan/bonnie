@@ -1,6 +1,8 @@
 class Measure
   include Mongoid::Document
 
+  store_in :draft_measures
+
   field :endorser, type: String
   field :measure_id, type: String
   field :title, type: String
