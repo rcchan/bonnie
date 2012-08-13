@@ -16,7 +16,7 @@
   <script type="text/javascript">
   $(document).ready(
     function(){
-      $('#loadingModal').modal();
+      $('#loadingModal').modal({backdrop:'static',keyboard:false});
       $('#loading_image').load(
         function(){
           d3.json("<%= url_for :action => 'matrix_data' %>", function(raw_data) {
@@ -24,18 +24,18 @@
           var headers = [], matrix = [], nodes = [], row_info = {};
           raw_data.forEach(
             function(e){
-              var index = headers.indexOf(e.value.measure_id + (e.value.sub_id || ''));
+              var index = (index = headers.indexOf(e.value.measure_id + (e.value.sub_id || ''))) > -1 ? index : headers.push(e.value.measure_id + (e.value.sub_id || '')) - 1;
               row_info[e.value.patient_id] = {
                 first: e.value.first,
                 last: e.value.last
               };
               var indey = nodes.indexOf(e.value.patient_id);
-              (matrix[indey] || matrix[matrix.push([]) - 1]).push ({
-                x: index > -1 ? index : headers.push(e.value.measure_id + (e.value.sub_id || '')) - 1,
+              (matrix[indey] || matrix[matrix.push([]) - 1])[index] = {
+                x: index,
                 y: indey > -1 ? indey : nodes.push(e.value.patient_id) - 1,
                 z: 4,
                 category: e.value.exclusions ? 5 : e.value.numerator ? 4 : e.value.denominator ? 3 : e.value.denexcep ? 2 : e.value.population ? 1 : 0
-              })
+              }
             }
           );
 
@@ -67,12 +67,8 @@
               y: d3.range(n).sort(function(a, b) { return d3.ascending(row_info[nodes[a]].last+row_info[nodes[a]].first, row_info[nodes[b]].last+row_info[nodes[b]].first); })
             },
             density: {
-              y: d3.range(n).sort(
-                function(a, b){
-                  matrix;headers;arguments;nodes;row_info;
-                  return matrix[a].reduce(function(p, e){ return p + (e.category ? 1 : 0) }) - matrix[b].reduce(function(p, e){ return p + (e.category ? 1 : 0) })
-                }
-              )
+              x: d3.range(headers.length).sort(function(a, b){ return matrix.reduce(function(p, e){ return p + (e[b].category ? 1 : 0) - (e[a].category ? 1: 0); }, 0); }),
+              y: d3.range(n).sort(function(a, b){ return matrix[b].reduce(function(p, e){ return p + (e.category ? 1 : 0) }, 0) - matrix[a].reduce(function(p, e){ return p + (e.category ? 1 : 0); }, 0); })
             }
           };
           x.domain(orders.name.x);
@@ -176,7 +172,7 @@
 
 <% content_for :page_content do %>
   <aside style="margin-top:80px;">
-  <%= link_to 'Generate Matrix Data', {:action => 'generate_matrix'}, {:class => 'btn', :onclick => "$('#loadingModal').modal();", :style => 'margin: 5px 10px 15px 20px'} %>
+  <%= link_to 'Generate Matrix Data', {:action => 'generate_matrix'}, {:class => 'btn', :onclick => "$('#loadingModal').modal({backdrop:'static',keyboard:false});", :style => 'margin: 5px 10px 15px 20px'} %>
   <p>Order Measures: <select id="orderCol">
     <option value="name">by Name</option>
     <option value="density">by Density</option>
