@@ -176,6 +176,7 @@
 
 <% content_for :page_content do %>
   <aside style="margin-top:80px;">
+  <%= link_to 'Generate Matrix Data', {:action => 'generate_matrix'}, {:class => 'btn', :onclick => "$('#loadingModal').modal();", :style => 'margin: 5px 10px 15px 20px'} %>
   <p>Order Measures: <select id="orderCol">
     <option value="name">by Name</option>
     <option value="density">by Density</option>
