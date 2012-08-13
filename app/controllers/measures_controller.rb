@@ -327,7 +327,7 @@ class MeasuresController < ApplicationController
         qr.calculate(false) unless qr.calculated?
       }
     }
-    render :action => :matrix
+    redirect_to :action => 'matrix'
   end
 
   def matrix_data
