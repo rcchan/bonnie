@@ -140,23 +140,30 @@
             d3.selectAll("text").classed("active", false);
           }
 
-          d3.select("#order").on("change", function() {
-            clearTimeout(timeout);
+          d3.select("#orderCol").on("change", function() {
             order(this.value);
           });
-          function order(value) {
 
-            var t = svg.transition().duration(2500);
+          d3.select("#orderRow").on("change", function() {
+            order(null, this.value);
+          });
+
+          function order(col, row) {
+
+            if (orders[col] && orders[col].x) x.domain(orders[col].x);
+            if (orders[row] && orders[row].y) y.domain(orders[row].y);
+
+            var t = svg;//.transition().duration(2500);
 
             t.selectAll(".row")
-                .delay(function(d, i) { return x(i) * 4; })
+                //.delay(function(d, i) { return x(i) * 4; })
                 .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
               .selectAll(".cell")
-                .delay(function(d) { return x(d.x) * 4; })
+                //.delay(function(d) { return x(d.x) * 4; })
                 .attr("x", function(d) { return x(d.x); });
 
             t.selectAll(".column")
-                .delay(function(d, i) { return x(i) * 4; })
+                //.delay(function(d, i) { return x(i) * 4; })
                 .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
           }
         });
@@ -169,12 +176,16 @@
 
 <% content_for :page_content do %>
   <aside style="margin-top:80px;">
-  <p>Order: <select id="order">
+  <p>Order Measures: <select id="orderCol">
     <option value="name">by Name</option>
-    <option value="count">by Frequency</option>
-    <option value="group">by Cluster</option>
+    <option value="density">by Density</option>
   </select>
-
+  </p>
+  <p>Order Rows: <select id="orderRow">
+    <option value="name">by Name</option>
+    <option value="density">by Density</option>
+  </select>
+  </p>
   <p id="key"></p>
   </aside>
   <div class="modal hide fade in" id="loadingModal">
