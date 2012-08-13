@@ -323,7 +323,7 @@ class MeasuresController < ApplicationController
       next if ['0385', '0712'].include? m['measure_id']
       (m['populations'].length > 1 ? ('a'..'zz').to_a.first(m['populations'].length) : [nil]).each{|sub_id|
         p 'Calculating measure ' + m['measure_id'] + (sub_id || '')
-        qr = QME::QualityReport.new(m['measure_id'], sub_id, {'effective_date' => params['effective_date'].to_i || 1262322000}.merge(params['providers'] ? {'filters' => {'providers' => params['providers']}} : {}))
+        qr = QME::QualityReport.new(m['measure_id'], sub_id, {'effective_date' => (params['effective_date'] || 1262322000).to_i }.merge(params['providers'] ? {'filters' => {'providers' => params['providers']}} : {}))
         qr.calculate(false) unless qr.calculated?
       }
     }
