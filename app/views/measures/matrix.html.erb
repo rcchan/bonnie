@@ -65,6 +65,14 @@
             name: {
               x: d3.range(headers.length).sort(function(a, b) { return d3.ascending(headers[a], headers[b]); }),
               y: d3.range(n).sort(function(a, b) { return d3.ascending(row_info[nodes[a]].last+row_info[nodes[a]].first, row_info[nodes[b]].last+row_info[nodes[b]].first); })
+            },
+            density: {
+              y: d3.range(n).sort(
+                function(a, b){
+                  matrix;headers;arguments;nodes;row_info;
+                  return matrix[a].reduce(function(p, e){ return p + (e.category ? 1 : 0) }) - matrix[b].reduce(function(p, e){ return p + (e.category ? 1 : 0) })
+                }
+              )
             }
           };
           x.domain(orders.name.x);
