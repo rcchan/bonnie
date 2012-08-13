@@ -330,9 +330,7 @@ class MeasuresController < ApplicationController
   end
 
   def matrix_data
-    determine_connection_information('bonnie-development')
-    @db = get_db
-    render :json => @db['patient_cache'].find({}, :fields => ['population', 'denominator', 'numerator', 'denexcep', 'exclusions', 'first', 'last', 'gender', 'measure_id', 'birthdate', 'patient_id', 'sub_id'].map{|k| 'value.'+k } )
+    render :json => MONGO_DB['patient_cache'].find({}, :fields => ['population', 'denominator', 'numerator', 'denexcep', 'exclusions', 'first', 'last', 'gender', 'measure_id', 'birthdate', 'patient_id', 'sub_id'].map{|k| 'value.'+k } )
   end
 
 end
