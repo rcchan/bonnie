@@ -137,30 +137,35 @@
           }
 
           d3.select("#orderCol").on("change", function() {
-            order(this.value);
+            orderCol(this.value);
           });
 
           d3.select("#orderRow").on("change", function() {
-            order(null, this.value);
+            orderRow(this.value);
           });
 
-          function order(col, row) {
-
-            if (orders[col] && orders[col].x) x.domain(orders[col].x);
+          function orderRow(row) {
             if (orders[row] && orders[row].y) y.domain(orders[row].y);
+
+            var t = svg.transition().duration(2500);
+
+            t.selectAll(".row")
+                .delay(function(d, i) { return y(i) / 2 ; })
+                .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
+          }
+          function orderCol(col){
+            if (orders[col] && orders[col].x) x.domain(orders[col].x);
 
             var t = svg;//.transition().duration(2500);
 
-            t.selectAll(".row")
-                //.delay(function(d, i) { return x(i) * 4; })
-                .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
-              .selectAll(".cell")
+            t.selectAll(".row .cell")
                 //.delay(function(d) { return x(d.x) * 4; })
                 .attr("x", function(d) { return x(d.x); });
 
             t.selectAll(".column")
                 //.delay(function(d, i) { return x(i) * 4; })
                 .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+
           }
         });
       });
