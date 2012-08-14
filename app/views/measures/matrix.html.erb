@@ -124,7 +124,16 @@
                 .style("fill-opacity", function(d) { return z(d.z); })
                 .style("fill", function(d){return colors[d.category] })
                 .on("mouseover", mouseover)
-                .on("mouseout", mouseout);
+                .on("mouseout", mouseout)
+                .on('click',
+                  function(i){
+                    document.location.href = '<%= url_for edit_patient_measure_path(:id => '$1', :patient_id => '$2') %>'.replace(/\$(\d+)\b/g,
+                      function(m, g1){
+                        return [headers[i.x].replace(/(\d+)[a-z]{1,2}/, "$1"), nodes[i.y]][g1-1];
+                      }
+                    );
+                  }
+                );
           }
 
           function mouseover(p) {
