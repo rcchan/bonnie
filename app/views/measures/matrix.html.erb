@@ -111,7 +111,7 @@
               .attr("dy", ".32em")
               .attr("text-anchor", "start")
               .text(function(d, i) { return headers[i]; })
-              .on('click', function(i){document.location.href = '/measures/' + i;});
+              .on('click', function(i){document.location.href = '/measures/' + i.replace(/(\d+)[a-z]{1,2}/, "$1");});
 
           function row(row) {
             var cell = d3.select(this).selectAll(".cell")
