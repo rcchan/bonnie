@@ -24,6 +24,7 @@ Bonnie::Application.routes.draw do
       get 'patient_builder/:patient_id' => 'Measures#patient_builder', :as => 'edit_patient'
       post :make_patient
       post :delete_patient
+      get :generate_matrix
     end
     collection do
       get :published
