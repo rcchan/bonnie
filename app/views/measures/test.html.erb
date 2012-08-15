@@ -23,6 +23,7 @@
     <%# link_to "Generate Patients", generate_patients_measure_url(@measure), :method => :post, :class => "btn" %>
     <%= link_to "Add Patients", {:action => 'patient_builder'}, {:class => "btn"} %>
     <a href="#downloadPatientsDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Download Patients</a>
+    <%= link_to "Update Matrix", {:action => 'generate_matrix'}, {:class => "btn"} %>
   </div>
 
   <%= render partial: 'download_patients' %>
