@@ -296,6 +296,14 @@ class MeasuresController < ApplicationController
     
     patient = Record.where({'_id' => params['record_id']}).first || HQMF::Generator.create_base_patient(params.select{|k| ['first', 'last', 'gender', 'expired', 'birthdate'].include?k })
 
+    # clear out patient data
+    if (patient.id)
+      ['allergies', 'care_goals', 'conditions', 'encounters', 'immunizations', 'medical_equipment', 'medications', 'procedures', 'results', 'social_history', 'vital_signs'].each do |section|
+        patient[section] = [] if patient[section]
+      end
+      patient.save!
+    end
+
     patient['measure_ids'] ||= []
     patient['measure_ids'] = Array.new(patient['measure_ids']).push(@measure['measure_id']) unless patient['measure_ids'].include? @measure['measure_id']
     
@@ -319,6 +327,7 @@ class MeasuresController < ApplicationController
     patient['source_data_criteria'] = JSON.parse(params['data_criteria'])
     patient['measure_period_start'] = params['measure_period_start'].to_i
     patient['measure_period_end'] = params['measure_period_end'].to_i
+    
     JSON.parse(params['data_criteria']).each {|v|
       data_criteria = HQMF::DataCriteria.from_json(v['id'], @data_criteria[v['id']])
       data_criteria.modify_patient(patient, HQMF::Range.from_json({
@@ -326,6 +335,7 @@ class MeasuresController < ApplicationController
         'high' => {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d')}
       }), HQMF::Range.from_json('low' => {'value' => v['value'], 'unit' => v['value_unit']}), values[data_criteria.code_list_id])
     }
+
     patient['source_data_criteria'].push({'id' => 'MeasurePeriod', 'start_date' => params['measure_period_start'].to_i, 'end_date' => params['measure_period_end'].to_i})
 
     if @measure.records.include? patient
