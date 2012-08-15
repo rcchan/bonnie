@@ -348,6 +348,8 @@ class MeasuresController < ApplicationController
 
   def generate_matrix
     (params[:id] ? [current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first] : Measure.all.to_a).each{|m|
+      MONGO_DB['query_cache'].remove({'measure_id' => m['measure_id']})
+      MONGO_DB['patient_cache'].remove({'value.measure_id' => m['measure_id']})
       (m['populations'].length > 1 ? ('a'..'zz').to_a.first(m['populations'].length) : [nil]).each{|sub_id|
         p 'Calculating measure ' + m['measure_id'] + (sub_id || '')
         qr = QME::QualityReport.new(m['measure_id'], sub_id, {'effective_date' => (params['effective_date'] || Measure::DEFAULT_EFFECTIVE_DATE).to_i }.merge(params['providers'] ? {'filters' => {'providers' => params['providers']}} : {}))
