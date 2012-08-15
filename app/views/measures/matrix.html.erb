@@ -24,7 +24,10 @@
           var headers = [], matrix = [], nodes = [], row_info = {};
           raw_data.forEach(
             function(e){
-              var index = (index = headers.indexOf([e.value.measure_id, e.value.sub_id])) > -1 ? index : headers.push([e.value.measure_id, e.value.sub_id]) - 1;
+              var index = (index = (function(a, v){
+                for(var i = 0; i < a.length; i++) if (!(a[i] > v) && !(a[i] < v)) return i;
+                return -1;
+              })(headers, [e.value.measure_id, e.value.sub_id]) > -1 ? index : headers.push([e.value.measure_id, e.value.sub_id]) - 1);
               row_info[e.value.patient_id] = {
                 first: e.value.first,
                 last: e.value.last
