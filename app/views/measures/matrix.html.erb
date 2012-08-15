@@ -24,7 +24,7 @@
           var headers = [], matrix = [], nodes = [], row_info = {};
           raw_data.forEach(
             function(e){
-              var index = (index = headers.indexOf(e.value.measure_id + (e.value.sub_id || ''))) > -1 ? index : headers.push(e.value.measure_id + (e.value.sub_id || '')) - 1;
+              var index = (index = headers.indexOf([e.value.measure_id, e.value.sub_id])) > -1 ? index : headers.push([e.value.measure_id, e.value.sub_id]) - 1;
               row_info[e.value.patient_id] = {
                 first: e.value.first,
                 last: e.value.last
@@ -79,7 +79,7 @@
           // Precompute the orders.
           var orders = {
             name: {
-              x: d3.range(headers.length).sort(function(a, b) { return d3.ascending(headers[a], headers[b]); }),
+              x: d3.range(headers.length).sort(function(a, b) { return d3.ascending(headers[a][0] + (headers[a][1] || ''), headers[b][0] + (headers[b][1] || '')); }),
               y: d3.range(n).sort(function(a, b) { return d3.ascending(row_info[nodes[a]].last+row_info[nodes[a]].first, row_info[nodes[b]].last+row_info[nodes[b]].first); })
             },
             density: {
@@ -126,8 +126,8 @@
               .attr("y", x.rangeBand() / 2)
               .attr("dy", ".32em")
               .attr("text-anchor", "start")
-              .text(function(d, i) { return headers[i]; })
-              .on('click', function(i){document.location.href = '/measures/' + i.replace(/(\d+)[a-z]{1,2}/, "$1");});
+              .text(function(d, i) { return headers[i][0] + (headers[i][1] || ''); })
+              .on('click', function(i){document.location.href = '/measures/' + i[0]});
 
           function row(row) {
             var cell = d3.select(this).selectAll(".cell")
@@ -145,7 +145,7 @@
                   function(i){
                     document.location.href = '<%= url_for edit_patient_measure_path(:id => '$1', :patient_id => '$2') %>'.replace(/\$(\d+)\b/g,
                       function(m, g1){
-                        return [headers[i.x].replace(/(\d+)[a-z]{1,2}/, "$1"), nodes[i.y]][g1-1];
+                        return [headers[i.x][0], nodes[i.y]][g1-1];
                       }
                     );
                   }
