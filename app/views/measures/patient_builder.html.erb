@@ -2,9 +2,9 @@
   <script type="text/javascript">
 
   var page = new PatientBuilderPage(
-    <%= @measure.all_data_criteria.to_json.html_safe %>,
-    <%= @measure.value_sets.to_json.html_safe %>,
-    <%= if params['patient_id'] then @measure.records.select{|v| v['_id'].to_s == params['patient_id']}[0]['source_data_criteria'] end .to_json.html_safe %>
+    <%= @data_criteria.to_json.html_safe %>,
+    <%= @value_sets.to_json.html_safe %>,
+    <%= @record['source_data_criteria'].to_json.html_safe %>
   );
 
   $(document).ready(function() {
@@ -617,7 +617,12 @@
       <%= link_to 'Back', measures_path %>
 
       <div id="dataCriteria" style="overflow-y: auto; height: 650px;">
-        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria.reject{|k,v| ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition']) }), patient_builder: true}%>
+        <%=
+          render partial: 'data_criteria', locals: {
+            criteria_by_category: data_criteria_by_category(@data_criteria),
+            patient_builder: true
+          }
+        %>
       </div>
     </div>
   </div>

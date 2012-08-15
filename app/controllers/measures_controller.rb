@@ -280,7 +280,15 @@ class MeasuresController < ApplicationController
 
   def patient_builder
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    @record = @measure.records.select{|r| r['_id'].to_s == params[:patient_id]}[0] || {}
+    @record = Record.where({'_id' => params[:patient_id]}).first || {}
+    @data_criteria = Hash[
+      *Measure.where({'measure_id' => {'$in' => (@record['measures'] || []) << @measure['measure_id']}}).map{|m|
+        m.source_data_criteria.reject{|k,v|
+          ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition'])
+        }
+      }.map(&:to_a).flatten
+    ]
+    @value_sets = Measure.where({'measure_id' => {'$in' => @record['measures'] || []}}).map{|m| m.value_sets}.flatten(1).uniq
   end
 
   def make_patient
