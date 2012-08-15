@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 73b6ac2f2c0dd6b0dfb02389bb1c9fc367e99268
+  revision: 4933e1f590950f2267ffb716cf63b99a4b55445b
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 6f2508d1a86776e31e0dfd97442e84031e69fe22
+  revision: 5cc54aaa5edef831b07ec4ff85dda121462d001a
   branch: develop
   specs:
     hqmf2js (0.1.0)
@@ -35,14 +35,14 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: 35ff936592bf160dd05524c1b84f857ab45958e4
+  revision: adc3a8318289f776fd29dca595786e9e7af31c8b
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 696e1c8a7c22e5239d9f89f898f946ddbd2abd1d
+  revision: 479d5f24e4e4af9ebde1a02c74fa1d88469f978d
   branch: master
   specs:
     test-patient-generator (0.1.0)
@@ -121,7 +121,7 @@ GEM
       multi_json (~> 1.0)
     factory_girl (3.2.0)
       activesupport (>= 3.0.0)
-    faraday (0.8.2)
+    faraday (0.8.4)
       multipart-post (~> 1.1)
     ffi (1.0.11)
     foreman (0.46.0)
