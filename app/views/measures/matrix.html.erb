@@ -67,7 +67,7 @@
               y: d3.range(n).sort(function(a, b) { return d3.ascending(row_info[nodes[a]].last+row_info[nodes[a]].first, row_info[nodes[b]].last+row_info[nodes[b]].first); })
             },
             density: {
-              x: d3.range(headers.length).sort(function(a, b){ return matrix.reduce(function(p, e){ return p + (e[b].category ? 1 : 0) - (e[a].category ? 1: 0); }, 0); }),
+              x: d3.range(headers.length).sort(function(a, b){ return matrix.reduce(function(p, e){ return p + (e[b] && e[b].category ? 1 : 0) - (e[a] && e[a].category ? 1: 0); }, 0); }),
               y: d3.range(n).sort(function(a, b){ return matrix[b].reduce(function(p, e){ return p + (e.category ? 1 : 0) }, 0) - matrix[a].reduce(function(p, e){ return p + (e.category ? 1 : 0); }, 0); })
             }
           };
