@@ -56,6 +56,11 @@
               d3.select('#key').append('div')
                 .style('background', colors[i])
                 .text(['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i])
+                .on('hover',
+                  function(){
+                    arguments;debugger;
+                  }
+                )
                 .on('click',
                   function(){
                     var hl = $(this).parent().children().toArray().indexOf(this);

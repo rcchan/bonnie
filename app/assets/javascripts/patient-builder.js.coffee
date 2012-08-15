@@ -96,15 +96,37 @@ class @bonnie.PatientBuilder
       onSelect: (selectedDate) -> $( "#element_start" ).datetimepicker( "option", "maxDate", new Date(selectedDate) )
     }).datetimepicker('setDate', new Date(data_criteria.end_date));
 
-    $('#element_value').val(data_criteria.value)
-    $('#element_value_unit').val(data_criteria.value_unit)
+    element.find('input.value_type[type=radio]').change(
+        ( ->
+          element.find('input.value_type[type=radio]').not(@).prop('checked', null)
+          element.find('.criteria_value_value').children().show().not('.' +
+            switch(if @ instanceof String then @toString() else $(@).val())
+              when 'PQ' then 'data_criteria_value'
+              when 'CD' then 'data_criteria_oid'
+          ).hide()
+          arguments.callee
+        ).call data_criteria.value && data_criteria.value.type || 'PQ'
+      ).filter('[value=' + (data_criteria.value && data_criteria.value.type || 'PQ') + ']').prop('checked', 'checked')
+    element.find('select.data_criteria_oid').val(data_criteria.value && data_criteria.value.code_list_id)
 
     $('#element_update').click(=>
       data_criteria = @selectedDataCriteria($('#element_id').val())
       data_criteria.start_date = new Date($('#element_start').val()).getTime()
       data_criteria.end_date = new Date($('#element_end').val()).getTime()
-      data_criteria.value = $('#element_value').val()
-      data_criteria.value_unit = $('#element_value_unit').val()
+      data_criteria.value = switch $(element).find('.criteria_value input.value_type[type=radio]:checked').val()
+        when 'PQ'
+          {
+            type: 'PQ'
+            value: $('#element_value').val()
+            unit: $('#element_value_unit').val()
+          } if $('#element_value').val()
+        when 'CD'
+          {
+            type: 'CD'
+            code_list_id: $(element).find('.criteria_value .data_criteria_oid').val()
+            title: $(element).find('.criteria_value .data_criteria_oid > option:selected').text()
+          } if $(element).find('.criteria_value .data_criteria_oid').val()
+
       @updateTimeline()
       @timelineToDataCriteria(data_criteria)
       $('#workspace').empty()

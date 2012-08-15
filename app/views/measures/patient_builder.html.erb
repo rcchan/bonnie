@@ -554,33 +554,43 @@
         </div>
       </div>
 
-      <div class="row">
-        <div class="span1">
-          &nbsp;
-        </div>
-        <div class="span3">
-          <div class="span1" style="margin:0">
-            scalar
-          </div>
-          <div class="span1">
-            unit
-          </div>
-        </div>
-      </div>
-      <div class="row">
+      <div class="row criteria_value">
         <div class="span1">
         Value
         </div>
         <div class="span3">
-          <div class="span1" style="margin:0">
-            <input type="text" style="width: 60px;" value="" id="element_value" >
+          <div>
+            <label><input type="radio" class="value_type" value="PQ" />Value</label>
+            <label><input type="radio" class="value_type" value="CD" />Coded</label>
           </div>
-          <div class="span1">
-            <input type="text" style="width: 60px;" value="" id="element_value_unit" >
+          <div class="criteria_value_value">
+            <div class="data_criteria_value">
+              <div>
+                <div class="span3">
+                  <div class="span1" style="margin:0">
+                    scalar
+                  </div>
+                  <div class="span1">
+                    unit
+                  </div>
+                </div>
+              </div>
+              <div class="span1" style="margin:0">
+                <input type="text" style="width: 60px;"{{if value}} value="${value.value}"{{/if}} id="element_value" >
+              </div>
+              <div class="span1">
+                <input type="text" style="width: 60px;"{{if value}} value="${value.unit}"{{/if}} id="element_value_unit" >
+              </div>
+            </div>
+            <select class="data_criteria_oid">
+              <option value="">--</option>
+              {{each bonnie.patientBuilder.value_sets}}
+                <option value="${$index}">${$value.concept}</option>
+              {{/each}}
+            </select>
           </div>
         </div>
       </div>
-
       <div class="row">
         <div class="span4">
           <span class="btn" id="element_update">Update</span>
