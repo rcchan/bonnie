@@ -282,13 +282,13 @@ class MeasuresController < ApplicationController
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @record = Record.where({'_id' => params[:patient_id]}).first || {}
     @data_criteria = Hash[
-      *Measure.where({'measure_id' => {'$in' => (@record['measures'] || []) << @measure['measure_id']}}).map{|m|
+      *Measure.where({'measure_id' => {'$in' => (@record['measure_ids'] || []) << @measure['measure_id']}}).map{|m|
         m.source_data_criteria.reject{|k,v|
           ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition'])
         }
       }.map(&:to_a).flatten
     ]
-    @value_sets = Measure.where({'measure_id' => {'$in' => @record['measures'] || []}}).map{|m| m.value_sets}.flatten(1).uniq
+    @value_sets = Measure.where({'measure_id' => {'$in' => @record['measure_ids'] || []}}).map{|m| m.value_sets}.flatten(1).uniq
   end
 
   def make_patient
@@ -296,11 +296,11 @@ class MeasuresController < ApplicationController
     
     patient = Record.where({'_id' => params['record_id']}).first || HQMF::Generator.create_base_patient(params.select{|k| ['first', 'last', 'gender', 'expired', 'birthdate'].include?k })
 
-    patient['measures'] ||= []
-    patient['measures'] = Array.new(patient['measures']).push(@measure['measure_id']) unless patient['measures'].include? @measure['measure_id']
+    patient['measure_ids'] ||= []
+    patient['measure_ids'] = Array.new(patient['measure_ids']).push(@measure['measure_id']) unless patient['measure_ids'].include? @measure['measure_id']
     
     values = Hash[
-      *Measure.where({'measure_id' => {'$in' => patient['measures'] || []}}).map{|m|
+      *Measure.where({'measure_id' => {'$in' => patient['measure_ids'] || []}}).map{|m|
         m.value_sets.map{|v| [v['oid'], v]}
       }.map(&:to_a).flatten
     ]
@@ -308,7 +308,7 @@ class MeasuresController < ApplicationController
     params['birthdate'] = params['birthdate'].to_i / 1000
     
     @data_criteria = Hash[
-      *Measure.where({'measure_id' => {'$in' => patient['measures'] || []}}).map{|m|
+      *Measure.where({'measure_id' => {'$in' => patient['measure_ids'] || []}}).map{|m|
         m.source_data_criteria.reject{|k,v|
           ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition'])
         }

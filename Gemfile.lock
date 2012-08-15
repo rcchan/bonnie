@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 3d008a29b47eae770ae7d571237e00ab50f4cdfd
+  revision: 73b6ac2f2c0dd6b0dfb02389bb1c9fc367e99268
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: c30589b58408c08a1e272d0645cb4ae6c49046d4
+  revision: 6f2508d1a86776e31e0dfd97442e84031e69fe22
   branch: develop
   specs:
     hqmf2js (0.1.0)
@@ -35,21 +35,21 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: b035d0f38df1231b6f2128d3fba421e148ec135d
+  revision: 35ff936592bf160dd05524c1b84f857ab45958e4
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 853f672099773afd6627de5ed8c0d4c55f6c52fe
+  revision: c00058b540064d6454a75db77a1e5af16a65ab89
   branch: master
   specs:
     test-patient-generator (0.1.0)
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: 2b3c4d20a074e2e21c9d1c856d9fc1b5edf142f2
+  revision: 11d89f2ee79f5d77492ff94bf7f7642d7b8fa777
   branch: develop
   specs:
     health-data-standards (1.0.1)
@@ -168,9 +168,9 @@ GEM
       metaclass (~> 0.0.1)
     mongo (1.6.2)
       bson (~> 1.6.2)
-    mongoid (2.4.10)
+    mongoid (2.4.12)
       activemodel (~> 3.1)
-      mongo (~> 1.3)
+      mongo (<= 1.6.2)
       tzinfo (~> 0.3.22)
     multi_json (1.3.6)
     multipart-post (1.1.5)
