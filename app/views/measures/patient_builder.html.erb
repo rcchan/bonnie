@@ -37,8 +37,10 @@
       data_criteria.end_date += date.getTime() -  data_criteria.start_date;
       data_criteria.start_date = date.getTime();
 
-      $('#element_start').datetimepicker('setDate', new Date(data_criteria.start_date));
-      $('#element_end').datetimepicker('setDate', new Date(data_criteria.end_date));
+      if (data_criteria.id == $('#element_id').val()){
+        $('#element_start').datetimepicker('setDate', new Date(data_criteria.start_date));
+        $('#element_end').datetimepicker('setDate', new Date(data_criteria.end_date));
+      }
 
       bonnie.patientBuilder.updateTimeline();
       bonnie.timeline.getBand(0).setCenterVisibleDate(date)
@@ -140,9 +142,13 @@
         $.each(bonnie.patientBuilder.selected_data_criteria,
           function(i, e){
             var old_date = new Date(e.start_date);
-            e.start_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds());
+            e.start_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()).getTime();
             old_date = new Date(e.end_date);
-            e.end_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds());
+            e.end_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()).getTime();
+            if (e.id == $('#element_id').val()){
+              $('#element_start').datetimepicker('setDate', new Date(e.start_date));
+              $('#element_end').datetimepicker('setDate', new Date(e.end_date));
+            }
           }
         );
 
