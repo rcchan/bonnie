@@ -51,7 +51,23 @@
               c = d3.scale.category10().domain(d3.range(10)),
               colors = ['#eeeeee', '#cccccc', '#cccccc', '#40b3bc', '#9cc45e', '#eda039'];
 
-          d3.range(6).forEach(function(i){d3.select('#key').append('div').style('background', colors[i]).text(['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i])});
+          d3.range(6).forEach(
+            function(i){
+              d3.select('#key').append('div')
+                .style('background', colors[i])
+                .text(['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i])
+                .on('click',
+                  function(){
+                    var hl = $(this).parent().children().toArray().indexOf(this);
+                    d3.selectAll('.cell').each(
+                      function(i){
+                        $(this).css('opacity', !hl || i.category == hl ? 1 : .4);
+                      }
+                    );
+                  }
+                );
+            }
+          );
 
           var svg = d3.select("#pageContent").append("svg")
             .attr("width", width + margin.left + margin.right)
