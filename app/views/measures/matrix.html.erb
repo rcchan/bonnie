@@ -21,26 +21,9 @@
         function(){
           d3.json("<%= url_for :action => 'matrix_data' %>", function(raw_data) {
           $('#loadingModal').modal('hide');
-          var headers = [], matrix = [], nodes = [], row_info = {};
-          raw_data.forEach(
-            function(e){
-              var index = (index = (function(a, v){
-                for(var i = 0; i < a.length; i++) if (!(a[i] > v) && !(a[i] < v)) return i;
-                return -1;
-              })(headers, [e.value.measure_id, e.value.sub_id]) > -1 ? index : headers.push([e.value.measure_id, e.value.sub_id]) - 1);
-              row_info[e.value.patient_id] = {
-                first: e.value.first,
-                last: e.value.last
-              };
-              var indey = nodes.indexOf(e.value.patient_id);
-              (matrix[indey] || matrix[matrix.push([]) - 1])[index] = {
-                x: index,
-                y: indey > -1 ? indey : nodes.push(e.value.patient_id) - 1,
-                z: 4,
-                category: e.value.exclusions ? 5 : e.value.numerator ? 4 : e.value.denominator ? 3 : e.value.denexcep ? 2 : e.value.population ? 1 : 0
-              }
-            }
-          );
+          var headers = [], nodes = [], row_info = {};
+          
+          var matrix = buildMatrix(raw_data, headers, nodes, row_info)
 
           n = matrix.length;
 
@@ -159,6 +142,54 @@
                   }
                 );
           }
+          
+          function buildMatrix(raw_data, headers, nodes, row_info) {
+            var matrix = []
+            raw_data.forEach(
+              function(patient_cache_row){
+                
+                var current_measure = [patient_cache_row.value.measure_id, patient_cache_row.value.sub_id];
+                var patient_id = patient_cache_row.value.patient_id;
+                var x = getHeaderIndex(headers, current_measure)
+                var y = getPatientIndex(nodes, patient_id)
+                
+                row_info[patient_id] = {
+                  first: patient_cache_row.value.first,
+                  last: patient_cache_row.value.last
+                };
+                
+                matrix_column = (matrix[y] || matrix[matrix.push([]) - 1])
+                category = patient_cache_row.value.exclusions ? 5 : patient_cache_row.value.numerator ? 4 : patient_cache_row.value.denominator ? 3 : patient_cache_row.value.denexcep ? 2 : patient_cache_row.value.population ? 1 : 0
+                
+                matrix_column[x] = {
+                  x: x,
+                  y: y,
+                  z: 4,
+                  category: category
+                }
+              }
+            );
+            return matrix;
+          }
+          
+          function getHeaderIndex(headers, current_measure) {
+            var x = -1;
+            for(var i = 0; i < headers.length; i++) {
+              if (!(headers[i] > current_measure) && !(headers[i] < current_measure)) x = i;
+            }
+            if (x == -1) {
+              x = headers.push(current_measure) - 1
+            }
+            return x;
+          }
+          function getPatientIndex(nodes, patient_id) {
+            var y = nodes.indexOf(patient_id);
+            if (y == -1) {
+              y = nodes.push(patient_id) - 1;
+            }
+            return y;
+          }
+          
 
           function mouseover(p) {
             d3.selectAll(".row text").classed("active", function(d, i) { return i == p.y; });
