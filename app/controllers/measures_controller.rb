@@ -4,7 +4,7 @@ class MeasuresController < ApplicationController
   before_filter :authenticate_user!
   before_filter :validate_authorization!
 
-  add_breadcrumb 'measures', ""
+  add_breadcrumb 'measures', "/measures"
 
   rescue_from Mongoid::Errors::Validations do
     render :template => "measures/edit"
@@ -18,11 +18,14 @@ class MeasuresController < ApplicationController
 
   def show
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
+    add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
   end
 
   def show_nqf
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @contents = File.read(File.expand_path(File.join('.','tmp','measures','html',"#{@measure.id}.html")))
+    add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
+    add_breadcrumb 'NQF Definition', ''
   end
 
   def publish
@@ -48,6 +51,7 @@ class MeasuresController < ApplicationController
   def edit
     @editing=true
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
+    add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id'] + '/edit'
   end
 
   def create
@@ -170,6 +174,10 @@ class MeasuresController < ApplicationController
     @patient = Record.find(params[:record_id])
     @population = (params[:population] || 0).to_i
 
+    add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
+    add_breadcrumb 'Test', '/measures/' + @measure['measure_id'] + '/test'
+    add_breadcrumb 'Inspect Patient', ''
+
     respond_to do |wants|
       wants.html do
         @js = Measures::Exporter.execution_logic(@measure, @population)
@@ -210,6 +218,8 @@ class MeasuresController < ApplicationController
       # now full of ["4fa98074431a5fb25f000132"]
       @patients_posted = @patients_posted.collect {|p| p.keys}.flatten
     end
+    add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
+    add_breadcrumb 'Test', '/measures/' + @measure['measure_id'] + '/test'
   end
 
   ####
@@ -289,6 +299,10 @@ class MeasuresController < ApplicationController
       }.map(&:to_a).flatten
     ]
     @value_sets = Measure.where({'measure_id' => {'$in' => @record['measure_ids'] || []}}).map{|m| m.value_sets}.flatten(1).uniq
+
+    add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
+    add_breadcrumb 'Test', '/measures/' + @measure['measure_id'] + '/test'
+    add_breadcrumb 'Patient Builder', '/measures/' + @measure['measure_id'] + '/patient_builder'
   end
 
   def make_patient
@@ -355,6 +369,7 @@ class MeasuresController < ApplicationController
   end
 
   def matrix
+    add_breadcrumb 'Matrix', '/measures/matrix'
   end
 
   def generate_matrix
