@@ -117,8 +117,15 @@
               .attr("y", x.rangeBand() / 2)
               .attr("dy", ".32em")
               .attr("text-anchor", "start")
+              .attr('data-counts', function(m, i){return JSON.stringify(matrix.reduce(function(p,e){p[(e[i]||{category:0}).category]++; return p;},[0,0,0,0,0,0]));})
               .text(function(d, i) { return headers[i][0] + (headers[i][1] || ''); })
-              .on('click', function(i){document.location.href = '/measures/' + i[0]});
+              .on('click', function(i){document.location.href = '/measures/' + i[0]})
+
+          $('.column text').popover({
+            content:function(){
+              return $(this).data('counts').map(function(e, i){return ['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i] + ': ' + e;}).join('<br />');
+            }
+          });
 
           function row(row) {
             var cell = d3.select(this).selectAll(".cell")
