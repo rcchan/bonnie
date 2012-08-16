@@ -259,8 +259,9 @@
 
       $('#measureEditContainer').on('click', '.conjunction:first-child',
         function(){
-          $('.text_view_highlight').css('border-left-color', 'gainsboro');
-          $(this).parent().css('border-left-color', '#40B3BC').addClass('text_view_highlight');
+          $temp = $(this).parent(':not(.text_view_highlight)');
+          $('.text_view_highlight').css('border-left-color', 'gainsboro').removeClass('text_view_highlight');
+          $temp.css('border-left-color', '#40B3BC').addClass('text_view_highlight');
         }
       );
 
