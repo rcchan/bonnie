@@ -38,8 +38,8 @@
   <% end %>
 
   <ul class="nav nav-tabs" id="mainTabs" style="margin:0.5em">
-    <li<%= ' class="active"'.html_safe if !params['measure_patients'] %>><%= link_to 'All Patients', :action => 'test' %></li>
-    <li<%= ' class="active"'.html_safe if params['measure_patients'] %>><%= link_to 'Measure Patients', test_measure_path(:measure_patients => 'measure_patients') %></li>
+    <li<%= ' class="active"'.html_safe if !params['measure_patients'] %> style="margin-top: 9px"><%= link_to 'All Patients', :action => 'test' %></li>
+    <li<%= ' class="active"'.html_safe if params['measure_patients'] %> style="margin-top: 9px"><%= link_to 'Measure Patients', test_measure_path(:measure_patients => 'measure_patients') %></li>
 
     <li id="selector" style ="float: right; margin-right: 140px;">
       <select id="population_selector">
