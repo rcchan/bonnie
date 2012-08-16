@@ -67,6 +67,12 @@
         $('form#save_patient_builder').trigger('submit');
       }
     );
+    
+    $('#savebutton_matrix').click(
+      function(){
+        $('form#save_patient_builder').data('redirect_matrix', true).trigger('submit');
+      }
+    );
 
   });
 
@@ -606,6 +612,7 @@
 <% content_for :page_content do %>
 
   <div class="pull-right" id="pageButtons">
+    <a href="#" class="btn" id="savebutton_matrix">Save to Matrix</a>
     <a href="#" class="btn" id="savebutton">Save</a>
   </div>
 	<h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
@@ -660,6 +667,7 @@
       <%= form_tag({:action => 'make_patient'}, {:onsubmit => 'bonnie.patientBuilder.save_patient_builder(this); return false', :id => 'save_patient_builder'}) do %>
         <input type="hidden" name="record_id" value="<%= @record['_id'] if !params[:clone] %>"} />
         <input type="hidden" class="redirect_url" value="<%= url_for :action => 'test' %>"} />
+        <input type="hidden" class="redirect_matrix_url" value="<%= url_for :action => 'matrix' %>"} />
         <div style="margin: 5px 0 0 30px;">
           <div class="row">
             <div class="span4">

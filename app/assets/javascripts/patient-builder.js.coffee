@@ -197,7 +197,7 @@ class @bonnie.PatientBuilder
         data_criteria: JSON.stringify(data_criteria)
       }
       success: (r)->
-        document.location.href = $(form).find('input.redirect_url[type=hidden]').val() if r
+        document.location.href = if $(form).data('redirect_matrix') then $(form).find('input.redirect_matrix_url[type=hidden]').val() else $(form).find('input.redirect_url[type=hidden]').val() if r
       error: (XHR, title, r)->
         alert(title + "\n" + r)
     });
