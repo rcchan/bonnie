@@ -248,6 +248,7 @@
 
       $('#text_view').click(
         function(){
+          $('.editing').removeClass('editing');
           if (!$('#text_view_styles').length) $('head').append('<link id="text_view_styles" rel="stylesheet" type="text/css" href="/assets/bonnie/text_view">');
           else $('#text_view_styles').prop('disabled', $('#text_view_styles').prop('disabled') ? null : 'disabled')
 
