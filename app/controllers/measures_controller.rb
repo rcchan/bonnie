@@ -295,6 +295,8 @@ class MeasuresController < ApplicationController
       *Measure.where({'measure_id' => {'$in' => (@record['measure_ids'] || []) << @measure['measure_id']}}).map{|m|
         m.source_data_criteria.reject{|k,v|
           ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition'])
+        }.each{|k,v|
+          v['title'] += ' (' + m.measure_id + ')'
         }
       }.map(&:to_a).flatten
     ]
